@@ -11,15 +11,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Map_umkm">
+
+        <activity android:name=".PesananActivity" />
+        <activity android:name=".WishlistActivity" />
+        <activity android:name=".UlasanActivity" />
+        <activity android:name=".VoucherActivity" />
+        <activity android:name=".PengaturanAkunActivity" />
+        <activity android:name=".AlamatActivity" />
+        <activity android:name=".BantuanActivity" />
+
+
+        <!-- Activity Utama -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

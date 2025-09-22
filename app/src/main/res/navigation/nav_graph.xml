@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/nav_home">
 
@@ -21,6 +21,8 @@
 
     <fragment
         android:id="@+id/nav_profile"
-        android:name="com.example.map_umkm.ProfileFragment"
-        android:label="Profile" />
+        android:name="com.example.map_umkm.ui.profile.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile" />
+
 </navigation>
