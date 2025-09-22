@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "266608067486",
+    "project_id": "map-umkm",
+    "storage_bucket": "map-umkm.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:266608067486:android:3949fcdc5e7f1ab2aa8c8f",
+        "android_client_info": {
+          "package_name": "com.example.map_umkm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSiQ8BT3-L8b8eRIkzDkokJrNJaLE2jk8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
