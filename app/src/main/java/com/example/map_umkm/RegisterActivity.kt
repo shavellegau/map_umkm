@@ -33,14 +33,13 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            val result = dbHelper.registerUser(email, password, "user")
-
-            if (result) {
-                Toast.makeText(this, "Registrasi berhasil, silakan login", Toast.LENGTH_SHORT).show()
+            val success = dbHelper.registerUser(email, password, "user")
+            if (success) {
+                Toast.makeText(this, "Registrasi berhasil. Silakan login.", Toast.LENGTH_SHORT).show()
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
             } else {
-                Toast.makeText(this, "Registrasi gagal, email sudah terdaftar", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Registrasi gagal, email mungkin sudah terdaftar", Toast.LENGTH_SHORT).show()
             }
         }
     }

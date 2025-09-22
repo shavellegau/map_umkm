@@ -21,7 +21,7 @@
 
     <fragment
         android:id="@+id/nav_profile"
-        android:name="com.example.map_umkm.ui.profile.ProfileFragment"
+        android:name="com.example.map_umkm.ProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_profile" />
 
