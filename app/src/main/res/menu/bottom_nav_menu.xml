@@ -9,13 +9,13 @@
     <!-- Cart icon -->
     <item
         android:id="@+id/nav_cart"
-        android:icon="@drawable/cart"
-        android:title="Cart" />
+        android:icon="@drawable/food_menu"
+        android:title="Menu" />
 
     <!-- Orders icon -->
     <item
         android:id="@+id/nav_orders"
-        android:icon="@drawable/profile"
+        android:icon="@drawable/menu"
         android:title="Orders" />
 
     <!-- Profile icon -->

@@ -48,4 +48,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
+    implementation("androidx.cardview:cardview:1.0.0")
+    implementation("androidx.recyclerview:recyclerview:1.3.0")
+    implementation("androidx.core:core-ktx:1.10.1")
 }
