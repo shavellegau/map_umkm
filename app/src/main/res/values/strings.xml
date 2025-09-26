@@ -1,13 +1,17 @@
 <resources>
-    <string name="app_name">map_umkm</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="app_name">MAP UMKM</string>
+    <string name="change_location">Ubah Lokasi</string>
+    <string name="search_hint">Cari menu, produk, toko…</string>
+    <string name="profile">Profil</string>
+    <string name="wishlist">Wishlist</string>
+    <string name="orders">Pesanan</string>
+    <string name="cart">Keranjang</string>
+    <string name="home">Beranda</string>
     <string name="takeaway">Take Away</string>
     <string name="delivery">Delivery</string>
-    <string name="location_icon">Lokasi Icon</string>
-    <string name="location_default">SUMMARECON DIGITAL CENTER</string>
-    <string name="change_location">Ubah</string>
-    <string name="search_menu">Search menu</string>
-    <string name="total_price">Total: Rp0</string>
+    <string name="location_icon">Lokasi</string>
+    <string name="location_default">Lokasi default</string>
+    <string name="search_menu">Cari menu…</string>
+    <string name="total_price">Total Belanja: Rp0</string>
 
 </resources>
