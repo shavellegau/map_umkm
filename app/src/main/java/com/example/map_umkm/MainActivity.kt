@@ -7,6 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import android.widget.Button
+import android.widget.Toast
+
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,5 +39,7 @@ class MainActivity : AppCompatActivity() {
         // Hubungkan BottomNavigationView dengan NavController
         val bottomNavView = findViewById<BottomNavigationView>(R.id.bottom_nav)
         bottomNavView.setupWithNavController(navController)
+
+
     }
 }
