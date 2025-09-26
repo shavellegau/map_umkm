@@ -27,7 +27,7 @@
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
-            android:text="Take Away"
+            android:text="@string/takeaway"
             android:backgroundTint="@color/red"
             android:textColor="@android:color/white"/>
 
@@ -40,7 +40,7 @@
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
-            android:text="Delivery"
+            android:text="@string/delivery"
             android:backgroundTint="@color/white"
             android:textColor="@android:color/black"/>
     </LinearLayout>
@@ -60,7 +60,8 @@
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@android:drawable/ic_menu_mylocation" />
+            android:src="@android:drawable/ic_menu_mylocation"
+            android:contentDescription="@string/location_icon" />
 
         <TextView
             android:id="@+id/tv_location"
@@ -68,14 +69,14 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="SUMMARECON DIGITAL CENTER"
+            android:text="@string/location_default"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_change_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ubah"
+            android:text="@string/change_location"
             android:textColor="#3B2C26" />
     </LinearLayout>
 
@@ -86,9 +87,10 @@
         android:layout_height="40dp"
         android:layout_margin="12dp"
         android:background="@drawable/bg_search"
-        android:hint="Search menu"
+        android:hint="@string/search_menu"
         android:drawableStart="@android:drawable/ic_menu_search"
         android:padding="8dp"
+        android:inputType="text"
         app:layout_constraintTop_toBottomOf="@id/layout_location"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -125,7 +127,7 @@
         android:id="@+id/tv_total"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Total: Rp0"
+        android:text="@string/total_price"
         android:textSize="18sp"
         android:textStyle="bold"
         android:gravity="end"

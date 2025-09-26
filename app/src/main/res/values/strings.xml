@@ -2,4 +2,12 @@
     <string name="app_name">map_umkm</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="takeaway">Take Away</string>
+    <string name="delivery">Delivery</string>
+    <string name="location_icon">Lokasi Icon</string>
+    <string name="location_default">SUMMARECON DIGITAL CENTER</string>
+    <string name="change_location">Ubah</string>
+    <string name="search_menu">Search menu</string>
+    <string name="total_price">Total: Rp0</string>
+
 </resources>
