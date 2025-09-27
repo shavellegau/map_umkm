@@ -17,16 +17,24 @@ class MainActivity : AppCompatActivity() {
 
         // 🔹 Cek apakah user sudah login (dari SharedPreferences)
         val prefs = getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
-        val email = prefs.getString("email", null)
+        val email = prefs.getString("userEmail", null)
+        val role = prefs.getString("userRole", null)
 
         if (email == null) {
-            // Kalau belum login, pindah ke LoginActivity
             val i = Intent(this, LoginActivity::class.java)
             i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(i)
             finish()
             return
         }
+
+// kalau mau arahkan admin ke AdminActivity
+        if (role == "admin") {
+            startActivity(Intent(this, AdminActivity::class.java))
+            finish()
+            return
+        }
+
 
         // 🔹 Kalau sudah login, baru load tampilan utama
         setContentView(R.layout.activity_main)
