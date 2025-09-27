@@ -7,14 +7,27 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 
 class AdminActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 🔹 Cek session
+        val prefs = getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
+        val role = prefs.getString("userRole", null)
+
+        // 🔹 Kalau belum login / bukan admin
+        if (role != "admin") {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+            return
+        }
+
+        // 🔹 Kalau admin -> tampilkan layout admin
         setContentView(R.layout.activity_admin)
 
-        // Tombol logout (pastikan ada di activity_admin.xml)
+        // 🔹 Tombol logout (pastikan ada di activity_admin.xml)
         val btnLogout = findViewById<Button>(R.id.btnLogout)
         btnLogout.setOnClickListener {
-            val prefs = getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
             prefs.edit().clear().apply() // hapus session
 
             val i = Intent(this, LoginActivity::class.java)

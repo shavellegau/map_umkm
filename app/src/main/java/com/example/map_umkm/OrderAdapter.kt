@@ -1,19 +1,12 @@
 package com.example.map_umkm
 
+import android.content.Intent
+import com.example.map_umkm.OrderDetailActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-
-data class Order(
-    val type: String,
-    val place: String,
-    val items: String,
-    val price: String,
-    val date: String
-)
 
 class OrdersAdapter(private val orders: List<Order>) :
     RecyclerView.Adapter<OrdersAdapter.OrderViewHolder>() {
@@ -39,6 +32,19 @@ class OrdersAdapter(private val orders: List<Order>) :
         holder.items.text = order.items
         holder.price.text = order.price
         holder.date.text = order.date
+
+        // Klik → buka OrderDetailActivity
+        holder.itemView.setOnClickListener { v ->
+            val ctx = v.context
+            val intent = Intent(ctx, OrderDetailActivity::class.java).apply {
+                putExtra("ORDER_TYPE", order.type)
+                putExtra("ORDER_PLACE", order.place)
+                putExtra("ORDER_ITEMS", order.items)
+                putExtra("ORDER_PRICE", order.price)
+                putExtra("ORDER_DATE", order.date)
+            }
+            ctx.startActivity(intent)
+        }
     }
 
     override fun getItemCount(): Int = orders.size
