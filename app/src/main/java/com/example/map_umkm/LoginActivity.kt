@@ -1,83 +1,85 @@
 package com.example.map_umkm
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Patterns
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.map_umkm.model.LoginResponse
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import com.example.map_umkm.model.ApiClient
+
 
 class LoginActivity : AppCompatActivity() {
-
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
     private lateinit var btnLogin: Button
-    private lateinit var btnRegister: Button
-    private lateinit var dbHelper: DatabaseHelper
+    private lateinit var btnRegister: Button  // tombol register
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // --- 1) cek session dulu sebelum setContentView
-        val prefs = getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
-        val savedEmail = prefs.getString("email", null)
-        val savedRole = prefs.getString("role", null)
-        if (savedEmail != null && savedRole != null) {
-            // sudah login sebelumnya -> langsung masuk sesuai role
-            val target = if (savedRole == "admin") AdminActivity::class.java else MainActivity::class.java
-            val i = Intent(this, target)
-            i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(i)
-            finish()
-            return
-        }
-
         setContentView(R.layout.activity_login)
-
-        dbHelper = DatabaseHelper(this)
 
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
         btnLogin = findViewById(R.id.btnLogin)
-        btnRegister = findViewById(R.id.btnRegister)
+        btnRegister = findViewById(R.id.btnRegister) // inisialisasi tombol register
 
+        // Login
         btnLogin.setOnClickListener {
             val email = etEmail.text.toString().trim()
-            val password = etPassword.text.toString().trim()
+            val pass = etPassword.text.toString().trim()
 
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Email dan password wajib diisi", Toast.LENGTH_SHORT).show()
+            if (email.isEmpty() || pass.isEmpty()) {
+                Toast.makeText(this, "Isi email & password", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(this, "Format email tidak valid", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            ApiClient.instance.login(email, pass).enqueue(object : Callback<LoginResponse> {
+                override fun onResponse(
+                    call: Call<LoginResponse>,
+                    response: Response<LoginResponse>
+                ) {
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        val user = response.body()?.user
 
-            val role = dbHelper.checkUser(email, password)
-            if (role != null) {
-                // --- simpan session
-                val editor = getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE).edit()
-                editor.putString("email", email)
-                editor.putString("role", role)
-                editor.apply()
+                        // simpan session pakai SharedPreferences
+                        val prefs = getSharedPreferences("USER_SESSION", MODE_PRIVATE)
+                        prefs.edit()
+                            .putInt("userId", user?.id ?: -1)
+                            .putString("userEmail", user?.email)
+                            .putString("userRole", user?.role)
+                            .apply()
 
-                // --- buka activity sesuai role dan clear backstack
-                val target = if (role == "admin") AdminActivity::class.java else MainActivity::class.java
-                val i = Intent(this, target)
-                i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(i)
-                finish()
-            } else {
-                Toast.makeText(this, "Login gagal, periksa email/password", Toast.LENGTH_SHORT).show()
-            }
+                        // arahkan ke activity sesuai role
+                        if (user?.role == "admin") {
+                            startActivity(Intent(this@LoginActivity, AdminActivity::class.java))
+                        } else {
+                            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                        }
+                        finish()
+                    } else {
+                        Toast.makeText(
+                            this@LoginActivity,
+                            response.body()?.message ?: "Login gagal",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                    Toast.makeText(this@LoginActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
         }
 
+        // Pindah ke RegisterActivity
         btnRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
     }
 }
+
