@@ -41,54 +41,62 @@
             android:layout_marginBottom="24dp" />
 
         <!-- Email -->
-        <EditText
-            android:id="@+id/etEmail"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
-            android:background="@drawable/bg_edittext"
-            android:paddingStart="48dp"
-            android:padding="14dp"
-            android:textColor="#3E2723"
-            android:textColorHint="#A1887F"
-            android:layout_marginBottom="12dp" />
+            android:layout_marginBottom="12dp">
 
-        <ImageView
-            android:id="@+id/iconEmail"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/ic_email"
-            android:tint="#6D4C41"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="-54dp"
-            android:layout_gravity="start" />
+            <EditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:background="@drawable/bg_edittext"
+                android:paddingStart="48dp"
+                android:padding="14dp"
+                android:textColor="#3E2723"
+                android:textColorHint="#A1887F" />
 
+            <ImageView
+                android:id="@+id/iconEmail"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_email"
+                android:tint="#6D4C41"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"/>
+        </RelativeLayout>
 
         <!-- Password -->
-        <EditText
-            android:id="@+id/etPassword"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Password"
-            android:inputType="textPassword"
-            android:background="@drawable/bg_edittext"
-            android:paddingStart="48dp"
-            android:padding="14dp"
-            android:textColor="#3E2723"
-            android:textColorHint="#A1887F"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="24dp">
 
-        <ImageView
-            android:id="@+id/iconLock"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/ic_lock"
-            android:tint="#6D4C41"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="-54dp"
-            android:layout_gravity="start" />
+            <EditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:background="@drawable/bg_edittext"
+                android:paddingStart="48dp"
+                android:padding="14dp"
+                android:textColor="#3E2723"
+                android:textColorHint="#A1887F" />
 
+            <ImageView
+                android:id="@+id/iconLock"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_lock"
+                android:tint="#6D4C41"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"/>
+        </RelativeLayout>
 
         <!-- Tombol Login -->
         <Button
@@ -107,10 +115,10 @@
             android:id="@+id/btnRegister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Register"
             android:background="@drawable/bg_button_outline"
-            android:textColor="#6D4C41"
-            android:padding="14dp" />
+            android:padding="14dp"
+            android:text="Register"
+            android:textColor="#6D4C41" />
 
     </LinearLayout>
 </ScrollView>

@@ -23,10 +23,12 @@ data class GenericResponse(
 // Item menu
 data class MenuItem(
     val id: Int,
+    val category: String,
     val name: String,
     val description: String?,
-    val price: Int,
-    val image: String?
+    val price_hot: Int?,
+    val price_iced: Int?,
+    val image: Int = 0
 )
 
 // Response menu

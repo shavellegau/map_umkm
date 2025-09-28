@@ -4,17 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import android.widget.Toast
 import android.widget.Button
+import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.adapter.CategoryAdapter
 import com.example.map_umkm.adapter.ProductAdapter
-import com.example.map_umkm.model.Category
-import com.example.map_umkm.model.Product
-import android.widget.TextView
+import com.example.map_umkm.model.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class CartFragment : Fragment() {
 
@@ -23,6 +25,7 @@ class CartFragment : Fragment() {
     private lateinit var tvTotal: TextView
 
     private val cartList = mutableListOf<Product>()
+    private lateinit var productAdapter: ProductAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,8 +41,6 @@ class CartFragment : Fragment() {
         val btnTakeAway = view.findViewById<Button>(R.id.btn_takeaway)
         val btnDelivery = view.findViewById<Button>(R.id.btn_delivery)
 
-
-        // 🔹 Tambahin listener
         btnTakeAway.setOnClickListener {
             Toast.makeText(requireContext(), "Take Away dipilih", Toast.LENGTH_SHORT).show()
         }
@@ -47,41 +48,67 @@ class CartFragment : Fragment() {
             Toast.makeText(requireContext(), "Delivery dipilih", Toast.LENGTH_SHORT).show()
         }
 
-        // Dummy data kategori
-        val categories = listOf(
-            Category("Special Offers"),
-            Category("Combo Hemat"),
-            Category("Coffee"),
-            Category("Non-Coffee"),
-            Category("Bites")
-        )
-
-        // Dummy data produk
-        val products = listOf(
-            Product("Sahabat Latte 10k", "Rp10.000", "Rp21.000", R.drawable.ic_launcher_foreground, "Special Offers"),
-            Product("Combo Hemat 20k", "Rp20.000", "Rp45.000", R.drawable.ic_launcher_foreground, "Combo Hemat"),
-            Product("Caramel Latte", "Rp12.000", "Rp24.000", R.drawable.ic_launcher_foreground, "Coffee"),
-            Product("Hazelnut Latte", "Rp12.000", "Rp24.000", R.drawable.ic_launcher_foreground, "Coffee")
-        )
-
-        rvCategory.layoutManager = LinearLayoutManager(requireContext())
-        rvCategory.adapter = CategoryAdapter(categories) { selectedCategory ->
-            val filtered = products.filter { it.category == selectedCategory.name }
-            (rvProducts.adapter as ProductAdapter).updateData(filtered)
-        }
-
-        rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
-        rvProducts.adapter = ProductAdapter(products) { product ->
-            cartList.add(product)
-            updateTotal()
-            Toast.makeText(requireContext(), "Ditambahkan: ${product.name}", Toast.LENGTH_SHORT).show()
-        }
+        // 🔹 Load menu dari API
+        loadMenuFromApi()
 
         return view
     }
 
+    private fun loadMenuFromApi() {
+        ApiClient.instance.getMenu().enqueue(object : Callback<MenuResponse> {
+            override fun onResponse(call: Call<MenuResponse>, response: Response<MenuResponse>) {
+                if (response.isSuccessful && response.body()?.success == true) {
+                    val menuList = response.body()?.menu ?: emptyList()
+
+                    // 🔹 Setup ProductAdapter
+                    productAdapter = ProductAdapter(menuList.map {
+                        Product(
+                            name = it.name,
+                            price = "Rp${it.price_hot ?: 0}",
+                            oldPrice = "Rp${it.price_iced ?: 0}",
+                            imageRes = R.drawable.ic_launcher_background, // ✅ kotak hijau
+                            category = it.category
+                        )
+                    }) { product ->
+                        cartList.add(product)
+                        updateTotal()
+                        Toast.makeText(requireContext(), "Ditambahkan: ${product.name}", Toast.LENGTH_SHORT).show()
+                    }
+
+                    rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
+                    rvProducts.adapter = productAdapter
+
+                    // 🔹 Ambil kategori unik
+                    val categories = menuList.map { it.category }.distinct().map { Category(it) }
+                    rvCategory.layoutManager = LinearLayoutManager(requireContext())
+                    rvCategory.adapter = CategoryAdapter(categories) { selectedCategory ->
+                        val filtered = menuList.filter { it.category == selectedCategory.name }
+                        productAdapter.updateData(filtered.map {
+                            Product(
+                                name = it.name,
+                                price = "Rp${it.price_hot ?: 0}",
+                                oldPrice = "Rp${it.price_iced ?: 0}",
+                                imageRes = R.drawable.ic_launcher_background, // ✅ kotak hijau
+                                category = it.category
+                            )
+                        })
+                    }
+
+                } else {
+                    Toast.makeText(requireContext(), "Gagal load menu", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<MenuResponse>, t: Throwable) {
+                Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
     private fun updateTotal() {
-        val total = cartList.sumOf { it.price.replace("Rp", "").replace(".", "").toInt() }
+        val total = cartList.sumOf {
+            it.price.replace("Rp", "").replace(".", "").toIntOrNull() ?: 0
+        }
         tvTotal.text = "Total: Rp$total"
     }
 }
