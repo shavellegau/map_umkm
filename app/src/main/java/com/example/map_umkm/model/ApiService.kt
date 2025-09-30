@@ -21,5 +21,6 @@ interface ApiService {
     ): Call<GenericResponse>   // ✅ harus GenericResponse, bukan LoginResponse
 
     @GET("get_menu.php")
-    fun getMenu(): Call<List<MenuItem>>
+    fun getMenu(): Call<MenuResponse>
 }
+
