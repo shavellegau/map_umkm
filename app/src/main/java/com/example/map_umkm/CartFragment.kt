@@ -13,10 +13,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.adapter.CategoryAdapter
 import com.example.map_umkm.adapter.ProductAdapter
+import com.example.map_umkm.model.Category
 import com.example.map_umkm.model.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.io.IOException
 
 class CartFragment : Fragment() {
 
@@ -48,61 +49,68 @@ class CartFragment : Fragment() {
             Toast.makeText(requireContext(), "Delivery dipilih", Toast.LENGTH_SHORT).show()
         }
 
-        // 🔹 Load menu dari API
-        loadMenuFromApi()
+        // 🔹 Load data dari assets
+        loadMenuFromAssets()
 
         return view
     }
 
-    private fun loadMenuFromApi() {
-        ApiClient.instance.getMenu().enqueue(object : Callback<MenuResponse> {
-            override fun onResponse(call: Call<MenuResponse>, response: Response<MenuResponse>) {
-                if (response.isSuccessful && response.body()?.success == true) {
-                    val menuList = response.body()?.menu ?: emptyList()
+    private fun loadMenuFromAssets() {
+        val jsonString: String? = try {
+            requireContext().assets.open("menu_items.json").bufferedReader().use { it.readText() }
+        } catch (ioException: IOException) {
+            ioException.printStackTrace()
+            null
+        }
 
-                    // 🔹 Setup ProductAdapter
-                    productAdapter = ProductAdapter(menuList.map {
+        if (jsonString != null) {
+            val gson = Gson()
+            val listType = object : TypeToken<MenuResponse>() {}.type
+            val menuResponse: MenuResponse? = gson.fromJson(jsonString, listType)
+
+            if (menuResponse != null) {
+                val menuList = menuResponse.menu_items ?: emptyList()
+
+                // 🔹 Setup ProductAdapter
+                productAdapter = ProductAdapter(menuList.map {
+                    Product(
+                        name = it.name,
+                        price = "Rp${it.price_hot ?: 0}",
+                        oldPrice = "Rp${it.price_iced ?: 0}",
+                        imageRes = R.drawable.ic_launcher_background,
+                        category = it.category
+                    )
+                }) { product ->
+                    cartList.add(product)
+                    updateTotal()
+                    Toast.makeText(requireContext(), "Ditambahkan: ${product.name}", Toast.LENGTH_SHORT).show()
+                }
+
+                rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
+                rvProducts.adapter = productAdapter
+
+                // 🔹 Ambil kategori unik
+                val categories = menuList.map { it.category }.distinct().map { Category(it) }
+                rvCategory.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+                rvCategory.adapter = CategoryAdapter(categories) { selectedCategory ->
+                    val filtered = menuList.filter { it.category == selectedCategory.name }
+                    productAdapter.updateData(filtered.map {
                         Product(
                             name = it.name,
                             price = "Rp${it.price_hot ?: 0}",
                             oldPrice = "Rp${it.price_iced ?: 0}",
-                            imageRes = R.drawable.ic_launcher_background, // ✅ kotak hijau
+                            imageRes = R.drawable.ic_launcher_background,
                             category = it.category
                         )
-                    }) { product ->
-                        cartList.add(product)
-                        updateTotal()
-                        Toast.makeText(requireContext(), "Ditambahkan: ${product.name}", Toast.LENGTH_SHORT).show()
-                    }
-
-                    rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
-                    rvProducts.adapter = productAdapter
-
-                    // 🔹 Ambil kategori unik
-                    val categories = menuList.map { it.category }.distinct().map { Category(it) }
-                    rvCategory.layoutManager = LinearLayoutManager(requireContext())
-                    rvCategory.adapter = CategoryAdapter(categories) { selectedCategory ->
-                        val filtered = menuList.filter { it.category == selectedCategory.name }
-                        productAdapter.updateData(filtered.map {
-                            Product(
-                                name = it.name,
-                                price = "Rp${it.price_hot ?: 0}",
-                                oldPrice = "Rp${it.price_iced ?: 0}",
-                                imageRes = R.drawable.ic_launcher_background, // ✅ kotak hijau
-                                category = it.category
-                            )
-                        })
-                    }
-
-                } else {
-                    Toast.makeText(requireContext(), "Gagal load menu", Toast.LENGTH_SHORT).show()
+                    })
                 }
-            }
 
-            override fun onFailure(call: Call<MenuResponse>, t: Throwable) {
-                Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "Gagal parse JSON", Toast.LENGTH_SHORT).show()
             }
-        })
+        } else {
+            Toast.makeText(requireContext(), "File JSON tidak ditemukan", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun updateTotal() {

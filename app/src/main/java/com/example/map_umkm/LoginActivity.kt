@@ -6,19 +6,18 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.map_umkm.model.LoginResponse
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import com.example.map_umkm.model.ApiClient
-
-
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class LoginActivity : AppCompatActivity() {
+
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
     private lateinit var btnLogin: Button
-    private lateinit var btnRegister: Button  // tombol register
+    private lateinit var btnRegister: Button
+
+    private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,60 +26,101 @@ class LoginActivity : AppCompatActivity() {
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
         btnLogin = findViewById(R.id.btnLogin)
-        btnRegister = findViewById(R.id.btnRegister) // inisialisasi tombol register
+        btnRegister = findViewById(R.id.btnRegister)
 
-        // Login
+        // 🔹 Inisialisasi Firebase
+        auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
+
+        // 🔹 Tombol Login ditekan
         btnLogin.setOnClickListener {
             val email = etEmail.text.toString().trim()
-            val pass = etPassword.text.toString().trim()
+            val password = etPassword.text.toString().trim()
 
-            if (email.isEmpty() || pass.isEmpty()) {
+            if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Isi email & password", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            ApiClient.instance.login(email, pass).enqueue(object : Callback<LoginResponse> {
-                override fun onResponse(
-                    call: Call<LoginResponse>,
-                    response: Response<LoginResponse>
-                ) {
-                    if (response.isSuccessful && response.body()?.success == true) {
-                        val user = response.body()?.user
+            // 🔹 Login ke Firebase Authentication
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnSuccessListener { result ->
+                    val uid = result.user?.uid
 
-                        // simpan session pakai SharedPreferences
-                        val prefs = getSharedPreferences("USER_SESSION", MODE_PRIVATE)
-                        prefs.edit()
-                            .putInt("userId", user?.id ?: -1)
-                            .putString("userEmail", user?.email)
-                            .putString("userRole", user?.role)
-                            .apply()
+                    if (uid != null) {
+                        // 🔹 Jika admin login dan belum ada di Firestore → otomatis tambahkan
+                        if (email == "admin@gmail.com") {
+                            val adminData = hashMapOf(
+                                "name" to "Admin",
+                                "email" to email,
+                                "role" to "admin"
+                            )
 
-                        // arahkan ke activity sesuai role
-                        if (user?.role == "admin") {
-                            startActivity(Intent(this@LoginActivity, AdminActivity::class.java))
+                            db.collection("users").document(uid).set(adminData)
+                                .addOnSuccessListener {
+                                    goToDashboard(uid, email)
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(this, "Gagal buat data admin: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
                         } else {
-                            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                            // 🔹 Ambil data user dari Firestore
+                            db.collection("users").document(uid).get()
+                                .addOnSuccessListener { document ->
+                                    if (document.exists()) {
+                                        goToDashboard(uid, email)
+                                    } else {
+                                        Toast.makeText(this, "Data user tidak ditemukan.", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(this, "Gagal ambil data: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
                         }
-                        finish()
                     } else {
-                        Toast.makeText(
-                            this@LoginActivity,
-                            response.body()?.message ?: "Login gagal",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(this, "UID user tidak valid.", Toast.LENGTH_SHORT).show()
                     }
                 }
-
-                override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                    Toast.makeText(this@LoginActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Login gagal: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
-            })
         }
 
-        // Pindah ke RegisterActivity
+        // 🔹 Pindah ke halaman register
         btnRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
     }
-}
 
+    // 🔹 Fungsi untuk arahkan ke dashboard sesuai role
+    private fun goToDashboard(uid: String, email: String) {
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                val role = document.getString("role") ?: "user"
+                val name = document.getString("name") ?: ""
+
+                // 🔹 Simpan sesi user
+                val prefs = getSharedPreferences("USER_SESSION", MODE_PRIVATE)
+                prefs.edit()
+                    .putString("userUid", uid)
+                    .putString("userName", name)
+                    .putString("userEmail", email)
+                    .putString("userRole", role)
+                    .apply()
+
+                // 🔹 Arahkan sesuai role
+                if (role == "admin") {
+                    startActivity(Intent(this, AdminActivity::class.java))
+                    Toast.makeText(this, "Selamat datang Admin!", Toast.LENGTH_SHORT).show()
+                } else {
+                    startActivity(Intent(this, MainActivity::class.java))
+                    Toast.makeText(this, "Login berhasil", Toast.LENGTH_SHORT).show()
+                }
+
+                finish()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Gagal baca data user: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+}
