@@ -70,7 +70,7 @@ class CartFragment : Fragment() {
             val menuResponse: MenuResponse? = gson.fromJson(jsonString, listType)
 
             if (menuResponse != null) {
-                val menuList = menuResponse.menu_items ?: emptyList()
+                val menuList = menuResponse.menu ?: emptyList()
 
 
                 // 🔹 Setup ProductAdapter

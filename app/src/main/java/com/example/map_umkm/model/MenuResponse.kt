@@ -1,8 +1,10 @@
 package com.example.map_umkm.model
 
 data class MenuResponse(
-    val menu_items: List<MenuDataItem>?
+    val success: Boolean,
+    val menu: List<MenuItem>
 )
+
 
 data class MenuItem(
     val id: Int,

@@ -6,7 +6,7 @@
       "category": "WHITE-MILK",
       "name": "MINI KST",
       "description": "espresso + susu + krimer + gula aren",
-      "image": null,
+      "image": "@drawable/mini_kst",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 14000,
       "price_iced": 15000
