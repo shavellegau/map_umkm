@@ -16,10 +16,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Map_umkm">
 
-        <activity android:name=".PesananActivity" />
-        <activity android:name=".WishlistActivity" />
-        <activity android:name=".UlasanActivity" />
-        <activity android:name=".VoucherActivity" />
+        <activity android:name=".PesananSayaFragment" />
+        <activity android:name=".WishlistFragment" />
+        <activity android:name=".RiwayatPoinFragment" />
+        <activity android:name=".VoucherSayaFragment" />
         <activity android:name=".PengaturanAkunActivity" />
         <activity android:name=".AlamatActivity" />
         <activity android:name=".BantuanActivity" />

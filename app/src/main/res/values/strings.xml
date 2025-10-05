@@ -13,5 +13,8 @@
     <string name="location_default">Lokasi default</string>
     <string name="search_menu">Cari menu…</string>
     <string name="total_price">Total Belanja: Rp0</string>
+    <string name="product_image">Gambar produk</string>
+    <string name="remove_favorite">Hapus favorit</string>
+
 
 </resources>

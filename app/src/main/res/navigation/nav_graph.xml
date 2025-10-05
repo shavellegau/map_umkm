@@ -25,4 +25,30 @@
         android:label="Profile"
         tools:layout="@layout/fragment_profile" />
 
+    <fragment
+        android:id="@+id/pesananSayaFragment"
+        android:name="com.example.map_umkm.PesananSayaFragment"
+        android:label="Pesanan Saya"
+        tools:layout="@layout/fragment_pesanan_saya" />
+
+    <fragment
+        android:id="@+id/wishlistFragment"
+        android:name="com.example.map_umkm.WishlistFragment"
+        android:label="Wishlist Saya"
+        tools:layout="@layout/fragment_wishlist" />
+
+    <fragment
+        android:id="@+id/voucherSayaFragment"
+        android:name="com.example.map_umkm.VoucherSayaFragment"
+        android:label="Voucher Saya"
+        tools:layout="@layout/fragment_voucher_saya" />
+
+    <fragment
+        android:id="@+id/riwayatPoinFragment"
+        android:name="com.example.map_umkm.RiwayatPoinFragment"
+        android:label="Riwayat Poin"
+        tools:layout="@layout/fragment_riwayat_poin" />
+
+
+
 </navigation>

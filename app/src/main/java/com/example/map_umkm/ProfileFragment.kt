@@ -18,16 +18,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import com.example.map_umkm.R
-
-import com.example.map_umkm.PesananActivity
-import com.example.map_umkm.WishlistActivity
-import com.example.map_umkm.UlasanActivity
-import com.example.map_umkm.VoucherActivity
-import com.example.map_umkm.PengaturanAkunActivity
-import com.example.map_umkm.AlamatActivity
-import com.example.map_umkm.BantuanActivity
-import com.example.map_umkm.LoginActivity
+import androidx.navigation.fragment.findNavController  // ← penting untuk navigasi antar fragment
 
 class ProfileFragment : Fragment() {
 
@@ -72,19 +63,24 @@ class ProfileFragment : Fragment() {
             requireActivity().finish()
         }
 
-        // Navigasi menu
+        // --- Navigasi antar fragment lewat NavGraph
         root.findViewById<View>(R.id.cardPesanan).setOnClickListener {
-            openActivity(PesananActivity::class.java)
+            findNavController().navigate(R.id.pesananSayaFragment)
         }
+
         root.findViewById<View>(R.id.cardWishlist).setOnClickListener {
-            openActivity(WishlistActivity::class.java)
+            findNavController().navigate(R.id.wishlistFragment)
         }
+
         root.findViewById<View>(R.id.cardUlasan).setOnClickListener {
-            openActivity(UlasanActivity::class.java)
+            findNavController().navigate(R.id.riwayatPoinFragment)
         }
+
         root.findViewById<View>(R.id.cardVoucher).setOnClickListener {
-            openActivity(VoucherActivity::class.java)
+            findNavController().navigate(R.id.voucherSayaFragment)
         }
+
+        // --- Menu lain yang masih activity
         root.findViewById<View>(R.id.menuPengaturanAkun).setOnClickListener {
             openActivity(PengaturanAkunActivity::class.java)
         }

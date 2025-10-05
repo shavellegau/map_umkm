@@ -1,4 +1,5 @@
 package com.example.map_umkm
+import com.example.map_umkm.model.Product
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -70,6 +71,7 @@ class CartFragment : Fragment() {
 
             if (menuResponse != null) {
                 val menuList = menuResponse.menu_items ?: emptyList()
+
 
                 // 🔹 Setup ProductAdapter
                 productAdapter = ProductAdapter(menuList.map {

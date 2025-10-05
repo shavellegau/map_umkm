@@ -3,59 +3,90 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    card_view:cardCornerRadius="12dp"
-    card_view:cardElevation="4dp">
+    android:layout_marginVertical="8dp"
+    android:layout_marginHorizontal="12dp"
+    card_view:cardCornerRadius="16dp"
+    card_view:cardElevation="5dp"
+    card_view:cardBackgroundColor="#FFF8F0">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:padding="12dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="14dp">
 
-        <TextView
-            android:id="@+id/tvType"
-            android:text="Dine In"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/tvPlace"
-            android:text="Ruko Green Lake City"
-            android:textSize="14sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/tvItems"
-            android:text="Lychee Tea, Salted Egg Chicken Rice"
-            android:textSize="13sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
+        <!-- Header: tipe & status -->
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:gravity="center_vertical">
 
             <TextView
+                android:id="@+id/tvType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dine In"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="#5A4633" />
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="• Selesai"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:textColor="#3E7C17"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <!-- Lokasi -->
+        <TextView
+            android:id="@+id/tvPlace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ruko Green Lake City"
+            android:textSize="14sp"
+            android:textColor="#6B5E51"
+            android:layout_marginTop="4dp" />
+
+        <!-- Menu -->
+        <TextView
+            android:id="@+id/tvItems"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lychee Tea, Es Kopi Susu Tuku"
+            android:textSize="13sp"
+            android:textColor="#7C6A58"
+            android:layout_marginTop="6dp" />
+
+        <!-- Tanggal & harga -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp">
+
+            <TextView
                 android:id="@+id/tvDate"
-                android:text="22 Sep 2025 | 12:55"
-                android:textSize="12sp"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:text="4 Okt 2025 | 10:15"
+                android:textSize="12sp"
+                android:textColor="#948B83" />
 
             <TextView
                 android:id="@+id/tvPrice"
-                android:text="Rp90.000"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rp45.000"
                 android:textStyle="bold"
                 android:textSize="14sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:textColor="#5A4633" />
         </LinearLayout>
 
     </LinearLayout>

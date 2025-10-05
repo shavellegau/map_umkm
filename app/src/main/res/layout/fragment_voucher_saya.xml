@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F8F6F3"
+    android:padding="16dp"
+    tools:context=".VoucherSayaFragment">
+
+    <TextView
+        android:id="@+id/tvVoucherHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Voucher Saya"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#3E2723"
+        android:paddingBottom="12dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvVoucher"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

@@ -10,5 +10,8 @@
         <color name="teal_700">#018786</color>
         <color name="red">#FF0000</color>
         <color name="light_gray">#F5F5F5</color>
+        <color name="red_button">#E53935</color>
+        <color name="orange_button">#FB8C00</color>
+
 
 </resources>

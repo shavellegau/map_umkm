@@ -1,7 +1,7 @@
 package com.example.map_umkm.model
 
 data class MenuResponse(
-    val menu_items: List<MenuItem>?
+    val menu_items: List<MenuDataItem>?
 )
 
 data class MenuItem(
