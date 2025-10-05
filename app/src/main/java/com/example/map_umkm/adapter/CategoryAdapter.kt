@@ -5,8 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.map_umkm.R
 import com.example.map_umkm.model.Category
+import com.example.map_umkm.R
 
 class CategoryAdapter(
     private val categories: List<Category>,
@@ -36,9 +36,13 @@ class CategoryAdapter(
         )
 
         holder.itemView.setOnClickListener {
-            selectedPosition = position
-            notifyDataSetChanged()
-            onClick(category)
+            // Use getAdapterPosition() to get the current position
+            val currentPosition = holder.getAdapterPosition()
+            if (currentPosition != RecyclerView.NO_POSITION) {
+                selectedPosition = currentPosition
+                notifyDataSetChanged()
+                onClick(categories[currentPosition])
+            }
         }
     }
 
