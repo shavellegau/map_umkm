@@ -12,7 +12,17 @@
     <fragment
         android:id="@+id/nav_cart"
         android:name="com.example.map_umkm.CartFragment"
-        android:label="Cart" />
+        android:label="Cart">
+        <action
+            android:id="@+id/action_cartFragment_to_paymentFragment"
+            app:destination="@id/paymentFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/paymentFragment"
+        android:name="com.example.map_umkm.PaymentFragment"
+        android:label="Pembayaran"
+        tools:layout="@layout/fragment_payment" />
 
     <fragment
         android:id="@+id/nav_orders"

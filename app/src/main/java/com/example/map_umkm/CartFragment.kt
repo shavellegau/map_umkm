@@ -1,6 +1,5 @@
 package com.example.map_umkm
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -23,6 +22,8 @@ import com.example.map_umkm.model.Product
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.IOException
+import java.text.NumberFormat
+import java.util.Locale
 
 class CartFragment : Fragment() {
 
@@ -31,12 +32,12 @@ class CartFragment : Fragment() {
     private lateinit var tvTotal: TextView
     private lateinit var etSearch: EditText
     private lateinit var bottomBar: View
-    private lateinit var btnViewOrder: Button // Tombol Lihat Pesanan/Checkout
+    private lateinit var btnViewOrder: Button
 
-    private val cartList = mutableListOf<Product>() // Keranjang belanja
+    private val cartList = mutableListOf<Product>()
     private lateinit var productAdapter: ProductAdapter
-    private var allProducts: List<Product> = emptyList() // Semua produk dari JSON
-    private var selectedCategory: String? = null // Kategori yang sedang dipilih
+    private var allProducts: List<Product> = emptyList()
+    private var selectedCategory: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,7 +46,6 @@ class CartFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_cart, container, false)
 
-        // Inisialisasi View
         rvCategory = view.findViewById(R.id.rv_category)
         rvProducts = view.findViewById(R.id.rv_products)
         tvTotal = view.findViewById(R.id.tv_total)
@@ -55,7 +55,6 @@ class CartFragment : Fragment() {
 
         setupSearchListener()
         setupBottomBarListener()
-
         loadMenuFromAssets()
 
         return view
@@ -65,7 +64,6 @@ class CartFragment : Fragment() {
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // Filter berdasarkan kategori yang sedang dipilih DAN query pencarian
                 filterProducts(selectedCategory, s.toString())
             }
             override fun afterTextChanged(s: Editable?) {}
@@ -74,25 +72,23 @@ class CartFragment : Fragment() {
 
     private fun setupBottomBarListener() {
         btnViewOrder.setOnClickListener {
-            if (cartList.isNotEmpty()) {
-                // TODO: Ganti ini dengan navigasi Fragment atau Intent ke PaymentActivity/CartActivity
-                Toast.makeText(requireContext(), "Navigasi ke halaman Pembayaran/Checkout!", Toast.LENGTH_LONG).show()
-            }
+            val paymentFragment = PaymentFragment()
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_fragment, paymentFragment) // ✅ gunakan ID dari activity_main.xml
+                .addToBackStack(null)
+                .commit()
         }
     }
 
+    /** ✅ pindahkan ke luar fungsi setupBottomBarListener */
     private fun updateBottomBarState() {
         if (cartList.isNotEmpty()) {
             bottomBar.visibility = View.VISIBLE
-            val totalItems = cartList.size
-
-            // Perbarui teks tombol dengan jumlah item
-            btnViewOrder.text = "Lihat Pesanan (${totalItems})"
+            btnViewOrder.text = "Lihat Pesanan (${cartList.size})"
         } else {
             bottomBar.visibility = View.GONE
         }
     }
-
 
     private fun loadMenuFromAssets() {
         val jsonString: String? = try {
@@ -110,7 +106,6 @@ class CartFragment : Fragment() {
             if (menuResponse != null) {
                 val menuList = menuResponse.menu ?: emptyList()
 
-                // 🔹 Simpan semua produk dari JSON ke allProducts
                 allProducts = menuList.map {
                     Product(
                         id = it.id ?: 0,
@@ -122,16 +117,15 @@ class CartFragment : Fragment() {
                     )
                 }
 
-                // 🔹 Setup ProductAdapter
                 productAdapter = ProductAdapter(emptyList()) { product ->
                     cartList.add(product)
-                    updateTotal() // Panggil updateTotal setiap kali item ditambahkan
+                    updateTotal()
                     Toast.makeText(requireContext(), "Ditambahkan: ${product.name}", Toast.LENGTH_SHORT).show()
                 }
+
                 rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
                 rvProducts.adapter = productAdapter
 
-                // 🔹 Definisikan kategori manual
                 val categories = listOf(
                     Category("WHITE-MILK"),
                     Category("BLACK"),
@@ -139,13 +133,13 @@ class CartFragment : Fragment() {
                     Category("TUKUDAPAN")
                 )
 
-                rvCategory.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+                rvCategory.layoutManager =
+                    LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
                 rvCategory.adapter = CategoryAdapter(categories) { selected ->
                     selectedCategory = selected.name
                     filterProducts(selected.name, etSearch.text.toString())
                 }
 
-                // 🔹 Tampilkan kategori pertama secara default saat aplikasi dibuka
                 if (categories.isNotEmpty()) {
                     selectedCategory = categories[0].name
                     filterProducts(categories[0].name, "")
@@ -164,33 +158,29 @@ class CartFragment : Fragment() {
     private fun filterProducts(categoryName: String?, query: String?) {
         val currentQuery = query.orEmpty().trim()
 
-        // Filter Tahap 1: Berdasarkan Kategori
         val filteredByCategory = if (categoryName.isNullOrEmpty()) {
             allProducts
         } else {
-            allProducts.filter {
-                it.category.equals(categoryName, ignoreCase = true)
-            }
+            allProducts.filter { it.category.equals(categoryName, ignoreCase = true) }
         }
 
-        // Filter Tahap 2: Berdasarkan Pencarian (Nama Produk)
         val finalFiltered = if (currentQuery.isEmpty()) {
             filteredByCategory
         } else {
-            filteredByCategory.filter {
-                it.name.contains(currentQuery, ignoreCase = true)
-            }
+            filteredByCategory.filter { it.name.contains(currentQuery, ignoreCase = true) }
         }
+
         productAdapter.updateData(finalFiltered)
     }
 
     private fun updateTotal() {
-        // Hitung total harga (asumsi harga sudah dalam format integer/numeric sebelum ditambahkan 'Rp')
         val total = cartList.sumOf {
             it.price.replace("Rp", "").replace(".", "").toIntOrNull() ?: 0
         }
-        // Format Total Harga (Rp60.000)
-        tvTotal.text = "Rp${total}.000"
+
+        // ✅ Format angka rupiah dengan NumberFormat
+        val formattedTotal = NumberFormat.getCurrencyInstance(Locale("in", "ID")).format(total)
+        tvTotal.text = formattedTotal
         updateBottomBarState()
     }
 }

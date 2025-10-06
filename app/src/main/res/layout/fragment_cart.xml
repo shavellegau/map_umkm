@@ -21,7 +21,6 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
 
-
     <!-- Kontainer Total Harga -->
         <LinearLayout
             android:layout_width="0dp"
