@@ -1,0 +1,47 @@
+package com.example.map_umkm.adapter
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.example.map_umkm.R
+import com.example.map_umkm.model.Product
+import java.text.NumberFormat
+import java.util.Locale
+
+class OrderAdapter(
+    private var orderList: MutableList<Product>
+) : RecyclerView.Adapter<OrderAdapter.OrderViewHolder>() {
+
+    inner class OrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val tvProductName: TextView = itemView.findViewById(R.id.tvProductName)
+        val tvProductPrice: TextView = itemView.findViewById(R.id.tvProductPrice)
+        val tvProductQuantity: TextView = itemView.findViewById(R.id.tvProductQuantity)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OrderViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_order_product, parent, false) // Gunakan layout baru
+        return OrderViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
+        val product = orderList[position]
+
+        // Format harga ke mata uang Rupiah
+        val formattedPrice = NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(product.price)
+
+        holder.tvProductName.text = product.name
+        holder.tvProductPrice.text = formattedPrice
+        holder.tvProductQuantity.text = "x${product.quantity}" // Tampilkan jumlah produk
+    }
+
+    override fun getItemCount(): Int = orderList.size
+
+    fun updateData(newOrderList: List<Product>) {
+        orderList.clear()
+        orderList.addAll(newOrderList)
+        notifyDataSetChanged()
+    }
+}

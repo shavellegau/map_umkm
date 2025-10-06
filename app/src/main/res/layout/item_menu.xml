@@ -3,52 +3,47 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="4dp"
-    android:backgroundTint="#FFFFFF">
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="6dp">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:padding="8dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp">
 
         <ImageView
-            android:id="@+id/imgProduct"
+            android:id="@+id/ivProductImage"
             android:layout_width="match_parent"
-            android:layout_height="140dp"
+            android:layout_height="150dp"
             android:scaleType="centerCrop"
-            android:background="@drawable/bg_card"
             android:src="@drawable/banner_kopi" />
 
         <TextView
-            android:id="@+id/tvName"
-            android:layout_marginTop="8dp"
-            android:textColor="#2E2E2E"
-            android:textStyle="bold"
-            android:textSize="16sp"
+            android:id="@+id/tvProductName"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Nama Produk"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tvPrice"
-            android:text="Rp15.000"
-            android:textColor="#7B5E42"
-            android:textSize="14sp"
+            android:id="@+id/tvProductPrice"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:text="Rp10.000"
+            android:textColor="@color/black"
+            android:textSize="14sp" />
 
-        <Button
-            android:id="@+id/btnAdd"
-            android:text="+"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#B07C4A"
+        <ImageButton
+            android:id="@+id/btnAddToCart"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_gravity="end"
-            android:layout_marginTop="8dp"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@drawable/bg_button_brown" />
-
+            android:background="@drawable/bg_circle_red"
+            android:src="@drawable/ic_add"
+            android:tint="@android:color/white" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

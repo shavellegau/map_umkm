@@ -56,6 +56,7 @@ class CartFragment : Fragment() {
         setupSearchListener()
         setupBottomBarListener()
         loadMenuFromAssets()
+        updateTotal() // Tambahkan ini agar total awal 0
 
         return view
     }
@@ -72,19 +73,18 @@ class CartFragment : Fragment() {
 
     private fun setupBottomBarListener() {
         btnViewOrder.setOnClickListener {
-            val paymentFragment = PaymentFragment()
+            val paymentFragment = PaymentFragment.newInstance(ArrayList(cartList))
             requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.nav_host_fragment, paymentFragment) // ✅ gunakan ID dari activity_main.xml
+                .replace(R.id.nav_host_fragment, paymentFragment)
                 .addToBackStack(null)
                 .commit()
         }
     }
 
-    /** ✅ pindahkan ke luar fungsi setupBottomBarListener */
     private fun updateBottomBarState() {
         if (cartList.isNotEmpty()) {
             bottomBar.visibility = View.VISIBLE
-            btnViewOrder.text = "Lihat Pesanan (${cartList.size})"
+            btnViewOrder.text = "Lihat Pesanan (${cartList.sumOf { it.quantity }})"
         } else {
             bottomBar.visibility = View.GONE
         }
@@ -110,15 +110,19 @@ class CartFragment : Fragment() {
                     Product(
                         id = it.id ?: 0,
                         name = it.name,
-                        price = "Rp${it.price_hot?.toString() ?: "0"}",
-                        oldPrice = if (it.price_iced != null) "Rp${it.price_iced}" else null,
+                        price = it.price_hot ?: 0,
                         imageRes = R.drawable.ic_launcher_background,
                         category = it.category
                     )
                 }
 
-                productAdapter = ProductAdapter(emptyList()) { product ->
-                    cartList.add(product)
+                productAdapter = ProductAdapter(allProducts.toMutableList()) { product ->
+                    val existingProduct = cartList.find { it.id == product.id }
+                    if (existingProduct != null) {
+                        existingProduct.quantity++
+                    } else {
+                        cartList.add(product.copy(quantity = 1))
+                    }
                     updateTotal()
                     Toast.makeText(requireContext(), "Ditambahkan: ${product.name}", Toast.LENGTH_SHORT).show()
                 }
@@ -146,7 +150,6 @@ class CartFragment : Fragment() {
                 }
 
                 updateBottomBarState()
-
             } else {
                 Toast.makeText(requireContext(), "Gagal parse JSON", Toast.LENGTH_SHORT).show()
             }
@@ -157,7 +160,6 @@ class CartFragment : Fragment() {
 
     private fun filterProducts(categoryName: String?, query: String?) {
         val currentQuery = query.orEmpty().trim()
-
         val filteredByCategory = if (categoryName.isNullOrEmpty()) {
             allProducts
         } else {
@@ -169,18 +171,13 @@ class CartFragment : Fragment() {
         } else {
             filteredByCategory.filter { it.name.contains(currentQuery, ignoreCase = true) }
         }
-
         productAdapter.updateData(finalFiltered)
     }
 
     private fun updateTotal() {
-        val total = cartList.sumOf {
-            it.price.replace("Rp", "").replace(".", "").toIntOrNull() ?: 0
-        }
-
-        // ✅ Format angka rupiah dengan NumberFormat
-        val formattedTotal = NumberFormat.getCurrencyInstance(Locale("in", "ID")).format(total)
-        tvTotal.text = formattedTotal
+        val subtotal = cartList.sumOf { it.price * it.quantity }
+        val formattedSubtotal = NumberFormat.getCurrencyInstance(Locale("in", "ID")).format(subtotal)
+        tvTotal.text = "Subtotal: $formattedSubtotal"
         updateBottomBarState()
     }
 }
