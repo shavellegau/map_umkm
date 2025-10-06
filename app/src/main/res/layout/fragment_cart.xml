@@ -1,40 +1,126 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/tuku_bg"
     tools:context=".CartFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_category"
+    <!-- penting: supaya di atas navbar -->
+    <LinearLayout
+        android:id="@+id/layout_bottom"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/tuku_primary"
+        android:padding="12dp"
+        android:elevation="8dp"
+        android:layout_marginBottom="?attr/actionBarSize"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_products"
-        android:layout_width="match_parent"
+
+
+    <!-- Kontainer Total Harga -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total Harga"
+                android:textSize="14sp"
+                android:textColor="@android:color/white"/>
+            <TextView
+                android:id="@+id/tv_total"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rp0"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"/>
+        </LinearLayout>
+
+        <!-- Tombol Lihat Pesanan dengan Badge -->
+        <Button
+            android:id="@+id/btn_view_order"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="Lihat Pesanan (0)"
+            android:backgroundTint="@color/tuku_accent"
+            android:textColor="@android:color/white"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:layout_marginEnd="0dp"/>
+
+    </LinearLayout>
+
+
+    <!-- Konten Scrollable: Berhenti tepat di atas layout_bottom -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/layout_bottom"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <TextView
-        android:id="@+id/tv_total"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Total: Rp0"
-        android:textSize="18sp"
-        android:layout_margin="8dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="100dp"> <!-- PENTING: Padding yang lebih besar untuk memberi ruang BNV eksternal -->
 
-    <Button
-        android:id="@+id/btn_takeaway"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Take Away" />
+            <!-- Judul -->
+            <TextView
+                android:id="@+id/tv_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TUKU COFFEE"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:padding="12dp"
+                android:textColor="@color/tuku_primary" />
 
-    <Button
-        android:id="@+id/btn_delivery"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Delivery" />
+            <!-- Search Bar -->
+            <EditText
+                android:id="@+id/et_search"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/bg_search"
+                android:drawableStart="@android:drawable/ic_search_category_default"
+                android:drawablePadding="8dp"
+                android:hint="Cari menu..."
+                android:inputType="text"
+                android:maxLines="1"
+                android:padding="10dp" />
 
-</LinearLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="4dp"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:paddingHorizontal="8dp"
+                android:scrollbars="none" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_products"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:overScrollMode="never" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -19,7 +19,6 @@
             android:layout_width="match_parent"
             android:layout_height="120dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_launcher_foreground"
             android:background="@android:color/white"
             android:contentDescription="@string/app_name" />
 

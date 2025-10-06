@@ -41,29 +41,26 @@ class ProductAdapter(
             holder.tvOldPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
 
         // Logika untuk menampilkan gambar atau placeholder
-        // Jika ada resource gambar (bukan 0), tampilkan gambar tersebut.
+        // Jika ada resource gambar, tampilkan. Jika tidak, tampilkan placeholder.
         if (product.imageRes != 0) {
             holder.ivProduct.setImageResource(product.imageRes)
-            // Hapus latar belakang hijau jika ada gambar
+            // Hapus latar belakang placeholder
             holder.ivProduct.setBackgroundResource(android.R.color.transparent)
         } else {
-            // Jika tidak ada resource gambar, tampilkan placeholder kotak hijau.
-            // Gunakan setBackgroundResource untuk memberikan warna atau drawable sebagai latar belakang.
-            holder.ivProduct.setImageResource(0) // Pastikan tidak ada gambar lain yang ditampilkan
-            holder.ivProduct.setBackgroundResource(R.drawable.ic_launcher_background)
+            // Tampilkan placeholder yang lebih baik (misalnya ikon default)
+            holder.ivProduct.setImageResource(R.drawable.banner_kopi)
         }
 
-        // klik card
-        holder.itemView.setOnClickListener { onClick(product) }
-
-        // klik tombol +
+        // Hanya tombol '+' yang memiliki listener untuk menambahkan item
         holder.btnAdd.setOnClickListener { onClick(product) }
     }
 
     override fun getItemCount() = products.size
 
+    // Menggunakan DiffUtil untuk update data yang lebih efisien (SANGAT DISARANKAN)
+    // Untuk ini, Anda perlu membuat ProductDiffCallback.kt
     fun updateData(newProducts: List<Product>) {
         products = newProducts
-        notifyDataSetChanged()
+        notifyDataSetChanged() // Perlu diubah ke DiffUtil untuk performa terbaik
     }
 }

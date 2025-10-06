@@ -5,8 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.map_umkm.model.Category
 import com.example.map_umkm.R
+import com.example.map_umkm.model.Category
 
 class CategoryAdapter(
     private val categories: List<Category>,
@@ -36,15 +36,30 @@ class CategoryAdapter(
         )
 
         holder.itemView.setOnClickListener {
-            // Use getAdapterPosition() to get the current position
-            val currentPosition = holder.getAdapterPosition()
+            // Dapatkan posisi item yang diklik secara aman
+            val currentPosition = holder.bindingAdapterPosition
             if (currentPosition != RecyclerView.NO_POSITION) {
+                // Simpan posisi sebelumnya untuk diperbarui
+                val oldSelectedPosition = selectedPosition
                 selectedPosition = currentPosition
-                notifyDataSetChanged()
+
+                // Beri tahu adapter untuk memperbarui dua item saja, bukan seluruh daftar
+                notifyItemChanged(oldSelectedPosition)
+                notifyItemChanged(selectedPosition)
+
+                // Panggil fungsi klik yang didefinisikan di fragment
                 onClick(categories[currentPosition])
             }
         }
     }
 
     override fun getItemCount() = categories.size
+
+    // Fungsi opsional untuk mengatur posisi terpilih dari luar adapter (misalnya dari fragment)
+    fun setSelectedPosition(position: Int) {
+        val oldPosition = selectedPosition
+        selectedPosition = position
+        notifyItemChanged(oldPosition)
+        notifyItemChanged(selectedPosition)
+    }
 }

@@ -5,13 +5,15 @@
     android:layout_height="match_parent">
 
     <!-- Fragment container untuk Navigation Component -->
+    <!-- PENTING: ATRIBUT layout_behavior INI MENJAMIN FRAGMENT DIATUR DI BAWAH APP BAR DAN DI ATAS BOTTOM BAR -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:defaultNavHost="true"
-        app:navGraph="@navigation/nav_graph" />
+        app:navGraph="@navigation/nav_graph"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
