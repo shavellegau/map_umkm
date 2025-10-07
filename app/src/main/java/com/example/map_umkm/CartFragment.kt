@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.DrawableRes
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -56,7 +57,7 @@ class CartFragment : Fragment() {
         setupSearchListener()
         setupBottomBarListener()
         loadMenuFromAssets()
-        updateTotal() // Tambahkan ini agar total awal 0
+        updateTotal()
 
         return view
     }
@@ -110,22 +111,33 @@ class CartFragment : Fragment() {
                     Product(
                         id = it.id ?: 0,
                         name = it.name,
-                        price = it.price_hot ?: 0,
-                        imageRes = R.drawable.ic_launcher_background,
+                        price = it.price_hot?.toDouble() ?: 0.0,
+                        imageRes = R.drawable.logo_tuku,
                         category = it.category
                     )
                 }
 
-                productAdapter = ProductAdapter(allProducts.toMutableList()) { product ->
-                    val existingProduct = cartList.find { it.id == product.id }
-                    if (existingProduct != null) {
-                        existingProduct.quantity++
-                    } else {
-                        cartList.add(product.copy(quantity = 1))
+
+                productAdapter = ProductAdapter(
+                    allProducts.toMutableList(),
+                    onAddToCart = { product, _ ->
+                        val existingProduct = cartList.find { it.id == product.id }
+                        if (existingProduct != null) {
+                            existingProduct.quantity++
+                        } else {
+                            cartList.add(product.copy(quantity = 1))
+                        }
+                        updateTotal()
+                        Toast.makeText(requireContext(), "Ditambahkan: ${product.name}", Toast.LENGTH_SHORT).show()
+                    },
+                    onFavoriteToggle = { product, isFavorite ->
+                        Toast.makeText(
+                            requireContext(),
+                            "${product.name} ${if (isFavorite) "disukai" else "dihapus dari favorit"}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
-                    updateTotal()
-                    Toast.makeText(requireContext(), "Ditambahkan: ${product.name}", Toast.LENGTH_SHORT).show()
-                }
+                )
 
                 rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
                 rvProducts.adapter = productAdapter
@@ -171,6 +183,7 @@ class CartFragment : Fragment() {
         } else {
             filteredByCategory.filter { it.name.contains(currentQuery, ignoreCase = true) }
         }
+
         productAdapter.updateData(finalFiltered)
     }
 

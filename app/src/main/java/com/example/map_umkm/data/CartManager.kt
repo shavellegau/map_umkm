@@ -34,7 +34,10 @@ object CartManager {
         cartItems.clear()
     }
 
+
     fun getTotalPrice(): Int {
-        return cartItems.sumOf { it.price * it.quantity }
+        return cartItems.sumOf { it.price * it.quantity }.toInt()
     }
+
+
 }

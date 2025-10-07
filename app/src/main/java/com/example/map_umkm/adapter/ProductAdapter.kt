@@ -13,8 +13,9 @@ import java.text.NumberFormat
 import java.util.Locale
 
 class ProductAdapter(
-    private var products: MutableList<Product>,
-    private val onAddToCart: (Product) -> Unit
+    private val products: MutableList<Product>, // biar bisa di-update
+    private val onAddToCart: (Product, Boolean) -> Unit, // ✅ dua parameter
+    private val onFavoriteToggle: (Product, Boolean) -> Unit // ✅ ditambahkan
 ) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -22,6 +23,7 @@ class ProductAdapter(
         val tvProductName: TextView = itemView.findViewById(R.id.tvProductName)
         val tvProductPrice: TextView = itemView.findViewById(R.id.tvProductPrice)
         val btnAddToCart: ImageButton = itemView.findViewById(R.id.btnAddToCart)
+        val btnFavorite: ImageButton = itemView.findViewById(R.id.btnFavorite)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
@@ -38,13 +40,27 @@ class ProductAdapter(
             NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(product.price)
         holder.ivProductImage.setImageResource(product.imageRes)
 
+        // Ganti icon hati sesuai status favorit
+        holder.btnFavorite.setImageResource(
+            if (product.isFavorite) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_border
+        )
+
+        // ✅ klik tombol favorite
+        holder.btnFavorite.setOnClickListener {
+            product.isFavorite = !product.isFavorite
+            notifyItemChanged(position)
+            onFavoriteToggle(product, product.isFavorite)
+        }
+
+        // ✅ klik tombol tambah ke cart
         holder.btnAddToCart.setOnClickListener {
-            onAddToCart(product)
+            onAddToCart(product, true) // ← tambahkan parameter kedua Boolean
         }
     }
 
     override fun getItemCount(): Int = products.size
 
+    // ✅ Update list dengan aman
     fun updateData(newProducts: List<Product>) {
         products.clear()
         products.addAll(newProducts)

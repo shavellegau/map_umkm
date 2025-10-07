@@ -77,9 +77,10 @@ class PaymentFragment : Fragment() {
     }
 
     private fun calculateAndDisplayTotals() {
-        val subtotal = cartList?.sumOf { it.price * it.quantity } ?: 0
+        val subtotal = cartList?.sumOf { it.price * it.quantity.toDouble() } ?: 0.0
         val tax = subtotal * 0.1
         val total = subtotal + tax
+
 
         // Format angka ke mata uang Rupiah
         val currencyFormat = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
