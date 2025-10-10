@@ -16,13 +16,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Map_umkm">
 
-        <activity android:name=".PesananSayaFragment" />
-        <activity android:name=".WishlistFragment" />
-        <activity android:name=".RiwayatPoinFragment" />
-        <activity android:name=".VoucherSayaFragment" />
-        <activity android:name=".PengaturanAkunActivity" />
-        <activity android:name=".AlamatActivity" />
-        <activity android:name=".BantuanActivity" />
+<!--        <activity android:name=".PesananSayaFragment" />-->
+<!--        <activity android:name=".BantuanFragment" />-->
+<!--        <activity android:name=".WishlistFragment" />-->
+<!--        <activity android:name=".RiwayatPoinFragment" />-->
+<!--        <activity android:name=".VoucherSayaFragment" />-->
+<!--        <activity android:name=".PengaturanAkunActivity" />-->
+<!--        <activity android:name=".AlamatActivity" />-->
+<!--        <activity android:name=".BantuanFragment" />-->
 
         <!-- Admin Activity -->
         <activity android:name=".AdminActivity" />

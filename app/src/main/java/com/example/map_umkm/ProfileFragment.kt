@@ -88,16 +88,22 @@ class ProfileFragment : Fragment() {
             openActivity(AlamatActivity::class.java)
         }
         root.findViewById<View>(R.id.menuBantuan).setOnClickListener {
-            openActivity(BantuanActivity::class.java)
+            findNavController().navigate(R.id.bantuanFragment)
         }
+
 
         return root
     }
 
     private fun openActivity(activityClass: Class<*>) {
-        val intent = Intent(requireContext(), activityClass)
-        startActivity(intent)
+        if (Activity::class.java.isAssignableFrom(activityClass)) {
+            val intent = Intent(requireContext(), activityClass)
+            startActivity(intent)
+        } else {
+            Toast.makeText(requireContext(), "Fragment tidak bisa dibuka sebagai Activity", Toast.LENGTH_SHORT).show()
+        }
     }
+
 
     private fun showEditProfileDialog() {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_edit_profile, null)

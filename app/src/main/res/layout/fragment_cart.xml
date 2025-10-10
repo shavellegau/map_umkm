@@ -12,51 +12,94 @@
         android:id="@+id/layout_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:orientation="vertical"
         android:background="@color/tuku_primary"
-        android:padding="12dp"
         android:elevation="8dp"
+        android:padding="12dp"
         android:layout_marginBottom="?attr/actionBarSize"
         app:layout_constraintBottom_toBottomOf="parent">
 
-
-    <!-- Kontainer Total Harga -->
+        <!-- Bagian Subtotal, Pajak, dan Total Bayar -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:id="@+id/layout_total_detail"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:background="@color/white"
+            android:layout_marginBottom="8dp"
+            android:elevation="2dp">
+
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/tvSubtotal"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Total Harga"
-                android:textSize="14sp"
-                android:textColor="@android:color/white"/>
+                android:text="Subtotal: Rp0"
+                android:textSize="16sp"
+                android:padding="4dp" />
+
             <TextView
-                android:id="@+id/tv_total"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvTax"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Rp0"
-                android:textSize="20sp"
+                android:text="Pajak (10%): Rp0"
+                android:textSize="16sp"
+                android:padding="4dp" />
+
+            <TextView
+                android:id="@+id/tvTotalPayment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Total Bayar: Rp0"
                 android:textStyle="bold"
-                android:textColor="@android:color/white"/>
+                android:textSize="18sp"
+                android:padding="4dp" />
+
         </LinearLayout>
 
-        <!-- Tombol Lihat Pesanan dengan Badge -->
-        <Button
-            android:id="@+id/btn_view_order"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:text="Lihat Pesanan (0)"
-            android:backgroundTint="@color/tuku_accent"
-            android:textColor="@android:color/white"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp"
-            android:layout_marginEnd="0dp"/>
+        <!-- Baris bawah: Total Harga dan Tombol Lihat Pesanan -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Kontainer Total Harga -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total Harga"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/white" />
+                <TextView
+                    android:id="@+id/tv_total"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rp0"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white" />
+            </LinearLayout>
+
+            <!-- Tombol Lihat Pesanan -->
+            <Button
+                android:id="@+id/btn_view_order"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:text="Lihat Pesanan (0)"
+                android:backgroundTint="@color/tuku_accent"
+                android:textColor="@android:color/white"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:layout_marginEnd="0dp" />
+        </LinearLayout>
 
     </LinearLayout>
-
 
     <!-- Konten Scrollable: Berhenti tepat di atas layout_bottom -->
     <androidx.core.widget.NestedScrollView
@@ -73,7 +116,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="100dp"> <!-- PENTING: Padding yang lebih besar untuk memberi ruang BNV eksternal -->
+            android:paddingBottom="100dp">
 
             <!-- Judul -->
             <TextView
@@ -102,6 +145,7 @@
                 android:maxLines="1"
                 android:padding="10dp" />
 
+            <!-- RecyclerViews -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_category"
                 android:layout_width="match_parent"
@@ -119,7 +163,6 @@
                 android:layout_height="wrap_content"
                 android:padding="8dp"
                 android:overScrollMode="never" />
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

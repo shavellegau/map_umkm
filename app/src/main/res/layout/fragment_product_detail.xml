@@ -75,5 +75,15 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/tuku_accent"
             android:textColor="@color/tuku_bg" />
+
+        <ImageView
+            android:id="@+id/ivFavorite"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_favorite_border"
+            android:layout_margin="8dp"
+            android:contentDescription="Favorite"
+            android:tint="@color/red" />
+
     </LinearLayout>
 </ScrollView>

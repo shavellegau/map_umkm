@@ -169,9 +169,9 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Wishlist"
-                                    android:textSize="14sp"
-                                    android:textColor="#000000" />
+                                    android:text="Favorite"
+                                    android:textColor="#000000"
+                                    android:textSize="14sp" />
                             </LinearLayout>
                         </androidx.cardview.widget.CardView>
 

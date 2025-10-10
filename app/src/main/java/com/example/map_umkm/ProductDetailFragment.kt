@@ -1,20 +1,17 @@
 package com.example.map_umkm
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
-import com.example.map_umkm.viewmodel.CartViewModel
+import com.example.map_umkm.helper.FirestoreHelper
 import com.example.map_umkm.model.Product
+import com.example.map_umkm.viewmodel.CartViewModel
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -24,6 +21,7 @@ class ProductDetailFragment : Fragment() {
     private lateinit var tvName: TextView
     private lateinit var tvDescription: TextView
     private lateinit var tvCategory: TextView
+    private lateinit var ivFavorite: ImageView
     private lateinit var tvPrice: TextView
     private lateinit var rgTemperature: RadioGroup
     private lateinit var rbHot: RadioButton
@@ -57,16 +55,26 @@ class ProductDetailFragment : Fragment() {
         rbHot = view.findViewById(R.id.rbHot)
         rbIced = view.findViewById(R.id.rbIced)
         btnAddToCart = view.findViewById(R.id.btnAddToCart)
+        ivFavorite = view.findViewById(R.id.ivFavorite)
 
-        selectedProduct = arguments?.getParcelable("product")
+        selectedProduct = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arguments?.getParcelable("product", Product::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            arguments?.getParcelable("product")
+        }
 
         selectedProduct?.let { product ->
-            tvName.text = product.name
-            tvDescription.text = product.description
-            tvCategory.text = product.category
+            tvName.text = product.name ?: ""
+            tvDescription.text = product.description ?: ""
+            tvCategory.text = product.category ?: ""
             Glide.with(this).load(product.image).into(ivImage)
 
-            // Update UI based on initial selection and product availability
+            // initial favorite icon
+            updateFavoriteIcon(product.isFavorite)
+
+            // default temperature selection
+            rbHot.isChecked = true
             updateUiForProduct(product)
 
             rgTemperature.setOnCheckedChangeListener { _, checkedId ->
@@ -76,47 +84,79 @@ class ProductDetailFragment : Fragment() {
             btnAddToCart.setOnClickListener {
                 addToCart(product)
             }
+
+            ivFavorite.setOnClickListener {
+                product.isFavorite = !product.isFavorite
+                updateFavoriteIcon(product.isFavorite)
+
+                if (product.isFavorite) {
+                    // --- Panggilan yang biasanya sesuai helper (kirim field) ---
+                    FirestoreHelper.addToWishlist(
+                        productId = product.id ?: "",
+                        productName = product.name ?: "",
+                        productPrice = (product.price_hot ?: 0).toString(),
+                        imageUrl = product.image ?: ""
+                    ) { success ->
+                        if (success) {
+                            Toast.makeText(requireContext(), "${product.name} ditambahkan ke favorit", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(requireContext(), "Gagal menambahkan ke favorit", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                    // --- Jika FirestoreHelper menerima Product langsung, bisa dipanggil:
+                    // FirestoreHelper.addToWishlist(product) { success -> ... }
+                } else {
+                    // remove by id (umumnya helper menerima id)
+                    FirestoreHelper.removeFromWishlist(product.id ?: "") { success ->
+                        if (success) {
+                            Toast.makeText(requireContext(), "${product.name} dihapus dari favorit", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(requireContext(), "Gagal menghapus dari favorit", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
         }
 
         return view
     }
 
-    // Add this method to handle all UI updates related to the product
     private fun updateUiForProduct(product: Product) {
-        // Set the default temperature based on product availability
         if (product.price_iced == null) {
             rbIced.visibility = View.GONE
         } else {
             rbIced.visibility = View.VISIBLE
         }
 
-        // Initial price display
-        val initialPrice = if (rbHot.isChecked) product.price_hot else product.price_iced ?: product.price_hot
+        val initialPrice = if (rbHot.isChecked) (product.price_hot ?: 0) else (product.price_iced ?: product.price_hot ?: 0)
         tvPrice.text = formatCurrency(initialPrice)
     }
 
     private fun updatePriceForSelection(product: Product, checkedId: Int) {
         val newPrice = when (checkedId) {
-            R.id.rbIced -> product.price_iced ?: product.price_hot
-            else -> product.price_hot
+            R.id.rbIced -> product.price_iced ?: product.price_hot ?: 0
+            else -> product.price_hot ?: 0
         }
         tvPrice.text = formatCurrency(newPrice)
     }
 
     private fun addToCart(product: Product) {
-        val finalPrice = if (rbHot.isChecked) product.price_hot else product.price_iced ?: product.price_hot
-
-        // Create a new product instance with the final price
+        val finalPrice = if (rbHot.isChecked) (product.price_hot ?: 0) else (product.price_iced ?: product.price_hot ?: 0)
         val productToAdd = product.copy(price_hot = finalPrice, quantity = 1)
-
-        // Use the ViewModel to add the product
         cartViewModel.addProduct(productToAdd)
+        Toast.makeText(requireContext(), "${product.name} added to cart!", Toast.LENGTH_SHORT).show()
 
-        Toast.makeText(context, "${product.name} added to cart!", Toast.LENGTH_SHORT).show()
+        // Kembalikan ke layar sebelumnya (lebih aman daripada replace dengan 'fragment' yang tidak ada)
         requireActivity().supportFragmentManager.popBackStack()
     }
 
     private fun formatCurrency(amount: Int): String {
         return NumberFormat.getCurrencyInstance(Locale("in", "ID")).format(amount)
+    }
+
+    private fun updateFavoriteIcon(isFavorite: Boolean) {
+        val icon = if (isFavorite) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_border
+        ivFavorite.setImageResource(icon)
     }
 }

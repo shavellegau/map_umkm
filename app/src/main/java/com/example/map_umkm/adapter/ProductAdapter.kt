@@ -15,7 +15,8 @@ import java.util.Locale
 
 class ProductAdapter(
     private var products: MutableList<Product>,
-    private val onProductClick: (Product) -> Unit
+    private val onProductClick: (Product) -> Unit,
+    private val onFavoriteToggle: (Product, Boolean) -> Unit // ✅ Tambahan listener favorit
 ) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -23,6 +24,7 @@ class ProductAdapter(
         val tvProductName: TextView = itemView.findViewById(R.id.tvProductName)
         val tvProductPrice: TextView = itemView.findViewById(R.id.tvProductPrice)
         val btnAddToCart: ImageButton = itemView.findViewById(R.id.btnAddToCart)
+        val btnFavorite: ImageButton = itemView.findViewById(R.id.btnFavorite) // ✅ Tambahan tombol favorite
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
@@ -53,11 +55,27 @@ class ProductAdapter(
             Glide.with(holder.itemView.context).load(R.drawable.default_image).into(holder.ivProductImage)
         }
 
-        // Set listener untuk seluruh itemview
+        // ✅ Atur icon favorite sesuai status
+        if (product.isFavorite) {
+            holder.btnFavorite.setImageResource(R.drawable.ic_favorite_filled)
+        } else {
+            holder.btnFavorite.setImageResource(R.drawable.ic_favorite_border)
+        }
+
+        // ✅ Listener untuk tombol favorite
+        holder.btnFavorite.setOnClickListener {
+            val newState = !product.isFavorite
+            product.isFavorite = newState
+            onFavoriteToggle(product, newState)
+            notifyItemChanged(holder.adapterPosition)
+        }
+
+        // Listener untuk klik item produk
         holder.itemView.setOnClickListener {
             onProductClick(product)
         }
-        // Ketika tombol '+' diklik, lakukan hal yang sama: arahkan ke detail produk
+
+        // Listener untuk tombol cart (tetap seperti semula)
         holder.btnAddToCart.setOnClickListener {
             onProductClick(product)
         }
@@ -71,3 +89,4 @@ class ProductAdapter(
         notifyDataSetChanged()
     }
 }
+

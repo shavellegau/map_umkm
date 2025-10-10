@@ -29,7 +29,7 @@ class WishlistFragment : Fragment() {
 
         // Use WishlistAdapter and pass the correct lambda for item removal
         adapter = WishlistAdapter(favoriteItems, onRemoveFavorite = { product ->
-            FirestoreHelper.removeFromWishlist(product) { success ->
+            FirestoreHelper.removeFromWishlist(product.id) { success ->
                 if (success) {
                     val position = favoriteItems.indexOf(product)
                     if (position != -1) {
@@ -57,11 +57,11 @@ class WishlistFragment : Fragment() {
                 val productList = data.mapNotNull { map ->
                     try {
                         Product(
-                            id = (map["id"] as? Number)?.toInt() ?: 0,
+                            id = map["id"]?.toString() ?: "",
                             name = map["name"] as? String ?: "",
                             price_hot = (map["price_hot"] as? Number)?.toInt() ?: 0, // Correctly access price_hot
-                            price_iced = (map["price_iced"] as? Number)?.toInt(),
-                            image = map["image"] as? String, // Correctly access image URL
+                            price_iced = (map["price_iced"] as? Number)?.toInt() ?: 0,
+                            image = map["image"] as? String ?: "",
                             category = map["category"] as? String ?: "",
                             isFavorite = true,
                             description = map["description"] as? String ?: ""

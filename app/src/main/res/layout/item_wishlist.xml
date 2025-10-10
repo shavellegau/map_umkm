@@ -52,52 +52,61 @@
                 android:text="Deskripsi"
                 android:textSize="12sp"
                 android:textColor="#777" />
+
+            <!-- Tombol + dan - -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical">
+
+                <!-- Tombol Minus -->
+                <ImageButton
+                    android:id="@+id/btnMinus"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_circle_tuku"
+                    android:src="@drawable/ic_minus"
+                    android:contentDescription="Kurangi jumlah"
+                    app:tint="@android:color/white" />
+
+                <!-- Jumlah -->
+                <TextView
+                    android:id="@+id/tvQuantity"
+                    android:text="1"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:textColor="@color/tuku_dark"
+                    android:textSize="16sp" />
+
+                <!-- Tombol Plus -->
+                <ImageButton
+                    android:id="@+id/btnPlus"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_circle_tuku"
+                    android:src="@drawable/ic_add"
+                    android:contentDescription="Tambah jumlah"
+                    app:tint="@android:color/white" />
+            </LinearLayout>
         </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnFav"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_favorite_filled"
+            android:tint="#D32F2F"/>
+    </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:gravity="center">
-
-            <ImageButton
-                android:id="@+id/btnFav"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_favorite_filled"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:tint="#D32F2F" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center">
-
-                <ImageButton
-                    android:id="@+id/btnMinus"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:src="@android:drawable/ic_media_previous"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:tint="#3B2C26" />
-
-                <TextView
-                    android:id="@+id/txtQty"
-                    android:layout_width="24dp"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:gravity="center"
-                    android:textColor="#000" />
-
-                <ImageButton
-                    android:id="@+id/btnAdd"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:src="@android:drawable/ic_input_add"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:tint="#3B2C26" />
-            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
 </androidx.cardview.widget.CardView>

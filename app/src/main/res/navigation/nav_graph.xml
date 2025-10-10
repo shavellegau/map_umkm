@@ -37,7 +37,7 @@
 
     <fragment
         android:id="@+id/pesananSayaFragment"
-        android:name="com.example.map_umkm.PesananSayaFragment"
+        android:name="com.example.map_umkm.ui.pesanan.PesananSayaFragment"
         android:label="Pesanan Saya"
         tools:layout="@layout/fragment_pesanan_saya" />
 
@@ -46,6 +46,12 @@
         android:name="com.example.map_umkm.WishlistFragment"
         android:label="Wishlist Saya"
         tools:layout="@layout/fragment_wishlist" />
+
+    <fragment
+        android:id="@+id/bantuanFragment"
+        android:name="com.example.map_umkm.BantuanFragment"
+        android:label="Bantuan"
+        tools:layout="@layout/fragment_bantuan" />
 
     <fragment
         android:id="@+id/voucherSayaFragment"
