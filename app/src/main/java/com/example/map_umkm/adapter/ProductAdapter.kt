@@ -13,9 +13,9 @@ import com.example.map_umkm.model.Product
 import java.text.NumberFormat
 import java.util.Locale
 
-class   ProductAdapter(
+class ProductAdapter(
     private var products: MutableList<Product>,
-    private val onProductClick: (Product) -> Unit
+    private val onAddToCart: (Product) -> Unit
 ) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -40,28 +40,13 @@ class   ProductAdapter(
             .format(product.price_hot ?: 0.0)
         holder.tvProductPrice.text = formattedPrice
 
-        // --- Muat gambar menggunakan Glide ---
-        val imageUrl = product.image
-        Glide.with(holder.itemView.context)
-            .load(imageUrl ?: R.drawable.default_image)
-            .placeholder(R.drawable.placeholder_image)
-            .error(R.drawable.error_image)
-            .into(holder.ivProductImage)
-
-        // --- Klik tombol tambah ---
         holder.btnAddToCart.setOnClickListener {
-            onProductClick(product)
-        }
-
-        // --- Klik seluruh item untuk buka detail produk ---
-        holder.itemView.setOnClickListener {
-            onProductClick(product)
+            onAddToCart(product)
         }
     }
 
     override fun getItemCount(): Int = products.size
 
-    // --- Untuk memperbarui data ---
     fun updateData(newProducts: List<Product>) {
         products.clear()
         products.addAll(newProducts)

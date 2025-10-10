@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.adapter.PoinHistoryAdapter
 import com.example.map_umkm.model.PoinHistory
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class RiwayatPoinFragment : Fragment() {
 
@@ -29,5 +31,71 @@ class RiwayatPoinFragment : Fragment() {
 
         recyclerView.adapter = PoinHistoryAdapter(poinList)
         return view
+    }
+}
+
+object FirestoreHelper {
+    private val db = FirebaseFirestore.getInstance()
+
+    // Menyimpan produk favorit ke Firestore
+    fun addToWishlist(productId: String, productName: String, productPrice: Double, imageUrl: String, onComplete: (Boolean) -> Unit) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId == null) {
+            onComplete(false)
+            return
+        }
+
+        val wishlistData = hashMapOf(
+            "productId" to productId,
+            "productName" to productName,
+            "productPrice" to productPrice,
+            "imageUrl" to imageUrl
+        )
+
+        db.collection("users")
+            .document(userId)
+            .collection("wishlist")
+            .document(productId)
+            .set(wishlistData)
+            .addOnSuccessListener { onComplete(true) }
+            .addOnFailureListener { onComplete(false) }
+    }
+
+    // Menghapus produk dari wishlist
+    fun removeFromWishlist(productId: String, onComplete: (Boolean) -> Unit) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId == null) {
+            onComplete(false)
+            return
+        }
+
+        db.collection("users")
+            .document(userId)
+            .collection("wishlist")
+            .document(productId)
+            .delete()
+            .addOnSuccessListener { onComplete(true) }
+            .addOnFailureListener { onComplete(false) }
+    }
+
+    // Mengambil semua wishlist user
+    fun getWishlist(onResult: (List<Map<String, Any>>) -> Unit) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId == null) {
+            onResult(emptyList())
+            return
+        }
+
+        db.collection("users")
+            .document(userId)
+            .collection("wishlist")
+            .get()
+            .addOnSuccessListener { result ->
+                val items = result.documents.mapNotNull { it.data }
+                onResult(items)
+            }
+            .addOnFailureListener {
+                onResult(emptyList())
+            }
     }
 }

@@ -56,18 +56,16 @@
             return view
         }
 
-        private fun calculateAndDisplayTotals() {
-            val currentCart = cartViewModel.cartList.value ?: emptyList()
-            val subtotal = currentCart.sumOf {
-                val price = if (it.selectedType == "iced") it.price_iced ?: it.price_hot else it.price_hot
-                price * it.quantity
-            }
-            val tax = subtotal * 0.1
-            val total = subtotal + tax
+    private fun calculateAndDisplayTotals() {
+        val subtotal = cartList?.sumOf { it.price * it.quantity } ?: 0
+        val tax = subtotal * 0.1
+        val total = subtotal + tax
 
-            val currencyFormat = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
-            tvSubtotal.text = currencyFormat.format(subtotal)
-            tvTax.text = currencyFormat.format(tax)
-            tvTotalPayment.text = currencyFormat.format(total)
-        }
+        // Format angka ke mata uang Rupiah
+        val currencyFormat = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
+
+        tvSubtotal.text = currencyFormat.format(subtotal)
+        tvTax.text = currencyFormat.format(tax)
+        tvTotalPayment.text = currencyFormat.format(total)
     }
+}

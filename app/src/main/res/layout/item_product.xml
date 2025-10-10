@@ -76,6 +76,16 @@
                 android:tint="@android:color/white"
                 android:background="@drawable/bg_circle_red"
                 android:layout_gravity="center_vertical" />
+
+            <ImageView
+                android:id="@+id/btnFavorite"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/ic_favorite_border"
+                android:contentDescription="@string/favorite"
+                android:padding="4dp" />
+
         </LinearLayout>
 
     </LinearLayout>

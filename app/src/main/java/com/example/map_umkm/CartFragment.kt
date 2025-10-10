@@ -59,10 +59,7 @@ class CartFragment : Fragment() {
         setupSearchListener()
         setupBottomBarListener()
         loadMenuFromAssets()
-
-        cartViewModel.cartList.observe(viewLifecycleOwner) {
-            updateTotal()
-        }
+        updateTotal() // Tambahkan ini agar total awal 0
 
         return view
     }
@@ -115,23 +112,23 @@ class CartFragment : Fragment() {
 
                 allProducts = menuList.map { menuItem ->
                     Product(
-                        id = menuItem.id ?: 0,
-                        name = menuItem.name,
-                        price_hot = menuItem.price_hot ?: 0,
-                        price_iced = menuItem.price_iced,
-                        image = menuItem.image,
-                        category = menuItem.category,
-                        description = menuItem.description
+                        id = it.id ?: 0,
+                        name = it.name,
+                        price = it.price_hot ?: 0,
+                        imageRes = R.drawable.ic_launcher_background,
+                        category = it.category
                     )
                 }
 
-                // FIX: Ubah lambda onAddToCart menjadi onProductClick untuk membuka detail
                 productAdapter = ProductAdapter(allProducts.toMutableList()) { product ->
-                    val detailFragment = ProductDetailFragment.newInstance(product)
-                    requireActivity().supportFragmentManager.beginTransaction()
-                        .replace(R.id.nav_host_fragment, detailFragment)
-                        .addToBackStack(null)
-                        .commit()
+                    val existingProduct = cartList.find { it.id == product.id }
+                    if (existingProduct != null) {
+                        existingProduct.quantity++
+                    } else {
+                        cartList.add(product.copy(quantity = 1))
+                    }
+                    updateTotal()
+                    Toast.makeText(requireContext(), "Ditambahkan: ${product.name}", Toast.LENGTH_SHORT).show()
                 }
 
                 rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
