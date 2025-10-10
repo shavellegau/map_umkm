@@ -11,6 +11,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +20,7 @@ import com.example.map_umkm.adapter.ProductAdapter
 import com.example.map_umkm.model.Category
 import com.example.map_umkm.model.MenuResponse
 import com.example.map_umkm.model.Product
+import com.example.map_umkm.viewmodel.CartViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.IOException
@@ -34,7 +36,8 @@ class CartFragment : Fragment() {
     private lateinit var bottomBar: View
     private lateinit var btnViewOrder: Button
 
-    private val cartList = mutableListOf<Product>()
+    private val cartViewModel: CartViewModel by activityViewModels()
+
     private lateinit var productAdapter: ProductAdapter
     private var allProducts: List<Product> = emptyList()
     private var selectedCategory: String? = null
@@ -56,7 +59,10 @@ class CartFragment : Fragment() {
         setupSearchListener()
         setupBottomBarListener()
         loadMenuFromAssets()
-        updateTotal() // Tambahkan ini agar total awal 0
+
+        cartViewModel.cartList.observe(viewLifecycleOwner) {
+            updateTotal()
+        }
 
         return view
     }
@@ -73,7 +79,7 @@ class CartFragment : Fragment() {
 
     private fun setupBottomBarListener() {
         btnViewOrder.setOnClickListener {
-            val paymentFragment = PaymentFragment.newInstance(ArrayList(cartList))
+            val paymentFragment = PaymentFragment()
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace(R.id.nav_host_fragment, paymentFragment)
                 .addToBackStack(null)
@@ -82,9 +88,10 @@ class CartFragment : Fragment() {
     }
 
     private fun updateBottomBarState() {
-        if (cartList.isNotEmpty()) {
+        val currentCart = cartViewModel.cartList.value ?: emptyList()
+        if (currentCart.isNotEmpty()) {
             bottomBar.visibility = View.VISIBLE
-            btnViewOrder.text = "Lihat Pesanan (${cartList.sumOf { it.quantity }})"
+            btnViewOrder.text = "Lihat Pesanan (${currentCart.sumOf { it.quantity }})"
         } else {
             bottomBar.visibility = View.GONE
         }
@@ -106,25 +113,25 @@ class CartFragment : Fragment() {
             if (menuResponse != null) {
                 val menuList = menuResponse.menu ?: emptyList()
 
-                allProducts = menuList.map {
+                allProducts = menuList.map { menuItem ->
                     Product(
-                        id = it.id ?: 0,
-                        name = it.name,
-                        price = it.price_hot ?: 0,
-                        imageRes = R.drawable.ic_launcher_background,
-                        category = it.category
+                        id = menuItem.id ?: 0,
+                        name = menuItem.name,
+                        price_hot = menuItem.price_hot ?: 0,
+                        price_iced = menuItem.price_iced,
+                        image = menuItem.image,
+                        category = menuItem.category,
+                        description = menuItem.description
                     )
                 }
 
+                // FIX: Ubah lambda onAddToCart menjadi onProductClick untuk membuka detail
                 productAdapter = ProductAdapter(allProducts.toMutableList()) { product ->
-                    val existingProduct = cartList.find { it.id == product.id }
-                    if (existingProduct != null) {
-                        existingProduct.quantity++
-                    } else {
-                        cartList.add(product.copy(quantity = 1))
-                    }
-                    updateTotal()
-                    Toast.makeText(requireContext(), "Ditambahkan: ${product.name}", Toast.LENGTH_SHORT).show()
+                    val detailFragment = ProductDetailFragment.newInstance(product)
+                    requireActivity().supportFragmentManager.beginTransaction()
+                        .replace(R.id.nav_host_fragment, detailFragment)
+                        .addToBackStack(null)
+                        .commit()
                 }
 
                 rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
@@ -148,8 +155,6 @@ class CartFragment : Fragment() {
                     selectedCategory = categories[0].name
                     filterProducts(categories[0].name, "")
                 }
-
-                updateBottomBarState()
             } else {
                 Toast.makeText(requireContext(), "Gagal parse JSON", Toast.LENGTH_SHORT).show()
             }
@@ -175,7 +180,8 @@ class CartFragment : Fragment() {
     }
 
     private fun updateTotal() {
-        val subtotal = cartList.sumOf { it.price * it.quantity }
+        val currentCart = cartViewModel.cartList.value ?: emptyList()
+        val subtotal = currentCart.sumOf { it.price_hot * it.quantity }
         val formattedSubtotal = NumberFormat.getCurrencyInstance(Locale("in", "ID")).format(subtotal)
         tvTotal.text = "Subtotal: $formattedSubtotal"
         updateBottomBarState()

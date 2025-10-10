@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.map_umkm.R
 import com.example.map_umkm.model.Product
 import java.text.NumberFormat
@@ -34,32 +35,47 @@ class CartItemAdapter(
         return CartViewHolder(view)
     }
 
+    override fun getItemCount(): Int = items.size
+
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val item = items[position]
 
-        holder.ivProductImage.setImageResource(item.imageRes)
-        holder.tvProductName.text = item.name
-        holder.tvProductPrice.text = NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(item.price)
-        holder.tvQuantity.text = "1"
+        // Load image: Use Glide to load the image from the URL.
+        Glide.with(holder.itemView.context)
+            .load(item.image)
+            .placeholder(R.drawable.placeholder_image) // Shows placeholder while loading
+            .error(R.drawable.error_image) // Shows error image if load fails
+            .into(holder.ivProductImage)
 
-        var quantity = 1
+        holder.tvProductName.text = item.name
+
+        // Show the price for the chosen temperature (hot or iced)
+        val finalPrice = if (item.price_iced != null && item.price_iced != 0) {
+            item.price_iced
+        } else {
+            item.price_hot
+        }
+
+        val formattedPrice =
+            NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(finalPrice)
+        holder.tvProductPrice.text = formattedPrice
+
+        holder.tvQuantity.text = item.quantity.toString()
 
         holder.btnPlus.setOnClickListener {
-            quantity++
-            holder.tvQuantity.text = quantity.toString()
+            item.quantity++
+            notifyItemChanged(position)
             onQuantityChanged()
         }
 
         holder.btnMinus.setOnClickListener {
-            if (quantity > 1) {
-                quantity--
-                holder.tvQuantity.text = quantity.toString()
+            if (item.quantity > 1) {
+                item.quantity--
+                notifyItemChanged(position)
                 onQuantityChanged()
             }
         }
 
         holder.btnDelete.setOnClickListener { onDeleteItem(item) }
     }
-
-    override fun getItemCount(): Int = items.size
 }

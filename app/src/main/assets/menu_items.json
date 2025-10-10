@@ -16,7 +16,7 @@
       "category": "WHITE-MILK",
       "name": "MOCHA",
       "description": "espresso + chocolate powder + milk",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/mocha.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 28000,
       "price_iced": 31000
