@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.map_umkm.model.Product
 
+
 class CartViewModel : ViewModel() {
 
     private val _cartList = MutableLiveData<MutableList<Product>>(mutableListOf())

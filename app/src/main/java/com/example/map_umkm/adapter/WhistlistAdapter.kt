@@ -7,6 +7,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.map_umkm.R
 import com.example.map_umkm.model.Product
 import java.text.NumberFormat
@@ -32,8 +33,19 @@ class WishlistAdapter(
     override fun onBindViewHolder(holder: VH, position: Int) {
         val p = items[position]
         holder.txtName.text = p.name
-        holder.txtPrice.text = NumberFormat.getCurrencyInstance(Locale("id","ID")).format(p.price)
-        if (p.imageRes != 0) holder.imgMenu.setImageResource(p.imageRes)
+        holder.txtPrice.text = NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(p.price_hot)
+
+        // Load image from URL using Glide
+        p.image?.let { imageUrl ->
+            Glide.with(holder.itemView.context)
+                .load(imageUrl)
+                .placeholder(R.drawable.placeholder_image)
+                .error(R.drawable.error_image)
+                .into(holder.imgMenu)
+        } ?: run {
+            Glide.with(holder.itemView.context).load(R.drawable.default_image).into(holder.imgMenu)
+        }
+
         holder.btnFav.setOnClickListener { onRemoveFavorite(p) }
     }
 

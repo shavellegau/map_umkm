@@ -6,12 +6,13 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Product(
     val id: Int,
-    val category: String,
     val name: String,
+    val category: String,
     val description: String?,
     val image: String?,
     val price_hot: Int,
     val price_iced: Int?,
-    var quantity: Int = 1,
+    var isFavorite: Boolean = false, // From the second data class
+    var quantity: Int = 0,
     var selectedType: String = "hot"
-) : Parcelable // Corrected: Use Parcelable instead of Serializable
+) : Parcelable

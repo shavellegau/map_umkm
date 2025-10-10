@@ -35,6 +35,10 @@ object CartManager {
     }
 
     fun getTotalPrice(): Int {
-        return cartItems.sumOf { it.price * it.quantity }
+        return cartItems.sumOf {
+            // 🔥 Pilih harga sesuai jenis minuman (hot / iced)
+            val price = if (it.selectedType == "iced") it.price_iced ?: it.price_hot else it.price_hot
+            price * it.quantity
+        }
     }
 }

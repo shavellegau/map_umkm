@@ -11,10 +11,10 @@
     import androidx.recyclerview.widget.LinearLayoutManager
     import androidx.recyclerview.widget.RecyclerView
     import com.example.map_umkm.adapter.OrderAdapter
-    import com.example.map_umkm.model.Product
     import com.example.map_umkm.viewmodel.CartViewModel
     import java.text.NumberFormat
     import java.util.Locale
+
 
     class PaymentFragment : Fragment() {
 
@@ -57,7 +57,11 @@
         }
 
     private fun calculateAndDisplayTotals() {
-        val subtotal = cartList?.sumOf { it.price * it.quantity } ?: 0
+        val currentCart = cartViewModel.cartList.value ?: emptyList()
+        val subtotal = currentCart.sumOf {
+            val price = if (it.selectedType == "iced") it.price_iced ?: it.price_hot else it.price_hot
+            price * it.quantity
+        }
         val tax = subtotal * 0.1
         val total = subtotal + tax
 

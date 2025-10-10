@@ -1,4 +1,3 @@
-
 package com.example.map_umkm
 
 import android.os.Bundle
@@ -9,16 +8,14 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.map_umkm.adapter.ProductAdapter
-import com.example.map_umkm.model.Product
+import com.example.map_umkm.adapter.WishlistAdapter
 import com.example.map_umkm.helper.FirestoreHelper
-
-
+import com.example.map_umkm.model.Product
 
 class WishlistFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: ProductAdapter
+    private lateinit var adapter: WishlistAdapter
     private val favoriteItems = mutableListOf<Product>()
 
     override fun onCreateView(
@@ -30,14 +27,18 @@ class WishlistFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recyclerWishlist)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        adapter = ProductAdapter(favoriteItems, { product, isFavorite ->
-            // onItemClick listener
-        }, { product, isFav ->
-            if (!isFav) {
-                val position = favoriteItems.indexOf(product)
-                if (position != -1) {
-                    favoriteItems.removeAt(position)
-                    adapter.notifyItemRemoved(position)
+        // Use WishlistAdapter and pass the correct lambda for item removal
+        adapter = WishlistAdapter(favoriteItems, onRemoveFavorite = { product ->
+            FirestoreHelper.removeFromWishlist(product) { success ->
+                if (success) {
+                    val position = favoriteItems.indexOf(product)
+                    if (position != -1) {
+                        favoriteItems.removeAt(position)
+                        adapter.notifyItemRemoved(position)
+                        Toast.makeText(requireContext(), "${product.name} dihapus dari favorit", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "Gagal menghapus item", Toast.LENGTH_SHORT).show()
                 }
             }
         })
@@ -48,32 +49,31 @@ class WishlistFragment : Fragment() {
         return view
     }
 
-// In C:/Users/ferry/AndroidStudioProjects/map_umkm/app/src/main/java/com/example/map_umkm/WishlistFragment.kt
-
     private fun loadFavorites() {
         FirestoreHelper.getWishlist { data ->
             if (data.isEmpty()) {
                 Toast.makeText(requireContext(), "Belum ada item favorit", Toast.LENGTH_SHORT).show()
             } else {
-                // 1. Map the generic Map objects to your Product data class
-                val productList = data.map { map ->
-                    Product(
-                        id = (map["id"] as? Number)?.toInt() ?: 0,
-                        name = map["name"] as? String ?: "",
-                        price = (map["price"] as? Number)?.toDouble() ?: 0.0,
-                        imageRes = R.drawable.logo_tuku, // atau drawable default kamu
-                        category = map["category"] as? String ?: "",
-                        isFavorite = true
-                    )
+                val productList = data.mapNotNull { map ->
+                    try {
+                        Product(
+                            id = (map["id"] as? Number)?.toInt() ?: 0,
+                            name = map["name"] as? String ?: "",
+                            price_hot = (map["price_hot"] as? Number)?.toInt() ?: 0, // Correctly access price_hot
+                            price_iced = (map["price_iced"] as? Number)?.toInt(),
+                            image = map["image"] as? String, // Correctly access image URL
+                            category = map["category"] as? String ?: "",
+                            isFavorite = true,
+                            description = map["description"] as? String ?: ""
+                        )
+                    } catch (e: Exception) {
+                        null
+                    }
                 }
-
-                // 2. Clear the old list and add the new, correctly typed list
                 favoriteItems.clear()
                 favoriteItems.addAll(productList)
                 adapter.notifyDataSetChanged()
             }
         }
     }
-
-
 }

@@ -28,39 +28,29 @@ import java.text.NumberFormat
 import java.util.Locale
 
 class CartFragment : Fragment() {
-
     private lateinit var rvCategory: RecyclerView
     private lateinit var rvProducts: RecyclerView
     private lateinit var tvTotal: TextView
     private lateinit var etSearch: EditText
     private lateinit var bottomBar: View
     private lateinit var btnViewOrder: Button
-
     private val cartViewModel: CartViewModel by activityViewModels()
-
     private lateinit var productAdapter: ProductAdapter
     private var allProducts: List<Product> = emptyList()
     private var selectedCategory: String? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_cart, container, false)
-
         rvCategory = view.findViewById(R.id.rv_category)
         rvProducts = view.findViewById(R.id.rv_products)
         tvTotal = view.findViewById(R.id.tv_total)
         etSearch = view.findViewById(R.id.et_search)
         bottomBar = view.findViewById(R.id.layout_bottom)
         btnViewOrder = view.findViewById(R.id.btn_view_order)
-
         setupSearchListener()
         setupBottomBarListener()
         loadMenuFromAssets()
-        updateTotal() // Tambahkan ini agar total awal 0
-
+        cartViewModel.cartList.observe(viewLifecycleOwner) { updateTotal() }
         return view
     }
 
@@ -109,45 +99,34 @@ class CartFragment : Fragment() {
 
             if (menuResponse != null) {
                 val menuList = menuResponse.menu ?: emptyList()
-
                 allProducts = menuList.map { menuItem ->
                     Product(
-                        id = it.id ?: 0,
-                        name = it.name,
-                        price = it.price_hot ?: 0,
-                        imageRes = R.drawable.ic_launcher_background,
-                        category = it.category
+                        id = menuItem.id ?: 0,
+                        name = menuItem.name,
+                        price_hot = menuItem.price_hot ?: 0,
+                        price_iced = menuItem.price_iced,
+                        image = menuItem.image,
+                        category = menuItem.category,
+                        description = menuItem.description
                     )
                 }
-
                 productAdapter = ProductAdapter(allProducts.toMutableList()) { product ->
-                    val existingProduct = cartList.find { it.id == product.id }
-                    if (existingProduct != null) {
-                        existingProduct.quantity++
-                    } else {
-                        cartList.add(product.copy(quantity = 1))
-                    }
-                    updateTotal()
-                    Toast.makeText(requireContext(), "Ditambahkan: ${product.name}", Toast.LENGTH_SHORT).show()
+                    val detailFragment = ProductDetailFragment.newInstance(product)
+                    requireActivity().supportFragmentManager.beginTransaction()
+                        .replace(R.id.nav_host_fragment, detailFragment)
+                        .addToBackStack(null)
+                        .commit()
                 }
 
                 rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
                 rvProducts.adapter = productAdapter
 
-                val categories = listOf(
-                    Category("WHITE-MILK"),
-                    Category("BLACK"),
-                    Category("NON-COFFEE"),
-                    Category("TUKUDAPAN")
-                )
-
-                rvCategory.layoutManager =
-                    LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+                val categories = listOf(Category("WHITE-MILK"), Category("BLACK"), Category("NON-COFFEE"), Category("TUKUDAPAN"))
+                rvCategory.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
                 rvCategory.adapter = CategoryAdapter(categories) { selected ->
                     selectedCategory = selected.name
                     filterProducts(selected.name, etSearch.text.toString())
                 }
-
                 if (categories.isNotEmpty()) {
                     selectedCategory = categories[0].name
                     filterProducts(categories[0].name, "")
@@ -167,7 +146,6 @@ class CartFragment : Fragment() {
         } else {
             allProducts.filter { it.category.equals(categoryName, ignoreCase = true) }
         }
-
         val finalFiltered = if (currentQuery.isEmpty()) {
             filteredByCategory
         } else {

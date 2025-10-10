@@ -15,7 +15,7 @@ import java.util.Locale
 
 class ProductAdapter(
     private var products: MutableList<Product>,
-    private val onAddToCart: (Product) -> Unit
+    private val onProductClick: (Product) -> Unit
 ) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -34,14 +34,32 @@ class ProductAdapter(
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = products[position]
 
-        // --- Set nama dan harga ---
         holder.tvProductName.text = product.name ?: "Produk"
+
         val formattedPrice = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
-            .format(product.price_hot ?: 0.0)
+            .format(product.price_hot) // Menggunakan price_hot karena itu harga utama
+
         holder.tvProductPrice.text = formattedPrice
 
+        // Muat gambar dari URL menggunakan Glide
+        product.image?.let { imageUrl ->
+            Glide.with(holder.itemView.context)
+                .load(imageUrl)
+                .placeholder(R.drawable.placeholder_image)
+                .error(R.drawable.error_image)
+                .into(holder.ivProductImage)
+        } ?: run {
+            // Muat gambar default jika URL null
+            Glide.with(holder.itemView.context).load(R.drawable.default_image).into(holder.ivProductImage)
+        }
+
+        // Set listener untuk seluruh itemview
+        holder.itemView.setOnClickListener {
+            onProductClick(product)
+        }
+        // Ketika tombol '+' diklik, lakukan hal yang sama: arahkan ke detail produk
         holder.btnAddToCart.setOnClickListener {
-            onAddToCart(product)
+            onProductClick(product)
         }
     }
 

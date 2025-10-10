@@ -9,9 +9,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.R
-import com.example.map_umkm.model.Product
 import java.text.NumberFormat
 import java.util.Locale
+import com.example.map_umkm.model.Product
 
 class OrderAdapter(
     private var orderList: MutableList<Product>,
