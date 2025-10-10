@@ -24,23 +24,24 @@
 <!--        <activity android:name=".PengaturanAkunActivity" />-->
 <!--        <activity android:name=".AlamatActivity" />-->
 <!--        <activity android:name=".BantuanFragment" />-->
-
-        <!-- Admin Activity -->
         <activity android:name=".AdminActivity" />
         <activity android:name=".RegisterActivity" />
-
-        <!-- Login Activity jadi launcher -->
+        <!-- Admin Activity -->
+        <activity android:name=".AddProductActivity" />
         <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <!-- Login Activity jadi launcher -->
+        <activity android:name=".MainActivity"></activity>
+
         <!-- Kalau mau, MainActivity tetap ada tapi tanpa intent-filter -->
-        <activity android:name=".MainActivity" />
         <activity android:name=".OrderDetailActivity" />
 
     </application>
