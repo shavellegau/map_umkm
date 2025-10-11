@@ -24,6 +24,7 @@
         private lateinit var tvSubtotal: TextView
         private lateinit var tvTax: TextView
         private lateinit var tvTotalPayment: TextView
+        private lateinit var btnPay: Button
 
         override fun onCreateView(
             inflater: LayoutInflater,
@@ -37,6 +38,7 @@
             tvSubtotal = view.findViewById(R.id.tvSubtotal)
             tvTax = view.findViewById(R.id.tvTax)
             tvTotalPayment = view.findViewById(R.id.tvTotalPayment)
+            btnPay = view.findViewById(R.id.btnPay)
 
             backButton.setOnClickListener {
                 requireActivity().supportFragmentManager.popBackStack()
@@ -52,6 +54,14 @@
             rvOrderList.adapter = adapter
 
             calculateAndDisplayTotals()
+
+            btnPay.setOnClickListener {
+                // Navigasi ke PaymentMethodFragment
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.nav_host_fragment, PaymentMethodFragment())
+                    .addToBackStack(null)
+                    .commit()
+            }
 
             return view
         }

@@ -117,13 +117,15 @@
 
     <!-- Tombol Bayar -->
     <Button
-        android:id="@+id/btnPayNow"
+        android:id="@+id/btnPay"
+        android:text="Bayar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Bayar Sekarang"
+        android:layout_height="50dp"
+        android:layout_marginBottom="80dp"
         android:backgroundTint="@color/tuku_primary"
         android:textColor="@android:color/white"
         android:textStyle="bold"
-        android:layout_marginTop="8dp" />
+        android:padding="12dp" />
+
 
 </LinearLayout>

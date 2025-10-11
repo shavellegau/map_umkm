@@ -6,7 +6,7 @@
       "category": "WHITE-MILK",
       "name": "MINI KST",
       "description": "espresso + susu + krimer + gula aren",
-      "image": "@drawable/mini_kst",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/mini_kst.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 14000,
       "price_iced": 15000
@@ -26,7 +26,7 @@
       "category": "WHITE-MILK",
       "name": "CARAMEL",
       "description": "espresso + milk + caramel sauce (+ creamer for iced)",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/caramel.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 31000,
       "price_iced": 34000
@@ -36,7 +36,7 @@
       "category": "WHITE-MILK",
       "name": "LATTE",
       "description": "espresso + coffee shot + milk (mild creamy)",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/latte.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 28000,
       "price_iced": 31000
@@ -46,7 +46,7 @@
       "category": "WHITE-MILK",
       "name": "CAPPUCINO",
       "description": "double ristretto + coffee shot + milk (double shot espresso for iced)",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/cappucino.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 28000,
       "price_iced": 31000
@@ -56,7 +56,7 @@
       "category": "WHITE-MILK",
       "name": "KST NABATI",
       "description": "espresso + oatmilk + arenga sugar (+ coconut creamer + coconut milk for iced)",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/kst_nabati.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 30000,
       "price_iced": 35000
@@ -66,7 +66,7 @@
       "category": "WHITE-MILK",
       "name": "KOPI SUSU TETANGGA",
       "description": "espresso + milk + arenga sugar (+ creamer for iced)",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/kopi_susu_tetangga.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 20000,
       "price_iced": 23000
@@ -76,7 +76,7 @@
       "category": "BLACK",
       "name": "KOPI HITAM TETANGGA",
       "description": "double shot of tetangga blend + water",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/kopi_hitam_tetangga.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 18000,
       "price_iced": 20000
@@ -86,7 +86,7 @@
       "category": "BLACK",
       "name": "LONG BLACK",
       "description": "double shot of tetangga blend + coffee shot + water",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/long_black.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 25000,
       "price_iced": 28000
@@ -96,7 +96,7 @@
       "category": "BLACK",
       "name": "ESPRESSO",
       "description": "double shot of tetangga blend",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/espresso.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 18000,
       "price_iced": null
@@ -106,27 +106,27 @@
       "category": "BLACK",
       "name": "KOPI FILTER PAGI",
       "description": "80% washed 20% natural hint of chocolate, hand brewed with hot water",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/kopi_filter_pagi.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 22000,
-      "price_iced": null
+      "price_iced": 22000
     },
     {
       "id": 12,
       "category": "BLACK",
       "name": "KOPI FILTER SORE",
       "description": "50% washed 50% natural hint of fruits, hand brewed with hot water",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/kopi_filter_pagi.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 25000,
-      "price_iced": null
+      "price_iced": 25000
     },
     {
       "id": 13,
       "category": "BLACK",
       "name": "COLD DRIP SANTAI KELAPA JERUK",
-      "description": "coffee shot + santai series (Kelapa Jeruk / Remon)",
-      "image": null,
+      "description": "coffee shot + santai series",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/cold_drip.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": null,
       "price_iced": 30000
@@ -135,8 +135,8 @@
       "id": 14,
       "category": "BLACK",
       "name": "COLD DRIP SANTAI REMON",
-      "description": "coffee shot + santai series (Kelapa Jeruk / Remon)",
-      "image": null,
+      "description": "coffee shot + santai series",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/remon.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": null,
       "price_iced": 30000
@@ -146,7 +146,7 @@
       "category": "NON-COFFEE",
       "name": "CHOCOLATE",
       "description": "chocolate + milk + sugar (for iced served without ice cubes)",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/chocolate.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 30000,
       "price_iced": 30000
@@ -156,7 +156,7 @@
       "category": "NON-COFFEE",
       "name": "EARL GREY MILK TEA",
       "description": "earl grey tea + milk + milk tea powder + creamer (for iced served without ice cubes)",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/earl_grey_milk.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 28000,
       "price_iced": 28000
@@ -166,7 +166,7 @@
       "category": "NON-COFFEE",
       "name": "REMON",
       "description": "java tea + lemongrass + sugar + lemon + lime",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/remon_noncoffe.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 23000,
       "price_iced": 25000
@@ -176,17 +176,17 @@
       "category": "NON-COFFEE",
       "name": "S.K.M.J",
       "description": "milk + arenga sugar (suitable for TetanggaTukuKecil)",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/skmj.webp",
       "created_at": "2025-09-27 11:31:46",
-      "price_hot": 18000,
-      "price_iced": 18000
+      "price_hot": 23.000,
+      "price_iced": 25.000
     },
     {
       "id": 19,
       "category": "NON-COFFEE",
       "name": "GO-ES",
       "description": "coconut water + honey + lime",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/go_es.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 23000,
       "price_iced": 25000
@@ -196,7 +196,7 @@
       "category": "NON-COFFEE",
       "name": "TEH JAWA",
       "description": "java tea + pandan sugar",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/teh_jawa.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 20000,
       "price_iced": 23000
@@ -206,7 +206,7 @@
       "category": "NON-COFFEE",
       "name": "KELAPA JERUK",
       "description": "coconut water + orange juice + lime",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/kelapa_jeruk.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 23000,
       "price_iced": 25000
@@ -215,8 +215,8 @@
       "id": 22,
       "category": "TUKUDAPAN",
       "name": "DONAT KAMPOENG",
-      "description": null,
-      "image": null,
+      "description": "Donat Kampoeng yang dibaluri gula putih.",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/donat_kampoeng.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 8000,
       "price_iced": null
@@ -225,8 +225,8 @@
       "id": 23,
       "category": "TUKUDAPAN",
       "name": "LUMPIA AYAM",
-      "description": null,
-      "image": null,
+      "description": "Gorengan Lumpia berisi sayuran dan ayam cincang.",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/lumpia_ayam.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 8000,
       "price_iced": null
@@ -235,8 +235,8 @@
       "id": 24,
       "category": "TUKUDAPAN",
       "name": "TAHU SCHOTEL",
-      "description": null,
-      "image": null,
+      "description": "Gorengan tahu schotel yang dibalut dengan tepung krispi. Cocok dinikmati dengan minuman favorit Tetangga Tuku!",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/tahu_schotel.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 8000,
       "price_iced": null
@@ -245,8 +245,8 @@
       "id": 25,
       "category": "TUKUDAPAN",
       "name": "DONAT COKELAT",
-      "description": null,
-      "image": null,
+      "description": "Donat lembut dengan selai dan taburan cokelat di atasnya.",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/donut_coklat.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 11000,
       "price_iced": null
@@ -255,8 +255,8 @@
       "id": 26,
       "category": "TUKUDAPAN",
       "name": "BOLU COKELAT",
-      "description": null,
-      "image": null,
+      "description": "Bolu Cokelat lembut favorit Tetangga Tuku! Cocok dinikmati bareng kopi hitam.",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/bolu_cokelat.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 13000,
       "price_iced": null
@@ -265,8 +265,8 @@
       "id": 27,
       "category": "TUKUDAPAN",
       "name": "BOLU WORTEL",
-      "description": null,
-      "image": null,
+      "description": "Bolu Wortel yang lembut dengan cream cheese di atasnya!",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/bolu_wortel.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 13000,
       "price_iced": null
@@ -275,8 +275,8 @@
       "id": 28,
       "category": "TUKUDAPAN",
       "name": "MARTABAK COKELAT KACANG",
-      "description": null,
-      "image": null,
+      "description": "Martabak gulung mini berisi cokelat dan kacang.",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/martabak_cokelat_kacang.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 15000,
       "price_iced": null
@@ -285,8 +285,8 @@
       "id": 29,
       "category": "TUKUDAPAN",
       "name": "MARTABAK KEJU GULA JAWA",
-      "description": null,
-      "image": null,
+      "description": "Martabak gulung mini berisi keju dan gula jawa.",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/martabak_keju.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 15000,
       "price_iced": null
@@ -295,8 +295,8 @@
       "id": 30,
       "category": "TUKUDAPAN",
       "name": "KUKIS OATMEAL",
-      "description": null,
-      "image": null,
+      "description": "Camilan manis untuk si Tetangga Tuku Kecil! Kukis yang terbuat dari oatmeal dan cokelat.",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/kukis_oatmeal.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 15000,
       "price_iced": null
@@ -305,8 +305,8 @@
       "id": 31,
       "category": "TUKUDAPAN",
       "name": "BOLU GULA AREN",
-      "description": null,
-      "image": null,
+      "description": "Bolu Gula Aren yang lembut dan cocok dinikmati dengan minuman favorit Tetangga Tuku!",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/bolu_gula_aren.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 13000,
       "price_iced": null
@@ -315,7 +315,7 @@
       "id": 32,
       "category": "TUKUDAPAN",
       "name": "ONIGIRI TUNA MAYO",
-      "description": null,
+      "description": "Onigiri khas Jepang dengan kearifan lokal! Berisi suwiran ikan tuna dan mayonnaise.",
       "image": null,
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 17000,
@@ -325,8 +325,8 @@
       "id": 33,
       "category": "TUKUDAPAN",
       "name": "ONIGIRI SALMON MAYO",
-      "description": null,
-      "image": null,
+      "description": "Onigiri khas Jepang dengan kearifan lokal! Berisi suwiran ikan salmon dan mayonnaise.",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/salmon_mayo.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 17000,
       "price_iced": null
@@ -335,548 +335,58 @@
       "id": 34,
       "category": "TUKUDAPAN",
       "name": "ONIGIRI CAKALANG",
-      "description": null,
-      "image": null,
+      "description": "Onigiri khas Jepang dengan kearifan lokal! Berisi suwiran ikan cakalang pedas.",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/cakalang.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 17000,
       "price_iced": null
     },
     {
       "id": 35,
-      "category": "WHITE-MILK",
-      "name": "KOPI SUSU TETANGGA",
-      "description": "espresso + milk + arenga sugar (+ creamer for iced)",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 20000,
-      "price_iced": 23000
+      "category": "TUKUDAPAN",
+      "name": "BOLU PISCOK",
+      "description": "Bolu lembut dengan perpaduan pisang dan cokelat. Manisnya pas!",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/bolu_piscok.webp",
+      "created_at": "2025-09-27 11:42:37",
+      "price_hot": 13000,
+      "price_iced": null
     },
     {
       "id": 36,
-      "category": "WHITE-MILK",
-      "name": "MINI KST",
-      "description": "espresso + susu + krimer + gula aren",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 14000,
-      "price_iced": 15000
+      "category": "TUKUDAPAN",
+      "name": "SEGOWO RAMES",
+      "description": "Sego iso digowo! perpaduan nasi putih dengan tumis buncis, tempe orek, telur, lengkap dengan sambal balado! cita rasa lidah lokal. siap disantap, siap dibawa.",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/rames.webp",
+      "created_at": "2025-09-27 11:42:37",
+      "price_hot": 33000,
+      "price_iced": null
     },
     {
       "id": 37,
-      "category": "WHITE-MILK",
-      "name": "KST NABATI",
-      "description": "espresso + oatmilk + arenga sugar (+ coconut creamer + coconut milk for iced)",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 30000,
-      "price_iced": 35000
+      "category": "TUKUDAPAN",
+      "name": "SEGOWO KECOMBRANG",
+      "description": "Sego iso digowo! perpaduan nasi goreng kampung dengan telur dadar padang, tumis sayur, lengkap dengan bawang goreng! cita rasa lidah lokal. siap disantap, siap dibawa.",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/kecombrang.webp",
+      "created_at": "2025-09-27 11:42:37",
+      "price_hot": 31000,
+      "price_iced": null
     },
     {
       "id": 38,
-      "category": "WHITE-MILK",
-      "name": "CAPPUCCINO",
-      "description": "double ristretto + coffee shot + milk (double shot espresso for iced)",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 28,
-      "price_iced": 31
+      "category": "TUKUDAPAN",
+      "name": "SEGOWO GULAI",
+      "description": "Sego iso digowo! perpaduan nasi putih dengan gulai ayam, kentang dan wortel, lengkap dengan bawang goreng! cita rasa lidah lokal. siap disantap, siap dibawa.",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/gulai.webp",
+      "created_at": "2025-09-27 11:42:37",
+      "price_hot": 33000,
+      "price_iced": null
     },
     {
       "id": 39,
-      "category": "WHITE-MILK",
-      "name": "LATTE",
-      "description": "espresso + coffee shot + milk (mild creamy)",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 28000,
-      "price_iced": 31000
-    },
-    {
-      "id": 40,
-      "category": "WHITE-MILK",
-      "name": "MOCHA",
-      "description": "espresso + chocolate powder + milk",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 28000,
-      "price_iced": 31000
-    },
-    {
-      "id": 41,
-      "category": "WHITE-MILK",
-      "name": "CARAMEL",
-      "description": "espresso + milk + caramel sauce (+ creamer for iced)",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 31000,
-      "price_iced": 34000
-    },
-    {
-      "id": 42,
-      "category": "BLACK",
-      "name": "KOPI HITAM TETANGGA",
-      "description": "double shot of tetangga blend + water",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 18000,
-      "price_iced": 20000
-    },
-    {
-      "id": 43,
-      "category": "BLACK",
-      "name": "ESPRESSO",
-      "description": "double shot of tetangga blend",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 18000,
-      "price_iced": null
-    },
-    {
-      "id": 44,
-      "category": "BLACK",
-      "name": "LONG BLACK",
-      "description": "double shot of tetangga blend + coffee shot + water",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 25000,
-      "price_iced": 28000
-    },
-    {
-      "id": 45,
-      "category": "BLACK",
-      "name": "FILTER PAGI",
-      "description": "80% washed 20% natural hint of chocolate, hand brewed with hot water",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 22,
-      "price_iced": null
-    },
-    {
-      "id": 46,
-      "category": "BLACK",
-      "name": "COLD DRIP PAGI",
-      "description": "80% washed 20% natural hint of chocolate, four hours slow brewed with room temperature water",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": null,
-      "price_iced": 22000
-    },
-    {
-      "id": 47,
-      "category": "BLACK",
-      "name": "FILTER SORE",
-      "description": "50% washed 50% natural hint of fruits, hand brewed with hot water",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 25,
-      "price_iced": null
-    },
-    {
-      "id": 48,
-      "category": "BLACK",
-      "name": "COLD DRIP SORE",
-      "description": "50% washed 50% natural hint of fruits, four hours slow brewed with room temperature water",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": null,
-      "price_iced": 25000
-    },
-    {
-      "id": 49,
-      "category": "BLACK",
-      "name": "COLD DRIP SANTAI",
-      "description": "coffee shot + santai series (Kelapa Jeruk / Remon)",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": null,
-      "price_iced": 30000
-    },
-    {
-      "id": 50,
-      "category": "NON-COFFEE",
-      "name": "CHOCOLATE",
-      "description": "chocolate + milk + sugar (for iced served without ice cubes)",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 30000,
-      "price_iced": 30000
-    },
-    {
-      "id": 51,
-      "category": "NON-COFFEE",
-      "name": "EARL GREY MILK TEA",
-      "description": "earl grey tea + milk + milk tea powder + creamer (for iced served without ice cubes)",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 28000,
-      "price_iced": 28000
-    },
-    {
-      "id": 52,
-      "category": "NON-COFFEE",
-      "name": "TEH JAWA",
-      "description": "java tea + pandan sugar",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 20000,
-      "price_iced": 23000
-    },
-    {
-      "id": 53,
-      "category": "NON-COFFEE",
-      "name": "REMON",
-      "description": "java tea + lemongrass + sugar + lemon + lime",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 23000,
-      "price_iced": 25000
-    },
-    {
-      "id": 54,
-      "category": "NON-COFFEE",
-      "name": "KELAPA JERUK",
-      "description": "coconut water + orange juice + lime",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 23000,
-      "price_iced": 25000
-    },
-    {
-      "id": 55,
-      "category": "NON-COFFEE",
-      "name": "GO-ES",
-      "description": "coconut water + honey + lime",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 23000,
-      "price_iced": 25000
-    },
-    {
-      "id": 56,
-      "category": "NON-COFFEE",
-      "name": "SKMJ",
-      "description": "coconut milk + ginger + honey + andaliman + arenga sugar",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 23000,
-      "price_iced": 25000
-    },
-    {
-      "id": 57,
-      "category": "NON-COFFEE",
-      "name": "SUSU AREN",
-      "description": "milk + arenga sugar (suitable for TetanggaTukuKecil)",
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 18000,
-      "price_iced": 18000
-    },
-    {
-      "id": 58,
-      "category": "TUKUDAPAN",
-      "name": "DONAT KAMPOENG",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 8000,
-      "price_iced": null
-    },
-    {
-      "id": 59,
-      "category": "TUKUDAPAN",
-      "name": "LUMPIA AYAM",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 8000,
-      "price_iced": null
-    },
-    {
-      "id": 60,
-      "category": "TUKUDAPAN",
-      "name": "TAHU SCHOTEL",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 8000,
-      "price_iced": null
-    },
-    {
-      "id": 61,
-      "category": "TUKUDAPAN",
-      "name": "DONAT COKELAT",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 11000,
-      "price_iced": null
-    },
-    {
-      "id": 62,
-      "category": "TUKUDAPAN",
-      "name": "BOLU COKELAT",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 13000,
-      "price_iced": null
-    },
-    {
-      "id": 63,
-      "category": "TUKUDAPAN",
-      "name": "BOLU WORTEL",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 13000,
-      "price_iced": null
-    },
-    {
-      "id": 64,
-      "category": "TUKUDAPAN",
-      "name": "MARTABAK COKELAT KACANG",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 15000,
-      "price_iced": null
-    },
-    {
-      "id": 65,
-      "category": "TUKUDAPAN",
-      "name": "MARTABAK KEJU GULA JAWA",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 15000,
-      "price_iced": null
-    },
-    {
-      "id": 66,
-      "category": "TUKUDAPAN",
-      "name": "KUKIS OATMEAL",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 15000,
-      "price_iced": null
-    },
-    {
-      "id": 67,
-      "category": "TUKUDAPAN",
-      "name": "BOLU GULA AREN",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 13000,
-      "price_iced": null
-    },
-    {
-      "id": 68,
-      "category": "TUKUDAPAN",
-      "name": "ONIGIRI TUNA MAYO",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 17000,
-      "price_iced": null
-    },
-    {
-      "id": 69,
-      "category": "TUKUDAPAN",
-      "name": "ONIGIRI SALMON MAYO",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 17000,
-      "price_iced": null
-    },
-    {
-      "id": 70,
-      "category": "TUKUDAPAN",
-      "name": "ONIGIRI CAKALANG",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:24",
-      "price_hot": 17000,
-      "price_iced": null
-    },
-    {
-      "id": 71,
-      "category": "TUKUDAPAN",
-      "name": "BOLU GULA AREN",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 13000,
-      "price_iced": null
-    },
-    {
-      "id": 72,
-      "category": "TUKUDAPAN",
-      "name": "TAHU SCHOTEL",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 8000,
-      "price_iced": null
-    },
-    {
-      "id": 73,
-      "category": "TUKUDAPAN",
-      "name": "LUMPIA GORENG",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 8000,
-      "price_iced": null
-    },
-    {
-      "id": 74,
-      "category": "TUKUDAPAN",
-      "name": "KUKIS OATMEAL COKLAT",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 15000,
-      "price_iced": null
-    },
-    {
-      "id": 75,
-      "category": "TUKUDAPAN",
-      "name": "BOLU PISCOK",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 13000,
-      "price_iced": null
-    },
-    {
-      "id": 76,
-      "category": "TUKUDAPAN",
-      "name": "BOLU WORTEL",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 13000,
-      "price_iced": null
-    },
-    {
-      "id": 77,
-      "category": "TUKUDAPAN",
-      "name": "BOLU COKELAT",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 13000,
-      "price_iced": null
-    },
-    {
-      "id": 78,
-      "category": "TUKUDAPAN",
-      "name": "ONIGIRI TUNA MAYO",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 17000,
-      "price_iced": null
-    },
-    {
-      "id": 79,
-      "category": "TUKUDAPAN",
-      "name": "ONIGIRI SALMON MAYO",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 17000,
-      "price_iced": null
-    },
-    {
-      "id": 80,
-      "category": "TUKUDAPAN",
-      "name": "DONAT KAMPOENG",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 8000,
-      "price_iced": null
-    },
-    {
-      "id": 81,
-      "category": "TUKUDAPAN",
-      "name": "DONAT COKELAT",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 11000,
-      "price_iced": null
-    },
-    {
-      "id": 82,
-      "category": "TUKUDAPAN",
-      "name": "SEGOWO RAMES",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 33000,
-      "price_iced": null
-    },
-    {
-      "id": 83,
-      "category": "TUKUDAPAN",
-      "name": "SEGOWO KECOMBRANG",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 31000,
-      "price_iced": null
-    },
-    {
-      "id": 84,
-      "category": "TUKUDAPAN",
-      "name": "SEGOWO GULAI",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 33000,
-      "price_iced": null
-    },
-    {
-      "id": 85,
-      "category": "TUKUDAPAN",
-      "name": "MARTABAK LINTING COKLAT KACANG",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 15000,
-      "price_iced": null
-    },
-    {
-      "id": 86,
-      "category": "TUKUDAPAN",
-      "name": "MARTABAK LINTING KEJU GULA MERAH",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 15000,
-      "price_iced": null
-    },
-    {
-      "id": 87,
-      "category": "TUKUDAPAN",
-      "name": "ONIGIRI CAKALANG",
-      "description": null,
-      "image": null,
-      "created_at": "2025-09-27 11:42:37",
-      "price_hot": 17000,
-      "price_iced": null
-    },
-    {
-      "id": 88,
       "category": "TUKUDAPAN",
       "name": "SEGOWO KUNING",
-      "description": null,
-      "image": null,
+      "description": "Sego iso digowo! perpaduan nasi kuning dengan ayam suwir, tempe orek, kering kentang, serundeng, lengkap dengan sambal bajak! cita rasa lidah lokal. siap disantap, siap dibawa.",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/kuning.webp",
       "created_at": "2025-09-27 11:42:37",
       "price_hot": 33000,
       "price_iced": null

@@ -68,7 +68,11 @@ class ProductDetailFragment : Fragment() {
             tvName.text = product.name ?: ""
             tvDescription.text = product.description ?: ""
             tvCategory.text = product.category ?: ""
-            Glide.with(this).load(product.image).into(ivImage)
+            Glide.with(this)
+                .load(product.image)
+                .placeholder(R.drawable.placeholder_image)
+                .error(R.drawable.placeholder_image)
+                .into(ivImage)
 
             // initial favorite icon
             updateFavoriteIcon(product.isFavorite)
@@ -78,7 +82,12 @@ class ProductDetailFragment : Fragment() {
             updateUiForProduct(product)
 
             rgTemperature.setOnCheckedChangeListener { _, checkedId ->
-                updatePriceForSelection(product, checkedId)
+                // hanya ubah harga jika bukan produk TUKUDAPAN
+                if (!product.name.equals("TUKUDAPAN", ignoreCase = true)
+                    && !product.category.equals("TUKUDAPAN", ignoreCase = true)
+                ) {
+                    updatePriceForSelection(product, checkedId)
+                }
             }
 
             btnAddToCart.setOnClickListener {
@@ -90,7 +99,7 @@ class ProductDetailFragment : Fragment() {
                 updateFavoriteIcon(product.isFavorite)
 
                 if (product.isFavorite) {
-                    // --- Panggilan yang biasanya sesuai helper (kirim field) ---
+                    // tambah ke wishlist
                     FirestoreHelper.addToWishlist(
                         productId = product.id ?: "",
                         productName = product.name ?: "",
@@ -103,11 +112,8 @@ class ProductDetailFragment : Fragment() {
                             Toast.makeText(requireContext(), "Gagal menambahkan ke favorit", Toast.LENGTH_SHORT).show()
                         }
                     }
-
-                    // --- Jika FirestoreHelper menerima Product langsung, bisa dipanggil:
-                    // FirestoreHelper.addToWishlist(product) { success -> ... }
                 } else {
-                    // remove by id (umumnya helper menerima id)
+                    // hapus dari wishlist
                     FirestoreHelper.removeFromWishlist(product.id ?: "") { success ->
                         if (success) {
                             Toast.makeText(requireContext(), "${product.name} dihapus dari favorit", Toast.LENGTH_SHORT).show()
@@ -123,13 +129,33 @@ class ProductDetailFragment : Fragment() {
     }
 
     private fun updateUiForProduct(product: Product) {
+        // Jika produk bernama ATAU kategori "TUKUDAPAN"
+        if (product.name.equals("TUKUDAPAN", ignoreCase = true) ||
+            product.category.equals("TUKUDAPAN", ignoreCase = true)
+        ) {
+            // Sembunyikan pilihan suhu
+            rgTemperature.visibility = View.GONE
+
+            // Set harga langsung ke price_hot
+            val price = product.price_hot ?: 0
+            tvPrice.text = formatCurrency(price)
+            return
+        }
+
+        // Jika bukan TUKUDAPAN → logika normal
+        rgTemperature.visibility = View.VISIBLE
+
         if (product.price_iced == null) {
             rbIced.visibility = View.GONE
         } else {
             rbIced.visibility = View.VISIBLE
         }
 
-        val initialPrice = if (rbHot.isChecked) (product.price_hot ?: 0) else (product.price_iced ?: product.price_hot ?: 0)
+        val initialPrice = if (rbHot.isChecked)
+            (product.price_hot ?: 0)
+        else
+            (product.price_iced ?: product.price_hot ?: 0)
+
         tvPrice.text = formatCurrency(initialPrice)
     }
 
@@ -142,12 +168,20 @@ class ProductDetailFragment : Fragment() {
     }
 
     private fun addToCart(product: Product) {
-        val finalPrice = if (rbHot.isChecked) (product.price_hot ?: 0) else (product.price_iced ?: product.price_hot ?: 0)
+        val finalPrice = if (product.name.equals("TUKUDAPAN", ignoreCase = true) ||
+            product.category.equals("TUKUDAPAN", ignoreCase = true)
+        ) {
+            // langsung pakai price_hot
+            product.price_hot ?: 0
+        } else {
+            if (rbHot.isChecked) (product.price_hot ?: 0)
+            else (product.price_iced ?: product.price_hot ?: 0)
+        }
+
         val productToAdd = product.copy(price_hot = finalPrice, quantity = 1)
         cartViewModel.addProduct(productToAdd)
-        Toast.makeText(requireContext(), "${product.name} added to cart!", Toast.LENGTH_SHORT).show()
 
-        // Kembalikan ke layar sebelumnya (lebih aman daripada replace dengan 'fragment' yang tidak ada)
+        Toast.makeText(requireContext(), "${product.name} ditambahkan ke keranjang!", Toast.LENGTH_SHORT).show()
         requireActivity().supportFragmentManager.popBackStack()
     }
 
