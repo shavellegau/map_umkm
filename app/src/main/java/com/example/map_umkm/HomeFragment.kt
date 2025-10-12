@@ -9,11 +9,14 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.map_umkm.adapter.ProductAdapter
+import com.example.map_umkm.adapter.BannerAdapter
 import com.example.map_umkm.databinding.FragmentHomeBinding
 import com.example.map_umkm.model.Product
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.InputStreamReader
+import java.util.Timer
+import java.util.TimerTask
 
 class HomeFragment : Fragment() {
 
@@ -22,6 +25,11 @@ class HomeFragment : Fragment() {
 
     private lateinit var productAdapter: ProductAdapter
     private val productList = mutableListOf<Product>()
+
+    // Deklarasi untuk mengontrol Timer dan Handler
+    private val handler = android.os.Handler()
+    private var timer: Timer? = null
+    private var updateRunnable: Runnable? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,15 +42,45 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
+        setupBannerCarousel()
         loadProductsFromJson()
         setupListeners()
+    }
+
+    private fun setupBannerCarousel() {
+        val bannerImages = listOf(
+            R.drawable.banner_kopi,
+            R.drawable.tuku_banner,
+        )
+
+        val bannerAdapter = BannerAdapter(bannerImages)
+        binding.bannerViewPager.adapter = bannerAdapter
+
+        var currentPage = 0
+
+        // 1. Inisialisasi Runnable yang Aman
+        updateRunnable = Runnable {
+            // PENTING: Periksa apakah binding masih ada sebelum mengakses View
+            if (bannerImages.isNotEmpty() && _binding != null) {
+                currentPage = (currentPage + 1) % bannerImages.size
+                binding.bannerViewPager.setCurrentItem(currentPage, true)
+            }
+        }
+
+        // 2. Inisialisasi dan Penjadwalan Timer
+        timer = Timer()
+        timer?.schedule(object : TimerTask() {
+            override fun run() {
+                // Gunakan handler untuk memposting ke main thread
+                handler.post(updateRunnable!!)
+            }
+        }, 3000, 3000)
     }
 
     private fun setupRecyclerView() {
         productAdapter = ProductAdapter(
             products = productList,
             onProductClick = { product ->
-                // MENGGANTI NavHomeDirections MENJADI HomeFragmentDirections
                 val action = HomeFragmentDirections.actionNavHomeToProductDetailFragment(product)
                 findNavController().navigate(action)
             },
@@ -104,19 +142,23 @@ class HomeFragment : Fragment() {
         }
 
         binding.takeAwayCard.setOnClickListener {
-            // MENGGANTI NavHomeDirections MENJADI HomeFragmentDirections
             val action = HomeFragmentDirections.actionNavHomeToNavCart()
             findNavController().navigate(action)
         }
 
         binding.deliveryCard.setOnClickListener {
-            // MENGGANTI NavHomeDirections MENJADI HomeFragmentDirections
             val action = HomeFragmentDirections.actionNavHomeToNavCart()
             findNavController().navigate(action)
         }
     }
 
     override fun onDestroyView() {
+        // PENTING: HENTIKAN TIMER SAAT VIEW DIHANCURKAN!
+        timer?.cancel()
+        timer = null
+        updateRunnable?.let { handler.removeCallbacks(it) }
+        updateRunnable = null
+
         super.onDestroyView()
         _binding = null
     }

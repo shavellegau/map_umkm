@@ -14,6 +14,7 @@
     import com.example.map_umkm.viewmodel.CartViewModel
     import java.text.NumberFormat
     import java.util.Locale
+    import androidx.navigation.fragment.findNavController
 
 
     class PaymentFragment : Fragment() {
@@ -41,7 +42,7 @@
             btnPay = view.findViewById(R.id.btnPay)
 
             backButton.setOnClickListener {
-                requireActivity().supportFragmentManager.popBackStack()
+                findNavController().popBackStack()
             }
 
             val currentCart = cartViewModel.cartList.value ?: mutableListOf()
@@ -56,12 +57,10 @@
             calculateAndDisplayTotals()
 
             btnPay.setOnClickListener {
-                // Navigasi ke PaymentMethodFragment
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.nav_host_fragment, PaymentMethodFragment())
-                    .addToBackStack(null)
-                    .commit()
+                // Navigasi lewat Navigation Component
+                findNavController().navigate(R.id.action_paymentFragment_to_paymentMethodFragment)
             }
+
 
             return view
         }

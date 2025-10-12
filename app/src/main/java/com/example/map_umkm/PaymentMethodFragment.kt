@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 
 class PaymentMethodFragment : Fragment() {
 
@@ -29,21 +30,14 @@ class PaymentMethodFragment : Fragment() {
 
         // tombol kembali
         btnBack.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
+            findNavController().popBackStack()
         }
 
-        // Tombol QRIS → arahkan ke QRISFragment
+        // ✅ Tombol QRIS → pakai action dari nav_graph
         btnQRIS.setOnClickListener {
-            navigateTo(QrisFragment())
+            findNavController().navigate(R.id.action_paymentMethodFragment_to_qrisFragment)
         }
 
         return view
-    }
-
-    private fun navigateTo(fragment: Fragment) {
-        parentFragmentManager.beginTransaction()
-            .replace(R.id.nav_host_fragment, PaymentMethodFragment())
-            .addToBackStack(null)
-            .commit()
     }
 }

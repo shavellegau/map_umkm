@@ -15,13 +15,11 @@
             android:id="@+id/action_nav_home_to_productDetailFragment"
             app:destination="@id/productDetailFragment" />
 
-        <!-- ✅ SOLUSI: HAPUS nav_home DARI STACK SAAT PINDAH KE CART -->
         <action
             android:id="@+id/action_nav_home_to_nav_cart"
             app:destination="@id/nav_cart"
             app:popUpTo="@id/nav_home"
             app:popUpToInclusive="true" />
-        <!-- /SOLUSI -->
 
         <action
             android:id="@+id/action_nav_home_to_pesananSayaFragment"
@@ -58,6 +56,11 @@
         <action
             android:id="@+id/action_nav_cart_to_paymentFragment"
             app:destination="@id/paymentFragment" />
+
+        <!-- ✅ PERBAIKAN: TAMBAHKAN AKSI INI! -->
+        <action
+            android:id="@+id/action_nav_cart_to_productDetailFragment"
+            app:destination="@id/productDetailFragment" />
     </fragment>
 
     <fragment

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 
 class QrisFragment : Fragment() {
 
@@ -16,11 +17,9 @@ class QrisFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_qris, container, false)
         val btnSelesai = view.findViewById<Button>(R.id.btnSelesai)
 
+        // ✅ navigasi pakai action di nav_graph
         btnSelesai.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.nav_host_fragment, PaymentSuccessFragment())
-                .addToBackStack(null)
-                .commit()
+            findNavController().navigate(R.id.action_qrisFragment_to_paymentSuccessFragment)
         }
 
         return view

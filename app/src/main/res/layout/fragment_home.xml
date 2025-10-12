@@ -8,16 +8,14 @@
     android:background="@color/tuku_bg"
     tools:context=".HomeFragment">
 
-    <ImageView
-        android:id="@+id/carousel_banner"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/bannerViewPager"
         android:layout_width="0dp"
         android:layout_height="220dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/banner_kopi"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:contentDescription="Promotional Banner Carousel" />
+        app:layout_constraintEnd_toEndOf="parent" />
+
 
     <androidx.cardview.widget.CardView
         android:id="@+id/main_content_card"

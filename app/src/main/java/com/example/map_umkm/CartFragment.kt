@@ -12,6 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -87,11 +88,9 @@ class CartFragment : Fragment() {
 
     private fun setupBottomBarListener() {
         btnViewOrder.setOnClickListener {
-            val paymentFragment = PaymentFragment()
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.nav_host_fragment, paymentFragment)
-                .addToBackStack(null)
-                .commit()
+            // PERBAIKAN PENTING:
+            // Menggunakan findNavController() untuk navigasi yang benar
+            findNavController().navigate(R.id.action_nav_cart_to_paymentFragment)
         }
     }
 
@@ -137,11 +136,10 @@ class CartFragment : Fragment() {
         productAdapter = ProductAdapter(
             products = allProducts.toMutableList(),
             onProductClick = { product ->
-                val detailFragment = ProductDetailFragment.newInstance(product)
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.nav_host_fragment, detailFragment)
-                    .addToBackStack(null)
-                    .commit()
+                // PERBAIKAN PENTING:
+                // Menggunakan findNavController() untuk navigasi yang benar
+                val action = CartFragmentDirections.actionNavCartToProductDetailFragment(product)
+                findNavController().navigate(action)
             },
             onFavoriteToggle = { product, isFav ->
                 // contoh: toggle di memory + notify
