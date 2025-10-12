@@ -17,13 +17,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.adapter.CategoryAdapter
 import com.example.map_umkm.adapter.ProductAdapter
+import com.example.map_umkm.data.JsonHelper // IMPORT HELPER KITA
 import com.example.map_umkm.model.Category
-import com.example.map_umkm.model.MenuResponse
 import com.example.map_umkm.model.Product
 import com.example.map_umkm.viewmodel.CartViewModel
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import java.io.IOException
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -44,11 +41,17 @@ class CartFragment : Fragment() {
     private var allProducts: List<Product> = emptyList()
     private var selectedCategory: String? = null
 
+    // TAMBAHKAN JsonHelper
+    private lateinit var jsonHelper: JsonHelper
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_cart, container, false)
+
+        // Inisialisasi JsonHelper
+        jsonHelper = JsonHelper(requireContext())
 
         // findViewById sesuai fragment_cart.xml
         rvCategory = view.findViewById(R.id.rv_category)
@@ -57,15 +60,14 @@ class CartFragment : Fragment() {
         etSearch = view.findViewById(R.id.et_search)
         bottomBar = view.findViewById(R.id.layout_bottom)
         btnViewOrder = view.findViewById(R.id.btn_view_order)
-
-        // Pastikan id berikut ada pada fragment_cart.xml
         tvSubtotal = view.findViewById(R.id.tvSubtotal)
         tvTax = view.findViewById(R.id.tvTax)
         tvTotalPayment = view.findViewById(R.id.tvTotalPayment)
 
         setupSearchListener()
         setupBottomBarListener()
-        loadMenuFromAssets()
+        // GANTI: Panggil fungsi baru kita
+        loadMenuFromJsonHelper()
 
         // Observasi perubahan cart -> update total + bottom bar
         cartViewModel.cartList.observe(viewLifecycleOwner) {
@@ -74,6 +76,85 @@ class CartFragment : Fragment() {
 
         return view
     }
+
+    // FUNGSI INI DIUBAH TOTAL
+    private fun loadMenuFromJsonHelper() {
+        val menuData = jsonHelper.getMenuData() // Gunakan Helper
+
+        if (menuData == null) {
+            Toast.makeText(requireContext(), "Gagal memuat menu dari file.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Konversi dari List<MenuItem> ke List<Product>
+        allProducts = menuData.menu.map { menuItem ->
+            Product(
+                id = menuItem.id.toString(),
+                name = menuItem.name,
+                category = menuItem.category ?: "",
+                description = menuItem.description ?: "",
+                image = menuItem.image ?: "",
+                price_hot = menuItem.price_hot ?: 0,
+                price_iced = menuItem.price_iced ?: 0,
+                isFavorite = false,
+                quantity = 0,
+                selectedType = "hot"
+            )
+        }
+
+        productAdapter = ProductAdapter(
+            products = allProducts.toMutableList(),
+            onProductClick = { product ->
+                val detailFragment = ProductDetailFragment.newInstance(product)
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.nav_host_fragment, detailFragment)
+                    .addToBackStack(null)
+                    .commit()
+            },
+            onFavoriteToggle = { product, isFav ->
+                product.isFavorite = isFav
+                // cari posisi produk di adapter untuk di-update
+                val index = productAdapter.products.indexOfFirst { it.id == product.id }
+                if (index != -1) {
+                    productAdapter.notifyItemChanged(index)
+                }
+                Toast.makeText(
+                    requireContext(),
+                    "${product.name} ${if (isFav) "ditambah ke favorit" else "dihapus dari favorit"}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        )
+
+        rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
+        rvProducts.adapter = productAdapter
+
+        val categories = listOf(
+            Category("WHITE-MILK"),
+            Category("BLACK"),
+            Category("NON-COFFEE"),
+            Category("TUKUDAPAN")
+        )
+
+        val categoryAdapter = CategoryAdapter(categories) { selected ->
+            selectedCategory = selected.name
+            filterProducts(selected.name, etSearch.text.toString())
+        }
+        rvCategory.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        rvCategory.adapter = categoryAdapter
+
+        if (categories.isNotEmpty()) {
+            selectedCategory = categories[0].name
+            categoryAdapter.setSelectedPosition(0) // Highlight kategori pertama
+            filterProducts(categories[0].name, "")
+        }
+
+        updateBottomBarState()
+    }
+
+
+    // === FUNGSI LAINNYA DI BAWAH INI TETAP SAMA (TIDAK PERLU DIUBAH) ===
 
     private fun setupSearchListener() {
         etSearch.addTextChangedListener(object : TextWatcher {
@@ -95,93 +176,9 @@ class CartFragment : Fragment() {
         }
     }
 
-    private fun loadMenuFromAssets() {
-        val jsonString: String? = try {
-            requireContext().assets.open("menu_items.json").bufferedReader().use { it.readText() }
-        } catch (ioException: IOException) {
-            ioException.printStackTrace()
-            null
-        }
-
-        if (jsonString == null) {
-            Toast.makeText(requireContext(), "File JSON tidak ditemukan", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val gson = Gson()
-        val listType = object : TypeToken<MenuResponse>() {}.type
-        val menuResponse: MenuResponse? = gson.fromJson(jsonString, listType)
-
-        if (menuResponse == null) {
-            Toast.makeText(requireContext(), "Gagal parse JSON", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val menuList = menuResponse.menu ?: emptyList()
-        allProducts = menuList.map { menuItem ->
-            // Sesuaikan tipe price sesuai Product.kt (di projectmu price_hot adalah Int)
-            Product(
-                id = menuItem.id?.toString() ?: "",
-                name = menuItem.name,
-                category = menuItem.category ?: "",
-                description = menuItem.description ?: "",
-                image = menuItem.image ?: "",
-                price_hot = menuItem.price_hot ?: 0,
-                price_iced = menuItem.price_iced ?: 0,
-                isFavorite = false,
-                quantity = 0,
-                selectedType = "hot" // pastikan properti ini ada di model Product
-            )
-        }
-
-        productAdapter = ProductAdapter(
-            products = allProducts.toMutableList(),
-            onProductClick = { product ->
-                val detailFragment = ProductDetailFragment.newInstance(product)
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.nav_host_fragment, detailFragment)
-                    .addToBackStack(null)
-                    .commit()
-            },
-            onFavoriteToggle = { product, isFav ->
-                // contoh: toggle di memory + notify
-                product.isFavorite = isFav
-                productAdapter.notifyDataSetChanged()
-                Toast.makeText(
-                    requireContext(),
-                    "${product.name} ${if (isFav) "ditambah ke favorit" else "dihapus dari favorit"}",
-                    Toast.LENGTH_SHORT
-                ).show()
-                // TODO: simpan ke Firestore bila ingin persistent
-            }
-        )
-
-        rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
-        rvProducts.adapter = productAdapter
-
-        val categories = listOf(
-            Category("WHITE-MILK"),
-            Category("BLACK"),
-            Category("NON-COFFEE"),
-            Category("TUKUDAPAN")
-        )
-
-        rvCategory.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        rvCategory.adapter = CategoryAdapter(categories) { selected ->
-            selectedCategory = selected.name
-            filterProducts(selected.name, etSearch.text.toString())
-        }
-
-        if (categories.isNotEmpty()) {
-            selectedCategory = categories[0].name
-            filterProducts(categories[0].name, "")
-        }
-
-        updateBottomBarState()
-    }
-
     private fun filterProducts(categoryName: String?, query: String?) {
+        if (!::productAdapter.isInitialized) return // Pengaman jika adapter belum dibuat
+
         val currentQuery = query.orEmpty().trim()
         val filteredByCategory = if (categoryName.isNullOrEmpty()) {
             allProducts
@@ -207,20 +204,17 @@ class CartFragment : Fragment() {
         }
     }
 
-    // FINALLY: updateTotal ada di sini (dalam class CartFragment)
     private fun updateTotal() {
         val currentCart = cartViewModel.cartList.value ?: emptyList()
-
-        // subtotal sebagai Double (meskipun price_hot Int), untuk kalkulasi pajak
         val subtotal = currentCart.sumOf { item ->
-            val price = if (item.selectedType == "hot") item.price_hot else (item.price_iced ?: 0)
+            val price = if (item.selectedType == "hot") item.price_hot else (item.price_iced ?: item.price_hot)
             price.toDouble() * item.quantity
         }
-
         val tax = subtotal * 0.10
         val total = subtotal + tax
-
         val currencyFormat = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
+        currencyFormat.maximumFractionDigits = 0 // Hilangkan desimal
+
         tvSubtotal.text = currencyFormat.format(subtotal)
         tvTax.text = currencyFormat.format(tax)
         tvTotalPayment.text = currencyFormat.format(total)

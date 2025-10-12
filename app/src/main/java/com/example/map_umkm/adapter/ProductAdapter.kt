@@ -14,7 +14,8 @@ import java.text.NumberFormat
 import java.util.Locale
 
 class ProductAdapter(
-    private var products: MutableList<Product>,
+    // UBAH 'private' menjadi 'internal' agar bisa diakses dari CartFragment
+    internal var products: MutableList<Product>,
     private val onProductClick: (Product) -> Unit,
     private val onFavoriteToggle: (Product, Boolean) -> Unit // ✅ Tambahan listener favorit
 ) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
@@ -28,6 +29,7 @@ class ProductAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
+        // Pastikan Anda sudah membuat R.layout.item_menu
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_menu, parent, false)
         return ProductViewHolder(view)
@@ -36,38 +38,35 @@ class ProductAdapter(
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = products[position]
 
-        holder.tvProductName.text = product.name ?: "Produk"
+        holder.tvProductName.text = product.name
 
         val formattedPrice = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
-            .format(product.price_hot) // Menggunakan price_hot karena itu harga utama
+            .format(product.price_hot) // Menggunakan price_hot sebagai harga default
 
         holder.tvProductPrice.text = formattedPrice
 
         // Muat gambar dari URL menggunakan Glide
-        product.image?.let { imageUrl ->
+        if (!product.image.isNullOrEmpty()) {
             Glide.with(holder.itemView.context)
-                .load(imageUrl)
-                .placeholder(R.drawable.placeholder_image)
-                .error(R.drawable.error_image)
+                .load(product.image)
+                .placeholder(R.drawable.logo_tuku) // Ganti placeholder jika ada
+                .error(R.drawable.logo_tuku)       // Ganti gambar error jika ada
                 .into(holder.ivProductImage)
-        } ?: run {
-            // Muat gambar default jika URL null
-            Glide.with(holder.itemView.context).load(R.drawable.default_image).into(holder.ivProductImage)
+        } else {
+            // Muat gambar default jika URL null atau kosong
+            holder.ivProductImage.setImageResource(R.drawable.logo_tuku)
         }
 
+
         // ✅ Atur icon favorite sesuai status
-        if (product.isFavorite) {
-            holder.btnFavorite.setImageResource(R.drawable.ic_favorite_filled)
-        } else {
-            holder.btnFavorite.setImageResource(R.drawable.ic_favorite_border)
-        }
+        holder.btnFavorite.setImageResource(
+            if (product.isFavorite) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_border
+        )
 
         // ✅ Listener untuk tombol favorite
         holder.btnFavorite.setOnClickListener {
-            val newState = !product.isFavorite
-            product.isFavorite = newState
-            onFavoriteToggle(product, newState)
-            notifyItemChanged(holder.adapterPosition)
+            // Kita tidak perlu mengubah state di sini lagi karena sudah ditangani di CartFragment
+            onFavoriteToggle(product, !product.isFavorite)
         }
 
         // Listener untuk klik item produk
@@ -77,7 +76,7 @@ class ProductAdapter(
 
         // Listener untuk tombol cart (tetap seperti semula)
         holder.btnAddToCart.setOnClickListener {
-            onProductClick(product)
+            onProductClick(product) // Arahkan ke detail juga
         }
     }
 
@@ -89,4 +88,3 @@ class ProductAdapter(
         notifyDataSetChanged()
     }
 }
-

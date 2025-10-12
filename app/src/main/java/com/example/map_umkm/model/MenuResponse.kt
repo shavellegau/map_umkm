@@ -1,18 +1,39 @@
 package com.example.map_umkm.model
 
-data class MenuResponse(
-    val success: Boolean,
-    val menu: List<MenuItem>
+import com.google.gson.annotations.SerializedName
+
+// Class ini sudah benar, tidak perlu diubah
+data class MenuData(
+    @SerializedName("success")
+    val success: Boolean?,
+
+    @SerializedName("menu")
+    var menu: MutableList<MenuItem>
 )
 
-
+// [PERBAIKAN] Ubah semua 'val' menjadi 'var' di sini agar nilainya bisa diedit
 data class MenuItem(
-    val id: Int,
-    val category: String,
-    val name: String,
-    val description: String?,
-    val image: String?,
-    val created_at: String?,
-    val price_hot: Int?,
-    val price_iced: Int?
+    @SerializedName("id")
+    var id: Int,
+
+    @SerializedName("category")
+    var category: String?,
+
+    @SerializedName("name")
+    var name: String,
+
+    @SerializedName("description")
+    var description: String?,
+
+    @SerializedName("image")
+    var image: String?,
+
+    @SerializedName("created_at")
+    val createdAt: String?, // createdAt tidak perlu diedit, biarkan val
+
+    @SerializedName("price_hot")
+    var price_hot: Int?,
+
+    @SerializedName("price_iced")
+    var price_iced: Int?
 )

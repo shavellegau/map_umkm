@@ -15,7 +15,8 @@ import java.util.Locale
 
 class AdminProductAdapter(
     private var productList: List<Product>,
-    private val onDeleteClick: (Product) -> Unit
+    private val onDeleteClick: (Product) -> Unit,
+    private val onEditClick: (Product) -> Unit // TAMBAHKAN INI
 ) : RecyclerView.Adapter<AdminProductAdapter.AdminProductViewHolder>() {
 
     inner class AdminProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -26,7 +27,6 @@ class AdminProductAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdminProductViewHolder {
-        // Pastikan Anda sudah membuat layout 'item_admin_product.xml'
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_admin_product, parent, false)
         return AdminProductViewHolder(view)
@@ -37,20 +37,22 @@ class AdminProductAdapter(
 
         holder.productName.text = product.name
 
-        // Format harga ke Rupiah
         val format = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
-        holder.productPrice.text = format.format(product.price_hot) // Gunakan price_hot sebagai default
+        holder.productPrice.text = format.format(product.price_hot)
 
-        // Muat gambar produk menggunakan Glide
         Glide.with(holder.itemView.context)
-            .load(product.image) // 'image' sesuai model Product.kt Anda
-            .placeholder(R.drawable.logo_tuku) // Ganti dengan placeholder Anda
-            .error(R.drawable.logo_tuku) // Ganti dengan gambar error Anda
+            .load(product.image)
+            .placeholder(R.drawable.logo_tuku)
+            .error(R.drawable.logo_tuku)
             .into(holder.productImage)
 
-        // Atur listener untuk tombol hapus
         holder.deleteButton.setOnClickListener {
             onDeleteClick(product)
+        }
+
+        // TAMBAHKAN LISTENER UNTUK KLIK ITEM VIEW
+        holder.itemView.setOnClickListener {
+            onEditClick(product)
         }
     }
 
@@ -58,7 +60,6 @@ class AdminProductAdapter(
         return productList.size
     }
 
-    // Fungsi ini yang dicari oleh AdminActivity.kt
     fun updateData(newProductList: List<Product>) {
         this.productList = newProductList
         notifyDataSetChanged()

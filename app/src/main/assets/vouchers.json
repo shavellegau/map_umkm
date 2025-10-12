@@ -1,0 +1,17 @@
+{
+  "vouchers": [
+    {
+      "voucher_code": "TUKUHEMAT20",
+      "description": "Diskon 20% untuk semua menu kopi.",
+      "discount_percentage": 20,
+      "max_discount": 10000,
+      "is_active": true
+    },
+    {
+      "voucher_code": "NGOPIASIK",
+      "description": "Potongan harga Rp 5.000.",
+      "discount_flat": 5000,
+      "is_active": false
+    }
+  ]
+}
