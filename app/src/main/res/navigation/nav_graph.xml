@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,33 +8,114 @@
     <fragment
         android:id="@+id/nav_home"
         android:name="com.example.map_umkm.HomeFragment"
-        android:label="Home" />
+        android:label="Home"
+        tools:layout="@layout/fragment_home">
+
+        <action
+            android:id="@+id/action_nav_home_to_productDetailFragment"
+            app:destination="@id/productDetailFragment" />
+
+        <action
+            android:id="@+id/action_nav_home_to_nav_cart"
+            app:destination="@id/nav_cart"
+            app:popUpTo="@id/nav_home"
+            app:popUpToInclusive="true" />
+
+        <action
+            android:id="@+id/action_nav_home_to_pesananSayaFragment"
+            app:destination="@id/pesananSayaFragment" />
+        <action
+            android:id="@+id/action_nav_home_to_wishlistFragment"
+            app:destination="@id/wishlistFragment" />
+        <action
+            android:id="@+id/action_nav_home_to_voucherSayaFragment"
+            app:destination="@id/voucherSayaFragment" />
+        <action
+            android:id="@+id/action_nav_home_to_riwayatPoinFragment"
+            app:destination="@id/riwayatPoinFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/productDetailFragment"
+        android:name="com.example.map_umkm.ProductDetailFragment"
+        android:label="Detail Produk"
+        tools:layout="@layout/fragment_product_detail">
+        <argument
+            android:name="product"
+            app:argType="com.example.map_umkm.model.Product" />
+        <action
+            android:id="@+id/action_productDetailFragment_to_nav_cart"
+            app:destination="@id/nav_cart" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_cart"
         android:name="com.example.map_umkm.CartFragment"
-        android:label="Cart">
+        android:label="Cart"
+        tools:layout="@layout/fragment_cart">
         <action
-            android:id="@+id/action_cartFragment_to_paymentFragment"
+            android:id="@+id/action_nav_cart_to_paymentFragment"
             app:destination="@id/paymentFragment" />
-    </fragment>
 
-    <fragment
-        android:id="@+id/paymentFragment"
-        android:name="com.example.map_umkm.PaymentFragment"
-        android:label="Pembayaran"
-        tools:layout="@layout/fragment_payment" />
+        <!-- ✅ PERBAIKAN: TAMBAHKAN AKSI INI! -->
+        <action
+            android:id="@+id/action_nav_cart_to_productDetailFragment"
+            app:destination="@id/productDetailFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_orders"
         android:name="com.example.map_umkm.OrdersFragment"
-        android:label="Orders" />
+        android:label="Orders"
+        tools:layout="@layout/fragment_orders" />
 
     <fragment
         android:id="@+id/nav_profile"
         android:name="com.example.map_umkm.ProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/paymentFragment"
+        android:name="com.example.map_umkm.PaymentFragment"
+        android:label="Pembayaran"
+        tools:layout="@layout/fragment_payment">
+        <action
+            android:id="@+id/action_paymentFragment_to_paymentMethodFragment"
+            app:destination="@id/paymentMethodFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/paymentMethodFragment"
+        android:name="com.example.map_umkm.PaymentMethodFragment"
+        android:label="Metode Pembayaran"
+        tools:layout="@layout/fragment_payment_method">
+        <action
+            android:id="@+id/action_paymentMethodFragment_to_qrisFragment"
+            app:destination="@id/qrisFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/qrisFragment"
+        android:name="com.example.map_umkm.QrisFragment"
+        android:label="QRIS"
+        tools:layout="@layout/fragment_qris">
+        <action
+            android:id="@+id/action_qrisFragment_to_paymentSuccessFragment"
+            app:destination="@id/paymentSuccessFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/paymentSuccessFragment"
+        android:name="com.example.map_umkm.PaymentSuccessFragment"
+        android:label="Pembayaran Berhasil"
+        tools:layout="@layout/fragment_payment_success">
+        <action
+            android:id="@+id/action_paymentSuccessFragment_to_nav_home"
+            app:destination="@id/nav_home"
+            app:popUpTo="@id/nav_home"
+            app:popUpToInclusive="true" />
+    </fragment>
 
     <fragment
         android:id="@+id/pesananSayaFragment"
@@ -64,7 +146,4 @@
         android:name="com.example.map_umkm.RiwayatPoinFragment"
         android:label="Riwayat Poin"
         tools:layout="@layout/fragment_riwayat_poin" />
-
-
-
 </navigation>

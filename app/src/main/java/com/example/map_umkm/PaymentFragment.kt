@@ -14,6 +14,7 @@
     import com.example.map_umkm.viewmodel.CartViewModel
     import java.text.NumberFormat
     import java.util.Locale
+    import androidx.navigation.fragment.findNavController
 
 
     class PaymentFragment : Fragment() {
@@ -24,6 +25,7 @@
         private lateinit var tvSubtotal: TextView
         private lateinit var tvTax: TextView
         private lateinit var tvTotalPayment: TextView
+        private lateinit var btnPay: Button
 
         override fun onCreateView(
             inflater: LayoutInflater,
@@ -37,9 +39,10 @@
             tvSubtotal = view.findViewById(R.id.tvSubtotal)
             tvTax = view.findViewById(R.id.tvTax)
             tvTotalPayment = view.findViewById(R.id.tvTotalPayment)
+            btnPay = view.findViewById(R.id.btnPay)
 
             backButton.setOnClickListener {
-                requireActivity().supportFragmentManager.popBackStack()
+                findNavController().popBackStack()
             }
 
             val currentCart = cartViewModel.cartList.value ?: mutableListOf()
@@ -52,6 +55,12 @@
             rvOrderList.adapter = adapter
 
             calculateAndDisplayTotals()
+
+            btnPay.setOnClickListener {
+                // Navigasi lewat Navigation Component
+                findNavController().navigate(R.id.action_paymentFragment_to_paymentMethodFragment)
+            }
+
 
             return view
         }
