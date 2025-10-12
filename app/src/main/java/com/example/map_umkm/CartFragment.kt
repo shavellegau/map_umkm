@@ -1,6 +1,7 @@
 package com.example.map_umkm
 
 import android.os.Bundle
+// [FIXED] Kesalahan ketik pada import diperbaiki
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -12,18 +13,16 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.adapter.CategoryAdapter
 import com.example.map_umkm.adapter.ProductAdapter
+import com.example.map_umkm.data.JsonHelper
 import com.example.map_umkm.model.Category
-import com.example.map_umkm.model.MenuResponse
 import com.example.map_umkm.model.Product
 import com.example.map_umkm.viewmodel.CartViewModel
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import java.io.IOException
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -44,13 +43,16 @@ class CartFragment : Fragment() {
     private var allProducts: List<Product> = emptyList()
     private var selectedCategory: String? = null
 
+    private lateinit var jsonHelper: JsonHelper
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_cart, container, false)
 
-        // findViewById sesuai fragment_cart.xml
+        jsonHelper = JsonHelper(requireContext())
+
         rvCategory = view.findViewById(R.id.rv_category)
         rvProducts = view.findViewById(R.id.rv_products)
         tvTotal = view.findViewById(R.id.tv_total)
@@ -58,16 +60,14 @@ class CartFragment : Fragment() {
         bottomBar = view.findViewById(R.id.layout_bottom)
         btnViewOrder = view.findViewById(R.id.btn_view_order)
 
-        // Pastikan id berikut ada pada fragment_cart.xml
         tvSubtotal = view.findViewById(R.id.tvSubtotal)
         tvTax = view.findViewById(R.id.tvTax)
         tvTotalPayment = view.findViewById(R.id.tvTotalPayment)
 
         setupSearchListener()
         setupBottomBarListener()
-        loadMenuFromAssets()
+        loadMenu()
 
-        // Observasi perubahan cart -> update total + bottom bar
         cartViewModel.cartList.observe(viewLifecycleOwner) {
             updateTotal()
         }
@@ -87,41 +87,21 @@ class CartFragment : Fragment() {
 
     private fun setupBottomBarListener() {
         btnViewOrder.setOnClickListener {
-            val paymentFragment = PaymentFragment()
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.nav_host_fragment, paymentFragment)
-                .addToBackStack(null)
-                .commit()
+            findNavController().navigate(R.id.action_nav_cart_to_paymentFragment)
         }
     }
 
-    private fun loadMenuFromAssets() {
-        val jsonString: String? = try {
-            requireContext().assets.open("menu_items.json").bufferedReader().use { it.readText() }
-        } catch (ioException: IOException) {
-            ioException.printStackTrace()
-            null
-        }
+    private fun loadMenu() {
+        val menuData = jsonHelper.getMenuData()
 
-        if (jsonString == null) {
-            Toast.makeText(requireContext(), "File JSON tidak ditemukan", Toast.LENGTH_SHORT).show()
+        if (menuData == null) {
+            Toast.makeText(requireContext(), "Gagal memuat menu.", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val gson = Gson()
-        val listType = object : TypeToken<MenuResponse>() {}.type
-        val menuResponse: MenuResponse? = gson.fromJson(jsonString, listType)
-
-        if (menuResponse == null) {
-            Toast.makeText(requireContext(), "Gagal parse JSON", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val menuList = menuResponse.menu ?: emptyList()
-        allProducts = menuList.map { menuItem ->
-            // Sesuaikan tipe price sesuai Product.kt (di projectmu price_hot adalah Int)
+        allProducts = menuData.menu.map { menuItem ->
             Product(
-                id = menuItem.id?.toString() ?: "",
+                id = menuItem.id.toString(),
                 name = menuItem.name,
                 category = menuItem.category ?: "",
                 description = menuItem.description ?: "",
@@ -130,21 +110,17 @@ class CartFragment : Fragment() {
                 price_iced = menuItem.price_iced ?: 0,
                 isFavorite = false,
                 quantity = 0,
-                selectedType = "hot" // pastikan properti ini ada di model Product
+                selectedType = "hot"
             )
         }
 
         productAdapter = ProductAdapter(
             products = allProducts.toMutableList(),
             onProductClick = { product ->
-                val detailFragment = ProductDetailFragment.newInstance(product)
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.nav_host_fragment, detailFragment)
-                    .addToBackStack(null)
-                    .commit()
+                val action = CartFragmentDirections.actionNavCartToProductDetailFragment(product)
+                findNavController().navigate(action)
             },
             onFavoriteToggle = { product, isFav ->
-                // contoh: toggle di memory + notify
                 product.isFavorite = isFav
                 productAdapter.notifyDataSetChanged()
                 Toast.makeText(
@@ -152,38 +128,35 @@ class CartFragment : Fragment() {
                     "${product.name} ${if (isFav) "ditambah ke favorit" else "dihapus dari favorit"}",
                     Toast.LENGTH_SHORT
                 ).show()
-                // TODO: simpan ke Firestore bila ingin persistent
             }
         )
 
         rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
         rvProducts.adapter = productAdapter
 
-        val categories = listOf(
-            Category("WHITE-MILK"),
-            Category("BLACK"),
-            Category("NON-COFFEE"),
-            Category("TUKUDAPAN")
-        )
+        val categories = allProducts.map { it.category }.distinct().map { Category(it) }
 
         rvCategory.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         rvCategory.adapter = CategoryAdapter(categories) { selected ->
             selectedCategory = selected.name
+            (rvCategory.adapter as? CategoryAdapter)?.setSelectedPosition(categories.indexOf(selected))
             filterProducts(selected.name, etSearch.text.toString())
         }
 
         if (categories.isNotEmpty()) {
             selectedCategory = categories[0].name
+            (rvCategory.adapter as? CategoryAdapter)?.setSelectedPosition(0)
             filterProducts(categories[0].name, "")
         }
 
         updateBottomBarState()
     }
 
+
     private fun filterProducts(categoryName: String?, query: String?) {
         val currentQuery = query.orEmpty().trim()
-        val filteredByCategory = if (categoryName.isNullOrEmpty()) {
+        val filteredByCategory = if (categoryName.isNullOrEmpty() || categoryName.equals("Semua", true)) {
             allProducts
         } else {
             allProducts.filter { it.category.equals(categoryName, ignoreCase = true) }
@@ -207,13 +180,11 @@ class CartFragment : Fragment() {
         }
     }
 
-    // FINALLY: updateTotal ada di sini (dalam class CartFragment)
     private fun updateTotal() {
         val currentCart = cartViewModel.cartList.value ?: emptyList()
 
-        // subtotal sebagai Double (meskipun price_hot Int), untuk kalkulasi pajak
         val subtotal = currentCart.sumOf { item ->
-            val price = if (item.selectedType == "hot") item.price_hot else (item.price_iced ?: 0)
+            val price = if (item.selectedType == "iced") (item.price_iced) else item.price_hot
             price.toDouble() * item.quantity
         }
 

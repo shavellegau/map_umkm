@@ -2,15 +2,16 @@ package com.example.map_umkm.model
 
 import com.google.gson.annotations.SerializedName
 
-// Class ini sudah benar, tidak perlu diubah
+// [MODIFIKASI] Tambahkan 'orders' di sini
 data class MenuData(
-    @SerializedName("success")
-    val success: Boolean?,
+    @SerializedName("success")    val success: Boolean?,
 
     @SerializedName("menu")
-    var menu: MutableList<MenuItem>
-)
+    var menu: MutableList<MenuItem>,
 
+    @SerializedName("orders") // <-- TAMBAHKAN INI
+    var orders: MutableList<Order> // <-- TAMBAHKAN INI
+)
 // [PERBAIKAN] Ubah semua 'val' menjadi 'var' di sini agar nilainya bisa diedit
 data class MenuItem(
     @SerializedName("id")

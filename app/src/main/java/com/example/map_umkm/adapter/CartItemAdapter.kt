@@ -3,16 +3,15 @@ package com.example.map_umkm.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.ImageButton // [FIXED] Import yang benar adalah ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.map_umkm.R
+import com.example.map_umkm.model.Product
 import java.text.NumberFormat
 import java.util.Locale
-import com.example.map_umkm.model.Product
-
 
 class CartItemAdapter(
     private val items: MutableList<Product>,
@@ -25,8 +24,9 @@ class CartItemAdapter(
         val tvProductName: TextView = itemView.findViewById(R.id.tvProductName)
         val tvProductPrice: TextView = itemView.findViewById(R.id.tvProductPrice)
         val tvQuantity: TextView = itemView.findViewById(R.id.tvQuantity)
-        val btnPlus: Button = itemView.findViewById(R.id.btnPlus)
-        val btnMinus: Button = itemView.findViewById(R.id.btnMinus)
+        // [FIXED] Tipe data diubah dari Button ke ImageButton
+        val btnPlus: ImageButton = itemView.findViewById(R.id.btnPlus)
+        val btnMinus: ImageButton = itemView.findViewById(R.id.btnMinus)
         val btnDelete: ImageView = itemView.findViewById(R.id.btnDelete)
     }
 
@@ -41,24 +41,16 @@ class CartItemAdapter(
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val item = items[position]
 
-        // Load image: Use Glide to load the image from the URL.
         Glide.with(holder.itemView.context)
             .load(item.image)
-            .placeholder(R.drawable.placeholder_image) // Shows placeholder while loading
-            .error(R.drawable.error_image) // Shows error image if load fails
+            .placeholder(R.drawable.placeholder_image)
+            .error(R.drawable.error_image)
             .into(holder.ivProductImage)
 
         holder.tvProductName.text = item.name
 
-        // Show the price for the chosen temperature (hot or iced)
-        val finalPrice = if (item.price_iced != null && item.price_iced != 0) {
-            item.price_iced
-        } else {
-            item.price_hot
-        }
-
-        val formattedPrice =
-            NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(finalPrice)
+        val finalPrice = if (item.selectedType == "iced") item.price_iced else item.price_hot
+        val formattedPrice = NumberFormat.getCurrencyInstance(Locale("in", "ID")).format(finalPrice.toLong())
         holder.tvProductPrice.text = formattedPrice
 
         holder.tvQuantity.text = item.quantity.toString()
@@ -74,9 +66,18 @@ class CartItemAdapter(
                 item.quantity--
                 notifyItemChanged(position)
                 onQuantityChanged()
+            } else {
+                // Jika kuantitas sudah 1 dan ditekan minus, hapus item
+                onDeleteItem(item)
             }
         }
 
         holder.btnDelete.setOnClickListener { onDeleteItem(item) }
+    }
+
+    fun updateItems(newItems: List<Product>) {
+        items.clear()
+        items.addAll(newItems)
+        notifyDataSetChanged()
     }
 }

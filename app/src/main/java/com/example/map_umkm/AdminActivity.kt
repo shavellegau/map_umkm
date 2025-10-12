@@ -2,47 +2,47 @@ package com.example.map_umkm
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.Toast // [FIXED] Import yang hilang ditambahkan
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.map_umkm.adapter.AdminProductAdapter
+import androidx.viewpager2.widget.ViewPager2
+import com.example.map_umkm.adapter.AdminPageAdapter
 import com.example.map_umkm.data.JsonHelper
-import com.example.map_umkm.model.Product
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 
 class AdminActivity : AppCompatActivity() {
 
     private lateinit var jsonHelper: JsonHelper
-    private lateinit var rvProducts: RecyclerView
-    private lateinit var adapter: AdminProductAdapter
-    private lateinit var progressBar: ProgressBar
-    private lateinit var emptyView: TextView
+    private lateinit var viewPager: ViewPager2
+    private lateinit var tabLayout: TabLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_admin)
+        setContentView(R.layout.activity_admin_viewpager) // Pastikan layout ini ada
 
         jsonHelper = JsonHelper(this)
-        initializeViews()
-        setupRecyclerView()
+        viewPager = findViewById(R.id.view_pager_admin)
+        tabLayout = findViewById(R.id.tab_layout_admin)
+
+        viewPager.adapter = AdminPageAdapter(this)
+
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tab.text = when (position) {
+                0 -> "Manajemen Menu"
+                1 -> "Konfirmasi Pesanan"
+                else -> null
+            }
+        }.attach()
+
         setupListeners()
     }
 
     override fun onResume() {
         super.onResume()
-        fetchProductsFromJson()
-    }
-
-    private fun initializeViews() {
-        rvProducts = findViewById(R.id.rv_admin_products)
-        progressBar = findViewById(R.id.progress_bar_admin)
-        emptyView = findViewById(R.id.tv_empty_view)
+        setupOrderNotification()
     }
 
     private fun setupListeners() {
@@ -50,7 +50,11 @@ class AdminActivity : AppCompatActivity() {
         val toolbar: MaterialToolbar = findViewById(R.id.toolbar)
 
         fab.setOnClickListener {
-            startActivity(Intent(this, AddProductActivity::class.java))
+            if (viewPager.currentItem == 0) { // Hanya aktif jika di tab menu
+                startActivity(Intent(this, AddProductActivity::class.java))
+            } else {
+                Toast.makeText(this, "Fitur tambah hanya untuk tab menu", Toast.LENGTH_SHORT).show()
+            }
         }
 
         toolbar.setOnMenuItemClickListener { menuItem ->
@@ -64,75 +68,17 @@ class AdminActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupRecyclerView() {
-        adapter = AdminProductAdapter(
-            productList = emptyList(),
-            onDeleteClick = { product ->
-                showDeleteConfirmation(product)
-            },
-            onEditClick = { product ->
-                // Arahkan ke EditProductActivity dengan membawa data produk
-                val intent = Intent(this, EditProductActivity::class.java).apply {
-                    putExtra("PRODUCT_EXTRA", product)
-                }
-                startActivity(intent)
-            }
-        )
-        rvProducts.layoutManager = LinearLayoutManager(this)
-        rvProducts.adapter = adapter
-    }
+    fun setupOrderNotification() {
+        val newOrdersCount = jsonHelper.getMenuData()?.orders
+            ?.count { it.status == "Menunggu Konfirmasi" } ?: 0
 
-    private fun fetchProductsFromJson() {
-        showLoading(true)
-        val menuData = jsonHelper.getMenuData()
-
-        if (menuData != null) {
-            val productList = menuData.menu.map { menuItem ->
-                Product(
-                    id = menuItem.id.toString(),
-                    name = menuItem.name,
-                    category = menuItem.category ?: "",
-                    description = menuItem.description ?: "",
-                    image = menuItem.image ?: "",
-                    price_hot = menuItem.price_hot ?: 0,
-                    price_iced = menuItem.price_iced ?: 0
-                )
-            }.sortedBy { it.name }
-
-            adapter.updateData(productList)
-            updateEmptyView(productList.isEmpty())
-        } else {
-            Toast.makeText(this, "Gagal memuat menu dari file JSON.", Toast.LENGTH_SHORT).show()
-            updateEmptyView(true)
-        }
-        showLoading(false)
-    }
-
-    private fun updateEmptyView(isEmpty: Boolean) {
-        emptyView.visibility = if (isEmpty) View.VISIBLE else View.GONE
-        rvProducts.visibility = if (isEmpty) View.GONE else View.VISIBLE
-    }
-
-    private fun showDeleteConfirmation(product: Product) {
-        AlertDialog.Builder(this)
-            .setTitle("Hapus Produk")
-            .setMessage("Yakin ingin menghapus '${product.name}'?")
-            .setPositiveButton("Hapus") { _, _ -> deleteProductFromJson(product) }
-            .setNegativeButton("Batal", null)
-            .show()
-    }
-
-    private fun deleteProductFromJson(product: Product) {
-        val currentMenuData = jsonHelper.getMenuData()
-        if (currentMenuData != null) {
-            val itemRemoved = currentMenuData.menu.removeIf { it.id == product.id.toInt() }
-
-            if (itemRemoved) {
-                jsonHelper.saveMenuData(currentMenuData)
-                Toast.makeText(this, "'${product.name}' berhasil dihapus.", Toast.LENGTH_SHORT).show()
-                fetchProductsFromJson() // Muat ulang data setelah hapus
+        val orderTab = tabLayout.getTabAt(1)
+        if (orderTab != null) {
+            if (newOrdersCount > 0) {
+                val badge = orderTab.orCreateBadge
+                badge.number = newOrdersCount
             } else {
-                Toast.makeText(this, "Gagal menemukan produk untuk dihapus.", Toast.LENGTH_SHORT).show()
+                orderTab.removeBadge()
             }
         }
     }
@@ -152,9 +98,5 @@ class AdminActivity : AppCompatActivity() {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
-    }
-
-    private fun showLoading(isLoading: Boolean) {
-        progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 }
