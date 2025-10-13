@@ -5,41 +5,54 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/tuku_bg"
     tools:context=".AdminActivity">
 
+    <!-- Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:title="Dashboard Admin"
         app:menu="@menu/admin_toolbar_menu"
-        android:background="?attr/colorPrimary"
-        app:titleTextColor="@android:color/white"/>
+        android:background="@color/tuku_primary"
+        app:titleTextColor="@android:color/white"
+        app:navigationIconTint="@android:color/white" />
 
+    <!-- Tabs -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout_admin"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:background="@color/tuku_bg"
+        app:tabTextColor="@color/tuku_dark"
+        app:tabSelectedTextColor="@color/tuku_primary"
+        app:tabIndicatorColor="@color/tuku_accent" />
 
+    <!-- Content -->
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:background="@color/tuku_bg">
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/view_pager_admin"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
+        <!-- Tombol tambah produk -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_add_product"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"
+            android:layout_margin="20dp"
             android:contentDescription="Tambah Produk"
             android:src="@drawable/ic_add"
-            app:tint="@android:color/white" />
+            app:tint="@android:color/white"
+            app:backgroundTint="@color/tuku_primary"
+            app:rippleColor="@color/tuku_accent" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </LinearLayout>

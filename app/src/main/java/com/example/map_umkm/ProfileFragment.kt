@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -74,24 +76,49 @@ class ProfileFragment : Fragment() {
     }
 
     private fun showLogoutConfirmation() {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Logout")
-            .setMessage("Anda yakin ingin keluar dari akun ini?")
-            .setPositiveButton("Ya, Keluar") { _, _ ->
-                logout()
-            }
-            .setNegativeButton("Batal", null)
-            .show()
+        // Inflate layout custom dialog
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_logout_confirm, null)
+        val dialog = android.app.Dialog(requireContext())
+        dialog.setContentView(dialogView)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        // Ambil view dari layout
+        val tvTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+        val tvMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+        val btnLogout = dialogView.findViewById<Button>(R.id.btnLogout)
+
+        // (Opsional) kalau mau ubah teks-nya dinamis
+        tvTitle.text = "Logout Akun"
+        tvMessage.text = "Apakah kamu yakin ingin keluar dari akun ini?"
+        btnLogout.text = "Logout"
+
+        // Tombol Batal
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        // Tombol Logout
+        btnLogout.setOnClickListener {
+            dialog.dismiss()
+            logout() // Jalankan fungsi logout
+        }
+
+        dialog.show()
     }
+
 
     private fun logout() {
         val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
         prefs.edit().clear().apply()
-        val intent = Intent(activity, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+        val intent = Intent(activity, LoginActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
         startActivity(intent)
         requireActivity().finish()
     }
+
 
     // Penting untuk mencegah memory leak
     override fun onDestroyView() {

@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.adapter.AdminOrdersAdapter
 import com.example.map_umkm.data.JsonHelper
+import android.content.Intent
+import com.example.map_umkm.OrderDetailActivity
 
 class AdminOrdersFragment : Fragment() {
     private lateinit var jsonHelper: JsonHelper
@@ -34,7 +36,14 @@ class AdminOrdersFragment : Fragment() {
     private fun setupRecyclerView() {
         adapter = AdminOrdersAdapter(
             emptyList(),
-            onConfirmPaymentClick = { order -> // [BARU]
+            onItemClick = { order ->
+                val intent = Intent(requireContext(), OrderDetailActivity::class.java).apply {
+                    // Pastikan model Order Anda Parcelable
+                    putExtra("ORDER_DATA", order)
+                }
+                startActivity(intent)
+            },
+            onConfirmPaymentClick = { order ->
                 jsonHelper.updateOrderStatus(order.orderId, "Menunggu Konfirmasi")
                 loadOrders()
             },

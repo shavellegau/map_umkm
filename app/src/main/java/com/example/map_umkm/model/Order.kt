@@ -1,31 +1,29 @@
 package com.example.map_umkm.model
 
 import com.google.gson.annotations.SerializedName
-import java.io.Serializable
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-// Serializable memungkinkan objek ini dikirim antar activity/fragment
+@Parcelize
 data class Order(
     @SerializedName("orderId")
-    val orderId: String,
+    val orderId: String = "", // Tambahkan nilai default untuk Parcelize
 
     @SerializedName("userEmail")
-    val userEmail: String,
+    val userEmail: String = "",
 
     @SerializedName("userName")
-    val userName: String,
+    val userName: String = "",
 
     @SerializedName("items")
-    // [FIXED] Tipe data diubah ke model Product dari proyek Anda
-    val items: List<Product>,
+    val items: List<Product> = emptyList(), // Gunakan List<Product> dari proyek Anda
 
     @SerializedName("totalAmount")
-    val totalAmount: Double,
+    val totalAmount: Double = 0.0,
 
     @SerializedName("orderDate")
-    val orderDate: String,
+    val orderDate: String = "",
 
     @SerializedName("status")
-    var status: String // Status: "Menunggu Konfirmasi", "Diproses", "Selesai"
-
-    // [FIXED] Semua properti duplikat dan tidak perlu dari model dummy sudah dihapus
-) : Serializable
+    var status: String = "Menunggu Pembayaran"
+) : Parcelable

@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.map_umkm.adapter.AdminPageAdapter
 import com.example.map_umkm.data.JsonHelper
+import android.widget.Button
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
@@ -84,12 +85,23 @@ class AdminActivity : AppCompatActivity() {
     }
 
     private fun showLogoutConfirmation() {
-        AlertDialog.Builder(this)
-            .setTitle("Logout")
-            .setMessage("Anda yakin ingin keluar?")
-            .setPositiveButton("Ya") { _, _ -> logout() }
-            .setNegativeButton("Batal", null)
-            .show()
+        val dialogView = layoutInflater.inflate(R.layout.dialog_logout_confirm, null)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+        val btnLogout = dialogView.findViewById<Button>(R.id.btnLogout)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        btnCancel.setOnClickListener { dialog.dismiss() }
+        btnLogout.setOnClickListener {
+            dialog.dismiss()
+            logout()
+        }
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
     }
 
     private fun logout() {
