@@ -7,12 +7,20 @@ object CartManager {
 
     fun getItems(): MutableList<Product> = cartItems
 
-    fun addItem(product: Product) {
-        val existing = cartItems.find { it.id == product.id && it.selectedType == product.selectedType }
+    // 🔹 Tambahkan parameter selectedType dan notes agar sinkron dengan ViewModel
+    fun addItem(product: Product, selectedType: String, notes: String? = null) {
+        val existing = cartItems.find { it.id == product.id && it.selectedType == selectedType }
+
         if (existing != null) {
             existing.quantity++
+            // 🔹 Update catatan kalau ada input baru
+            if (!notes.isNullOrEmpty()) {
+                existing.notes = notes
+            }
         } else {
-            cartItems.add(product.copy(quantity = 1))
+            // 🔹 Simpan item baru dengan catatan (jika ada)
+            val newItem = product.copy(selectedType = selectedType, quantity = 1, notes = notes)
+            cartItems.add(newItem)
         }
     }
 
@@ -36,7 +44,6 @@ object CartManager {
 
     fun getTotalPrice(): Int {
         return cartItems.sumOf {
-            // [FIXED] Perbaiki kesalahan ketik di sini
             val price = (if (it.selectedType == "iced") it.price_iced else it.price_hot) ?: 0
             price * it.quantity
         }

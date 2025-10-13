@@ -8,7 +8,6 @@
     tools:context=".PaymentFragment"
     android:paddingBottom="?attr/actionBarSize">
 
-    <!-- AppBar / Toolbar Kustom -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="0dp"
@@ -32,7 +31,7 @@
                 android:layout_gravity="start"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:drawableStart="@drawable/ic_arrow_back"
-                app:tint="@android:color/white" />
+                app:tint="@android:color/black" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -45,7 +44,6 @@
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Tombol Aksi "Bayar Sekarang" -->
     <Button
         android:id="@+id/btnPay"
         android:layout_width="0dp"
@@ -64,7 +62,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Rincian Biaya -->
     <LinearLayout
         android:id="@+id/layout_total_detail"
         android:layout_width="0dp"
@@ -144,7 +141,6 @@
         </RelativeLayout>
     </LinearLayout>
 
-    <!-- Garis Pemisah -->
     <View
         android:id="@+id/divider"
         android:layout_width="0dp"
@@ -154,7 +150,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Konten Scroll -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="0dp"

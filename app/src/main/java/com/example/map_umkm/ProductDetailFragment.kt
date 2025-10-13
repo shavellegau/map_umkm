@@ -10,8 +10,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
-// Hapus import FirestoreHelper yang tidak digunakan lagi di sini
-// import com.example.map_umkm.helper.FirestoreHelper
 import com.example.map_umkm.model.Product
 import com.example.map_umkm.viewmodel.CartViewModel
 import java.text.NumberFormat
@@ -23,38 +21,43 @@ class ProductDetailFragment : Fragment() {
     private lateinit var tvName: TextView
     private lateinit var tvDescription: TextView
     private lateinit var tvCategory: TextView
-    private lateinit var ivFavorite: ImageView
     private lateinit var tvPrice: TextView
+    private lateinit var ivFavorite: ImageView
     private lateinit var rgTemperature: RadioGroup
     private lateinit var rbHot: RadioButton
     private lateinit var rbIced: RadioButton
     private lateinit var btnAddToCart: Button
+    private lateinit var etNotes: EditText
+    private lateinit var btnBack: ImageButton
 
     private val cartViewModel: CartViewModel by activityViewModels()
     private val args: ProductDetailFragmentArgs by navArgs()
     private lateinit var selectedProduct: Product
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_product_detail, container, false)
 
-        // Initialize Views
+        // 🔹 Inisialisasi View
         ivImage = view.findViewById(R.id.ivImage)
         tvName = view.findViewById(R.id.tvName)
         tvDescription = view.findViewById(R.id.tvDescription)
         tvCategory = view.findViewById(R.id.tvCategory)
         tvPrice = view.findViewById(R.id.tvPrice)
+        ivFavorite = view.findViewById(R.id.ivFavorite)
         rgTemperature = view.findViewById(R.id.rgTemperature)
         rbHot = view.findViewById(R.id.rbHot)
         rbIced = view.findViewById(R.id.rbIced)
         btnAddToCart = view.findViewById(R.id.btnAddToCart)
-        ivFavorite = view.findViewById(R.id.ivFavorite)
+        etNotes = view.findViewById(R.id.etNotes)
+        btnBack = view.findViewById(R.id.btnBack)
 
-        // Get product from Safe Args
+        // 🔹 Ambil data dari SafeArgs
         selectedProduct = args.product
 
-        // Populate UI
+        // 🔹 Tampilkan data produk
         tvName.text = selectedProduct.name
         tvDescription.text = selectedProduct.description
         tvCategory.text = selectedProduct.category
@@ -68,7 +71,12 @@ class ProductDetailFragment : Fragment() {
         rbHot.isChecked = true
         updateUiForProduct(selectedProduct)
 
-        // Setup Listeners
+        // 🔹 Tombol kembali ke Home
+        btnBack.setOnClickListener {
+            findNavController().navigate(R.id.nav_cart)
+        }
+
+        // 🔹 Pilihan suhu (Hot / Iced)
         rgTemperature.setOnCheckedChangeListener { _, checkedId ->
             if (!selectedProduct.category.equals("TUKUDAPAN", ignoreCase = true)) {
                 updatePriceForSelection(selectedProduct, checkedId)
@@ -76,13 +84,29 @@ class ProductDetailFragment : Fragment() {
         }
 
         btnAddToCart.setOnClickListener {
-            addToCart(selectedProduct)
+            val notes = etNotes.text.toString().trim()
+            val wordCount = if (notes.isEmpty()) 0 else notes.split("\\s+".toRegex()).size
+
+            if (wordCount > 50) {
+                Toast.makeText(requireContext(), "Catatan maksimal 50 kata!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val selectedType = if (rbHot.isChecked) "hot" else "iced"
+
+            // 🔹 Kirim langsung ke ViewModel (notes ikut dikirim)
+            cartViewModel.addToCart(selectedProduct, selectedType, notes)
+
+            Toast.makeText(requireContext(), "${selectedProduct.name} ditambahkan ke keranjang", Toast.LENGTH_SHORT).show()
+
+            findNavController().navigateUp()
         }
 
+
+        // 🔹 Toggle favorit
         ivFavorite.setOnClickListener {
             selectedProduct.isFavorite = !selectedProduct.isFavorite
             updateFavoriteIcon(selectedProduct.isFavorite)
-            // (Your Firestore logic can be re-added here if needed)
         }
 
         return view
@@ -91,24 +115,20 @@ class ProductDetailFragment : Fragment() {
     private fun updateUiForProduct(product: Product) {
         if (product.category.equals("TUKUDAPAN", ignoreCase = true)) {
             rgTemperature.visibility = View.GONE
-            // [FIXED] Tambahkan elvis operator (?: 0) untuk menangani null
             val price = product.price_hot ?: 0
             tvPrice.text = formatCurrency(price)
             return
         }
 
         rgTemperature.visibility = View.VISIBLE
-        // [FIXED] Cek null, bukan cek 0, karena harga bisa null sekarang
         rbIced.visibility = if (product.price_iced == null) View.GONE else View.VISIBLE
         rbHot.visibility = if (product.price_hot == null) View.GONE else View.VISIBLE
 
-        // [FIXED] Tambahkan elvis operator (?: 0) untuk harga awal
         val initialPrice = product.price_hot ?: product.price_iced ?: 0
         tvPrice.text = formatCurrency(initialPrice)
     }
 
     private fun updatePriceForSelection(product: Product, checkedId: Int) {
-        // [FIXED] Tambahkan elvis operator (?: 0) di setiap cabang when
         val newPrice = when (checkedId) {
             R.id.rbIced -> product.price_iced ?: 0
             else -> product.price_hot ?: 0
@@ -119,9 +139,7 @@ class ProductDetailFragment : Fragment() {
     private fun addToCart(product: Product) {
         val selectedType = if (rbIced.isChecked && product.price_iced != null) "iced" else "hot"
         cartViewModel.addToCart(product, selectedType)
-
         Toast.makeText(requireContext(), "${product.name} ditambahkan ke keranjang!", Toast.LENGTH_SHORT).show()
-        // Kembali ke fragment sebelumnya dengan NavController
         findNavController().popBackStack()
     }
 

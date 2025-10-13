@@ -3,7 +3,7 @@ package com.example.map_umkm.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton // [FIXED] Import yang benar adalah ImageButton
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -24,10 +24,12 @@ class CartItemAdapter(
         val tvProductName: TextView = itemView.findViewById(R.id.tvProductName)
         val tvProductPrice: TextView = itemView.findViewById(R.id.tvProductPrice)
         val tvQuantity: TextView = itemView.findViewById(R.id.tvQuantity)
-        // [FIXED] Tipe data diubah dari Button ke ImageButton
         val btnPlus: ImageButton = itemView.findViewById(R.id.btnPlus)
         val btnMinus: ImageButton = itemView.findViewById(R.id.btnMinus)
         val btnDelete: ImageView = itemView.findViewById(R.id.btnDelete)
+
+        // ✅ Tambahkan ini untuk menampilkan catatan
+        val tvNotes: TextView = itemView.findViewById(R.id.tvNotes)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CartViewHolder {
@@ -40,6 +42,8 @@ class CartItemAdapter(
 
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val item = items[position]
+
+        // Gambar produk
         Glide.with(holder.itemView.context)
             .load(item.image)
             .placeholder(R.drawable.placeholder_image)
@@ -48,29 +52,42 @@ class CartItemAdapter(
 
         holder.tvProductName.text = item.name
 
+        // Harga
         val finalPrice = (if (item.selectedType == "iced") item.price_iced else item.price_hot) ?: 0
-        val formattedPrice = NumberFormat.getCurrencyInstance(Locale("in", "ID")).format(finalPrice.toLong())
+        val formattedPrice = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
+            .format(finalPrice.toLong())
         holder.tvProductPrice.text = formattedPrice
 
+        // Jumlah
         holder.tvQuantity.text = item.quantity.toString()
 
+        // ✅ Tampilkan catatan jika ada
+        if (!item.notes.isNullOrBlank()) {
+            holder.tvNotes.text = "Catatan: ${item.notes}"
+            holder.tvNotes.visibility = View.VISIBLE
+        } else {
+            holder.tvNotes.visibility = View.GONE
+        }
+
+        // Tombol tambah
         holder.btnPlus.setOnClickListener {
             item.quantity++
             notifyItemChanged(position)
             onQuantityChanged()
         }
 
+        // Tombol kurang
         holder.btnMinus.setOnClickListener {
             if (item.quantity > 1) {
                 item.quantity--
                 notifyItemChanged(position)
                 onQuantityChanged()
             } else {
-                // Jika kuantitas sudah 1 dan ditekan minus, hapus item
                 onDeleteItem(item)
             }
         }
 
+        // Tombol hapus
         holder.btnDelete.setOnClickListener { onDeleteItem(item) }
     }
 

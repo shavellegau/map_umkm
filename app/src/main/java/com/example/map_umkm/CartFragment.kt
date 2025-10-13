@@ -92,10 +92,11 @@ class CartFragment : Fragment() {
                 Toast.makeText(requireContext(), "${product.name} ${if (isFav) "ditambah" else "dihapus"} dari favorit", Toast.LENGTH_SHORT).show()
             },
             onAddToCartClick = { product ->
-                val defaultType = if (product.price_hot != null) "hot" else "iced"
-                cartViewModel.addToCart(product, defaultType)
-                Toast.makeText(context, "${product.name} ditambahkan", Toast.LENGTH_SHORT).show()
+                // Arahkan ke halaman detail produk
+                val action = CartFragmentDirections.actionNavCartToProductDetailFragment(product)
+                findNavController().navigate(action)
             }
+
         )
         rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
         rvProducts.adapter = productAdapter

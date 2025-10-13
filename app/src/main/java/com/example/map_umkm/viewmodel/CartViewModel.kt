@@ -3,37 +3,38 @@ package com.example.map_umkm.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.map_umkm.data.CartManager // [FIXED] Import CartManager
+import com.example.map_umkm.data.CartManager
 import com.example.map_umkm.model.Product
 
 class CartViewModel : ViewModel() {
 
-    // [FIXED] Saat pertama kali dibuat, langsung ambil data dari CartManager
+    // LiveData menyimpan isi keranjang dari CartManager
     private val _cartList = MutableLiveData<MutableList<Product>>(CartManager.getItems())
     val cartList: LiveData<MutableList<Product>> get() = _cartList
 
-    // Fungsi-fungsi ini sekarang hanya akan jadi "jembatan" ke CartManager
-    // dan memastikan LiveData diperbarui.
-
-    fun addToCart(product: Product, type: String) {
-        // Buat item baru dengan tipe yang dipilih
-        val newItem = product.copy(selectedType = type)
-        CartManager.addItem(newItem) // Tambahkan ke manager
-        _cartList.value = CartManager.getItems() // Perbarui LiveData dari manager
+    // 🔹 Tambahkan ke keranjang
+    fun addToCart(product: Product, selectedType: String, notes: String? = null) {
+        // Gunakan CartManager agar data global tersimpan dengan catatan juga
+        CartManager.addItem(product, selectedType, notes)
+        // Perbarui LiveData agar UI ikut update
+        _cartList.value = CartManager.getItems()
     }
 
-    fun removeFromCart(product: Product) { // [FIXED] Disederhanakan, cukup terima product
-        CartManager.removeItem(product) // Hapus dari manager
-        _cartList.value = CartManager.getItems() // Perbarui LiveData dari manager
+    // 🔹 Kurangi jumlah produk
+    fun removeFromCart(product: Product) {
+        CartManager.removeItem(product)
+        _cartList.value = CartManager.getItems()
     }
 
+    // 🔹 Hapus item sepenuhnya
     fun deleteItem(product: Product) {
-        CartManager.deleteItem(product) // Hapus dari manager
-        _cartList.value = CartManager.getItems() // Perbarui LiveData dari manager
+        CartManager.deleteItem(product)
+        _cartList.value = CartManager.getItems()
     }
 
+    // 🔹 Kosongkan semua isi keranjang
     fun clearCart() {
-        CartManager.clear() // Bersihkan manager
-        _cartList.value = CartManager.getItems() // Perbarui LiveData (jadi kosong)
+        CartManager.clear()
+        _cartList.value = CartManager.getItems()
     }
 }

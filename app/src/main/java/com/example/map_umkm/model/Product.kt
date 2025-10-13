@@ -16,5 +16,6 @@ data class Product(
     val price_iced: Int? = 0,
     var isFavorite: Boolean = false,
     var quantity: Int = 0,
-    var selectedType: String = "hot"
+    var selectedType: String = "hot",
+    var notes: String? = null
 ) : Parcelable
