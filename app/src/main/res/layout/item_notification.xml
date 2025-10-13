@@ -1,0 +1,24 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="?attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/tv_notification_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Judul Notifikasi"
+        android:textStyle="bold"
+        android:textColor="@color/tuku_dark" />
+
+    <TextView
+        android:id="@+id/tv_notification_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Deskripsi notifikasi..."
+        android:textColor="@color/text_bantuan"
+        android:textSize="12sp"
+        android:layout_marginTop="4dp"/>
+</LinearLayout>

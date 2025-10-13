@@ -316,7 +316,7 @@
       "category": "TUKUDAPAN",
       "name": "ONIGIRI TUNA MAYO",
       "description": "Onigiri khas Jepang dengan kearifan lokal! Berisi suwiran ikan tuna dan mayonnaise.",
-      "image": null,
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/tuna_mayo.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 17000,
       "price_iced": null

@@ -117,10 +117,8 @@ class HomeFragment : Fragment() {
 
     private fun setupListeners() {
         binding.btnNotification.setOnClickListener {
-            Log.d("HomeFragment", "Tombol Notifikasi diklik")
+            findNavController().navigate(R.id.action_nav_home_to_notificationFragment)
         }
-
-        // [DIHAPUS] Listener untuk bottom bar dihapus karena bottom bar tidak ada lagi di sini.
     }
 
     // [DIHAPUS] Fungsi updateBottomBar dihapus.

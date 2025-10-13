@@ -14,7 +14,15 @@
         <action
             android:id="@+id/action_nav_home_to_productDetailFragment"
             app:destination="@id/productDetailFragment" />
+        <action
+            android:id="@+id/action_nav_home_to_notificationFragment" app:destination="@id/notificationFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/notificationFragment"
+        android:name="com.example.map_umkm.NotificationFragment"
+        android:label="Notifikasi"
+        tools:layout="@layout/fragment_notification" />
 
     <fragment
         android:id="@+id/nav_cart"
