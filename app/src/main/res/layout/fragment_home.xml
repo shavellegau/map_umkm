@@ -8,50 +8,256 @@
     android:background="@color/tuku_bg"
     tools:context=".HomeFragment">
 
-    <!-- Konten Scroll (Main Content) -->
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/main_scroll_view"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="100dp"> <!-- Beri padding bawah agar tidak tertutup bottom bar -->
+            android:layout_height="wrap_content">
 
-            <!-- Banner ViewPager -->
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/bannerViewPager"
-                android:layout_width="match_parent"
-                android:layout_height="220dp" />
+                android:layout_width="0dp"
+                android:layout_height="250dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- CardView untuk konten utama -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/main_content_card"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="-40dp"
+                android:layout_marginTop="230dp"
                 app:cardCornerRadius="32dp"
-                app:cardElevation="0dp">
+                app:cardElevation="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:paddingTop="20dp">
+                    android:paddingTop="45dp"
+                    android:paddingBottom="16dp">
 
-                    <!-- Card Info User -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="12dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:gravity="center_vertical"
+                        android:weightSum="3">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingHorizontal="4dp">
+                            <ImageView
+                                android:layout_width="55dp"
+                                android:layout_height="55dp"
+                                android:src="@drawable/ic_heart_filled"
+                                android:background="@drawable/circle_brown_bg"
+                                android:padding="8dp"
+                                android:contentDescription="Belahan Jiwa"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Belahan Tuku"
+                                android:textSize="12sp"
+                                android:layout_marginTop="4dp"
+                                android:textColor="@color/tuku_dark"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="520/1.000 XP"
+                                android:textSize="10sp"
+                                android:textColor="@color/text_bantuan"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingHorizontal="4dp">
+                            <ImageView
+                                android:layout_width="55dp"
+                                android:layout_height="55dp"
+                                android:src="@drawable/ic_point"
+                                android:background="@drawable/circle_brown_bg"
+                                android:padding="8dp"
+                                android:contentDescription="Tuku Point"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Tuku Point"
+                                android:textSize="12sp"
+                                android:layout_marginTop="4dp"
+                                android:textColor="@color/tuku_dark"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="25.000 Points"
+                                android:textSize="10sp"
+                                android:textColor="@color/text_bantuan"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingHorizontal="4dp">
+                            <ImageView
+                                android:layout_width="55dp"
+                                android:layout_height="55dp"
+                                android:src="@drawable/ic_subscription"
+                                android:background="@drawable/circle_brown_bg"
+                                android:padding="8dp"
+                                android:contentDescription="Subscription"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Subscription"
+                                android:textSize="12sp"
+                                android:layout_marginTop="4dp"
+                                android:textColor="@color/tuku_dark"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0 Subscription"
+                                android:textSize="10sp"
+                                android:textColor="@color/text_bantuan"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginTop="1dp"
+                        android:weightSum="2">
+
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/voucher_card"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="2dp">
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:padding="12dp">
+                                <ImageView
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:src="@drawable/ic_voucher"
+                                    android:contentDescription="Voucher Kamu"
+                                    app:tint="@color/text_primary"/>
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:layout_marginStart="8dp">
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Voucher Kamu"
+                                        android:textSize="14sp"
+                                        android:textStyle="bold"
+                                        android:textColor="@color/tuku_dark"/>
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="15 Voucher"
+                                        android:textSize="12sp"
+                                        android:textColor="@color/text_bantuan"/>
+                                </LinearLayout>
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/referral_card"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="2dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:padding="12dp">
+
+                                <ImageView
+                                    android:layout_width="28dp"
+                                    android:layout_height="28dp"
+                                    android:contentDescription="Referral"
+                                    android:src="@drawable/ic_referral"
+                                    app:tint="@color/text_primary" />
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Referral"
+                                        android:textColor="@color/tuku_dark"
+                                        android:textSize="14sp"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Undang Temanmu"
+                                        android:textColor="@color/text_bantuan"
+                                        android:textSize="12sp" />
+                                </LinearLayout>
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_buat_pesanan"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Buat Pesanan Sekarang"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/tuku_dark"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"/>
+
                     <androidx.cardview.widget.CardView
-                        android:id="@+id/user_info_card"
+                        android:id="@+id/location_card"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="16dp"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginTop="8dp"
                         app:cardCornerRadius="12dp"
                         app:cardElevation="2dp">
                         <LinearLayout
@@ -60,105 +266,176 @@
                             android:orientation="horizontal"
                             android:padding="12dp"
                             android:gravity="center_vertical">
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_location"
+                                android:contentDescription="Location Icon"
+                                app:tint="@color/tuku_dark"/>
                             <TextView
-                                android:id="@+id/tv_user_greeting"
+                                android:id="@+id/tv_current_location"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                tools:text="Hi, Teman Tuku !"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
+                                android:layout_marginStart="8dp"
+                                android:text="Kedoya"
+                                android:textSize="14sp"
                                 android:textColor="@color/tuku_dark"/>
-                            <ImageButton
-                                android:id="@+id/btn_notification"
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
-                                android:src="@drawable/ic_notification"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:contentDescription="Notifications"
-                                app:tint="@color/tuku_dark"/>
+                            <TextView
+                                android:id="@+id/btn_change_location"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Ubah"
+                                android:textColor="@color/tuku_accent"
+                                android:textStyle="bold"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="4dp"/>
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
-                    <!-- Card Poin & Subscription (Bisa Anda tambahkan kembali jika perlu) -->
-
-
-                    <!-- Judul Menu -->
-                    <TextView
-                        android:id="@+id/tv_menu_title"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:id="@+id/takeaway_delivery_layout"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Pesan Menu Favoritmu"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/tuku_dark"
+                        android:orientation="horizontal"
+                        android:layout_marginHorizontal="16dp"
                         android:layout_marginTop="24dp"
-                        android:layout_marginStart="16dp"/>
+                        android:weightSum="2">
 
-                    <!-- RecyclerView Menu -->
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/take_away_card"
+                            android:layout_width="0dp"
+                            android:layout_height="80dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="2dp"
+                            app:cardBackgroundColor="@color/tuku_primary">
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:gravity="center">
+                                <ImageView
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:src="@drawable/ic_walk"
+                                    app:tint="@color/white"
+                                    android:contentDescription="Take Away"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="TAKE AWAY"
+                                    android:textColor="@color/white"
+                                    android:textSize="12sp"
+                                    android:textStyle="bold"
+                                    android:layout_marginTop="4dp"/>
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/delivery_card"
+                            android:layout_width="0dp"
+                            android:layout_height="80dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="2dp"
+                            app:cardBackgroundColor="@color/tuku_accent">
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:gravity="center">
+                                <ImageView
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:src="@drawable/ic_takeaway"
+                                    app:tint="@color/white"
+                                    android:contentDescription="Delivery"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="DELIVERY"
+                                    android:textColor="@color/white"
+                                    android:textSize="12sp"
+                                    android:textStyle="bold"
+                                    android:layout_marginTop="4dp"/>
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+                    </LinearLayout>
+
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/recycler_menu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="8dp"
+                        android:layout_marginTop="16dp"
                         android:nestedScrollingEnabled="false"
-                        android:padding="8dp"
-                        tools:listitem="@layout/item_menu"
-                        tools:itemCount="4"/>
+                        tools:listitem="@layout/item_menu"/>
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
-        </LinearLayout>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/user_info_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/main_content_card"
+                app:layout_constraintBottom_toTopOf="@+id/main_content_card">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="13dp"
+                    android:gravity="center_vertical">
+                    <TextView
+                        android:id="@+id/tv_user_greeting"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Hi, Teman Tuku !"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/tuku_dark"/>
+
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+                        <ImageButton
+                            android:id="@+id/btn_notification"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:src="@drawable/ic_notification"
+                            android:background="@android:color/transparent"
+                            android:contentDescription="Notifications"
+                            app:tint="@color/tuku_accent"
+                            android:scaleType="centerInside" />
+
+                        <TextView
+                            android:id="@+id/notification_badge"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="top|end"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginEnd="4dp"
+                            android:text="10"
+                            android:textColor="@android:color/black"
+                            android:textSize="10sp"
+                            android:gravity="center"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.core.widget.NestedScrollView>
-
-    <!-- [BARU] BOTTOM BAR UNTUK PESANAN -->
-    <LinearLayout
-        android:id="@+id/order_bottom_bar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@color/tuku_primary"
-        android:padding="12dp"
-        android:gravity="center_vertical"
-        android:elevation="8dp"
-        android:visibility="gone"
-        tools:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tv_total_items_bottom"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                tools:text="1 Item" />
-
-            <TextView
-                android:id="@+id/tv_total_price_bottom"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                tools:text="Rp23.000" />
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/btn_view_order"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Lihat Pesanan"
-            android:backgroundTint="@color/tuku_accent"
-            android:textColor="@android:color/white"
-            app:icon="@drawable/ic_arrow_forward"
-            app:iconGravity="end" />
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -51,7 +51,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupBannerCarousel() {
-        val bannerImages = listOf(R.drawable.banner_kopi, R.drawable.tuku_banner)
+        val bannerImages = listOf(R.drawable.banner_tuku_hut, R.drawable.tuku_banner, R.drawable.banner_tuku_mrt)
         val bannerAdapter = BannerAdapter(bannerImages)
         binding.bannerViewPager.adapter = bannerAdapter
         var currentPage = 0
