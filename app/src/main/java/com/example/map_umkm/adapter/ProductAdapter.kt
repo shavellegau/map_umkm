@@ -14,10 +14,11 @@ import java.text.NumberFormat
 import java.util.Locale
 
 class ProductAdapter(
-    // UBAH 'private' menjadi 'internal' agar bisa diakses dari CartFragment
     internal var products: MutableList<Product>,
     private val onProductClick: (Product) -> Unit,
-    private val onFavoriteToggle: (Product, Boolean) -> Unit // ✅ Tambahan listener favorit
+    private val onFavoriteToggle: (Product, Boolean) -> Unit,
+    // [FIXED] Tambahkan listener baru untuk tombol Add to Cart
+    private val onAddToCartClick: (Product) -> Unit
 ) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -25,11 +26,10 @@ class ProductAdapter(
         val tvProductName: TextView = itemView.findViewById(R.id.tvProductName)
         val tvProductPrice: TextView = itemView.findViewById(R.id.tvProductPrice)
         val btnAddToCart: ImageButton = itemView.findViewById(R.id.btnAddToCart)
-        val btnFavorite: ImageButton = itemView.findViewById(R.id.btnFavorite) // ✅ Tambahan tombol favorite
+        val btnFavorite: ImageButton = itemView.findViewById(R.id.btnFavorite)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
-        // Pastikan Anda sudah membuat R.layout.item_menu
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_menu, parent, false)
         return ProductViewHolder(view)
@@ -40,43 +40,33 @@ class ProductAdapter(
 
         holder.tvProductName.text = product.name
 
-        val formattedPrice = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
-            .format(product.price_hot) // Menggunakan price_hot sebagai harga default
-
+        // Tampilkan harga yang tersedia pertama kali (hot atau iced)
+        val priceToShow = product.price_hot ?: product.price_iced ?: 0
+        val formattedPrice = NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(priceToShow.toLong())
         holder.tvProductPrice.text = formattedPrice
 
-        // Muat gambar dari URL menggunakan Glide
-        if (!product.image.isNullOrEmpty()) {
-            Glide.with(holder.itemView.context)
-                .load(product.image)
-                .placeholder(R.drawable.logo_tuku) // Ganti placeholder jika ada
-                .error(R.drawable.logo_tuku)       // Ganti gambar error jika ada
-                .into(holder.ivProductImage)
-        } else {
-            // Muat gambar default jika URL null atau kosong
-            holder.ivProductImage.setImageResource(R.drawable.logo_tuku)
-        }
+        Glide.with(holder.itemView.context)
+            .load(product.image)
+            .placeholder(R.drawable.logo_tuku)
+            .error(R.drawable.logo_tuku)
+            .into(holder.ivProductImage)
 
-
-        // ✅ Atur icon favorite sesuai status
         holder.btnFavorite.setImageResource(
             if (product.isFavorite) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_border
         )
 
-        // ✅ Listener untuk tombol favorite
         holder.btnFavorite.setOnClickListener {
-            // Kita tidak perlu mengubah state di sini lagi karena sudah ditangani di CartFragment
             onFavoriteToggle(product, !product.isFavorite)
         }
 
-        // Listener untuk klik item produk
-        holder.itemView.setOnClickListener {
-            onProductClick(product)
+        // [FIXED] Aksi klik pada tombol keranjang sekarang memanggil listener baru
+        holder.btnAddToCart.setOnClickListener {
+            onAddToCartClick(product)
         }
 
-        // Listener untuk tombol cart (tetap seperti semula)
-        holder.btnAddToCart.setOnClickListener {
-            onProductClick(product) // Arahkan ke detail juga
+        // Aksi klik pada item view tetap mengarahkan ke detail
+        holder.itemView.setOnClickListener {
+            onProductClick(product)
         }
     }
 

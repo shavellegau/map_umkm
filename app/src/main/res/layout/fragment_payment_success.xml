@@ -16,22 +16,28 @@
         app:lottie_autoPlay="true"
         app:lottie_loop="false" />
 
+    <!-- Komentar yang benar diletakkan di sini, di luar tag -->
     <TextView
+        android:id="@+id/tvSuccessMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Pembayaran Berhasil!"
+        android:gravity="center"
         android:textSize="22sp"
         android:textStyle="bold"
         android:textColor="@color/black"
         android:layout_marginTop="16dp" />
 
     <TextView
+        android:id="@+id/tvSuccessSubtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Terima kasih, pesananmu sedang diproses."
+        android:gravity="center"
         android:textSize="16sp"
         android:textColor="#666"
         android:layout_marginTop="4dp" />
+
 
     <Button
         android:id="@+id/btnBackToHome"

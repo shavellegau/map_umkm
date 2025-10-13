@@ -34,15 +34,19 @@ class AdminOrdersFragment : Fragment() {
     private fun setupRecyclerView() {
         adapter = AdminOrdersAdapter(
             emptyList(),
+            onConfirmPaymentClick = { order -> // [BARU]
+                jsonHelper.updateOrderStatus(order.orderId, "Menunggu Konfirmasi")
+                loadOrders()
+            },
             onProsesClick = { order ->
                 jsonHelper.updateOrderStatus(order.orderId, "Diproses")
                 loadOrders()
-                (activity as? AdminActivity)?.setupOrderNotification() // Update badge
+                (activity as? AdminActivity)?.setupOrderNotification()
             },
             onSelesaikanClick = { order ->
                 jsonHelper.updateOrderStatus(order.orderId, "Selesai")
                 loadOrders()
-                (activity as? AdminActivity)?.setupOrderNotification() // Update badge
+                (activity as? AdminActivity)?.setupOrderNotification()
             }
         )
         rvOrders.layoutManager = LinearLayoutManager(context)

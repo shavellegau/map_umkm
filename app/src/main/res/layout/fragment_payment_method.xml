@@ -1,38 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center_horizontal"
+    android:background="@color/tuku_bg"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
         android:text="Pilih Metode Pembayaran"
-        android:textSize="18sp"
+        android:textSize="22sp"
         android:textStyle="bold"
-        android:layout_marginBottom="24dp"
+        android:textColor="@color/tuku_dark"
+        android:layout_marginBottom="16dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
+    <!-- [BARU] Tampilan Total Pembayaran -->
+    <TextView
+        android:id="@+id/tvTotalPayment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="@color/tuku_dark"
+        android:layout_marginBottom="32dp"
+        tools:text="Rp61.050" />
+
 
     <Button
         android:id="@+id/btnQRIS"
         android:text="QRIS"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp" />
-
-    <Button
-        android:id="@+id/btnDana"
-        android:text="DANA"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp" />
-
-    <Button
-        android:id="@+id/btnOvo"
-        android:text="OVO"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        style="@style/Widget.MaterialComponents.Button"
         android:layout_marginBottom="12dp" />
 
     <Button
@@ -40,11 +42,30 @@
         android:text="Bayar Tunai"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_marginBottom="12dp" />
+
+    <Button
+        android:id="@+id/btnDana"
+        android:text="DANA (Segera Hadir)"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_marginBottom="12dp" />
+
+    <Button
+        android:id="@+id/btnOvo"
+        android:text="OVO (Segera Hadir)"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_marginBottom="32dp" />
 
     <Button
         android:id="@+id/btnBack"
         android:text="Kembali"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
 </LinearLayout>

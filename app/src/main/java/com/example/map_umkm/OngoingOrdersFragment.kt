@@ -9,9 +9,9 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.map_umkm.adapter.UserOrdersAdapter // Adapter yang sudah kita buat
+import com.example.map_umkm.adapter.UserOrdersAdapter
 import com.example.map_umkm.data.JsonHelper
-import com.example.map_umkm.model.Order // Model yang benar
+import com.example.map_umkm.model.Order
 
 class OngoingOrdersFragment : Fragment() {
 
@@ -24,7 +24,6 @@ class OngoingOrdersFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Ganti layout ke yang sudah kita desain
         val view = inflater.inflate(R.layout.fragment_ongoing_orders, container, false)
         jsonHelper = JsonHelper(requireContext())
         rvOrders = view.findViewById(R.id.rv_ongoing_orders)
@@ -40,7 +39,6 @@ class OngoingOrdersFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        // Gunakan UserOrdersAdapter yang sudah ada
         adapter = UserOrdersAdapter(emptyList())
         rvOrders.layoutManager = LinearLayoutManager(context)
         rvOrders.adapter = adapter
@@ -56,8 +54,10 @@ class OngoingOrdersFragment : Fragment() {
         }
 
         val allOrders = jsonHelper.getMenuData()?.orders ?: emptyList()
-        // Filter untuk pesanan milik user ini DAN yang statusnya "Ongoing"
-        val ongoingStatuses = listOf("Menunggu Konfirmasi", "Diproses")
+
+        // [FIXED] Tambahkan "Menunggu Pembayaran" ke dalam daftar status ongoing.
+        val ongoingStatuses = listOf("Menunggu Pembayaran", "Menunggu Konfirmasi", "Diproses")
+
         val myOngoingOrders = allOrders.filter {
             it.userEmail == userEmail && it.status in ongoingStatuses
         }
@@ -66,6 +66,7 @@ class OngoingOrdersFragment : Fragment() {
             showEmptyView(true)
         } else {
             showEmptyView(false)
+            // Urutkan berdasarkan tanggal, pesanan terbaru di paling atas
             adapter.updateData(myOngoingOrders.sortedByDescending { it.orderDate })
         }
     }

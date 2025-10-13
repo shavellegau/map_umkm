@@ -3,49 +3,37 @@ package com.example.map_umkm.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.map_umkm.model.Product // [FIXED] Impor model Product yang benar
+import com.example.map_umkm.data.CartManager // [FIXED] Import CartManager
+import com.example.map_umkm.model.Product
 
 class CartViewModel : ViewModel() {
 
-    // [FIXED] Menggunakan tipe data Product dari proyek Anda
-    private val _cartList = MutableLiveData<MutableList<Product>>(mutableListOf())
+    // [FIXED] Saat pertama kali dibuat, langsung ambil data dari CartManager
+    private val _cartList = MutableLiveData<MutableList<Product>>(CartManager.getItems())
     val cartList: LiveData<MutableList<Product>> get() = _cartList
 
+    // Fungsi-fungsi ini sekarang hanya akan jadi "jembatan" ke CartManager
+    // dan memastikan LiveData diperbarui.
+
     fun addToCart(product: Product, type: String) {
-        val currentList = _cartList.value ?: mutableListOf()
-        val existingItem = currentList.find { it.id == product.id && it.selectedType == type }
-
-        if (existingItem != null) {
-            existingItem.quantity++
-        } else {
-            val newItem = product.copy(quantity = 1, selectedType = type)
-            currentList.add(newItem)
-        }
-        _cartList.value = currentList
+        // Buat item baru dengan tipe yang dipilih
+        val newItem = product.copy(selectedType = type)
+        CartManager.addItem(newItem) // Tambahkan ke manager
+        _cartList.value = CartManager.getItems() // Perbarui LiveData dari manager
     }
 
-    fun removeFromCart(productId: String, type: String) {
-        val currentList = _cartList.value ?: return
-        val item = currentList.find { it.id == productId && it.selectedType == type }
-
-        if (item != null) {
-            if (item.quantity > 1) {
-                item.quantity--
-            } else {
-                currentList.remove(item)
-            }
-            _cartList.value = currentList
-        }
+    fun removeFromCart(product: Product) { // [FIXED] Disederhanakan, cukup terima product
+        CartManager.removeItem(product) // Hapus dari manager
+        _cartList.value = CartManager.getItems() // Perbarui LiveData dari manager
     }
 
-    // Fungsi untuk menghapus item sepenuhnya (misal dari tombol silang)
     fun deleteItem(product: Product) {
-        val currentList = _cartList.value ?: return
-        currentList.remove(product)
-        _cartList.value = currentList
+        CartManager.deleteItem(product) // Hapus dari manager
+        _cartList.value = CartManager.getItems() // Perbarui LiveData dari manager
     }
 
     fun clearCart() {
-        _cartList.value = mutableListOf()
+        CartManager.clear() // Bersihkan manager
+        _cartList.value = CartManager.getItems() // Perbarui LiveData (jadi kosong)
     }
 }

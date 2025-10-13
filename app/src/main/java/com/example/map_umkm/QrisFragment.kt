@@ -8,6 +8,10 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 
+/**
+ * [DIROMBAK TOTAL] Fragment ini sekarang hanya untuk menampilkan gambar QRIS.
+ * Logika pembuatan pesanan sudah dipindahkan sepenuhnya ke PaymentFragment.
+ */
 class QrisFragment : Fragment() {
 
     override fun onCreateView(
@@ -15,11 +19,22 @@ class QrisFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_qris, container, false)
-        val btnSelesai = view.findViewById<Button>(R.id.btnSelesai)
 
-        // ✅ navigasi pakai action di nav_graph
+        val btnSelesai: Button = view.findViewById(R.id.btnSelesai)
+        val btnBack: Button = view.findViewById(R.id.btnBack)
+
+        btnBack.setOnClickListener {
+            // Cukup kembali ke halaman sebelumnya (PaymentFragment)
+            findNavController().popBackStack()
+        }
+
         btnSelesai.setOnClickListener {
-            findNavController().navigate(R.id.action_qrisFragment_to_paymentSuccessFragment)
+            // Setelah "membayar", arahkan ke halaman sukses dengan argumen "QRIS".
+            // Pesanan sudah dibuat SEBELUM masuk ke halaman ini.
+            val action = QrisFragmentDirections.actionQrisFragmentToPaymentSuccessFragment(
+                paymentMethod = "QRIS"
+            )
+            findNavController().navigate(action)
         }
 
         return view

@@ -10,7 +10,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
-import com.example.map_umkm.helper.FirestoreHelper
+// Hapus import FirestoreHelper yang tidak digunakan lagi di sini
+// import com.example.map_umkm.helper.FirestoreHelper
 import com.example.map_umkm.model.Product
 import com.example.map_umkm.viewmodel.CartViewModel
 import java.text.NumberFormat
@@ -81,7 +82,7 @@ class ProductDetailFragment : Fragment() {
         ivFavorite.setOnClickListener {
             selectedProduct.isFavorite = !selectedProduct.isFavorite
             updateFavoriteIcon(selectedProduct.isFavorite)
-            // (Your Firestore logic remains the same)
+            // (Your Firestore logic can be re-added here if needed)
         }
 
         return view
@@ -90,28 +91,33 @@ class ProductDetailFragment : Fragment() {
     private fun updateUiForProduct(product: Product) {
         if (product.category.equals("TUKUDAPAN", ignoreCase = true)) {
             rgTemperature.visibility = View.GONE
-            val price = product.price_hot
+            // [FIXED] Tambahkan elvis operator (?: 0) untuk menangani null
+            val price = product.price_hot ?: 0
             tvPrice.text = formatCurrency(price)
             return
         }
 
         rgTemperature.visibility = View.VISIBLE
-        rbIced.visibility = if (product.price_iced == 0) View.GONE else View.VISIBLE
+        // [FIXED] Cek null, bukan cek 0, karena harga bisa null sekarang
+        rbIced.visibility = if (product.price_iced == null) View.GONE else View.VISIBLE
+        rbHot.visibility = if (product.price_hot == null) View.GONE else View.VISIBLE
 
-        val initialPrice = product.price_hot
+        // [FIXED] Tambahkan elvis operator (?: 0) untuk harga awal
+        val initialPrice = product.price_hot ?: product.price_iced ?: 0
         tvPrice.text = formatCurrency(initialPrice)
     }
 
     private fun updatePriceForSelection(product: Product, checkedId: Int) {
+        // [FIXED] Tambahkan elvis operator (?: 0) di setiap cabang when
         val newPrice = when (checkedId) {
-            R.id.rbIced -> product.price_iced
-            else -> product.price_hot
+            R.id.rbIced -> product.price_iced ?: 0
+            else -> product.price_hot ?: 0
         }
         tvPrice.text = formatCurrency(newPrice)
     }
 
     private fun addToCart(product: Product) {
-        val selectedType = if (rbHot.isChecked) "hot" else "iced"
+        val selectedType = if (rbIced.isChecked && product.price_iced != null) "iced" else "hot"
         cartViewModel.addToCart(product, selectedType)
 
         Toast.makeText(requireContext(), "${product.name} ditambahkan ke keranjang!", Toast.LENGTH_SHORT).show()

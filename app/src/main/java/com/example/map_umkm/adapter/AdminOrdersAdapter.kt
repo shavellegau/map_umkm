@@ -13,6 +13,7 @@ import java.util.*
 
 class AdminOrdersAdapter(
     private var orders: List<Order>,
+    private val onConfirmPaymentClick: (Order) -> Unit,
     private val onProsesClick: (Order) -> Unit,
     private val onSelesaikanClick: (Order) -> Unit
 ) : RecyclerView.Adapter<AdminOrdersAdapter.ViewHolder>() {
@@ -23,6 +24,8 @@ class AdminOrdersAdapter(
         val tvItems: TextView = view.findViewById(R.id.tv_order_items)
         val tvTotal: TextView = view.findViewById(R.id.tv_order_total)
         val tvStatus: TextView = view.findViewById(R.id.tv_order_status)
+        // [FIXED] Menggunakan ID yang benar dari item_order_admin.xml
+        val btnConfirmPayment: Button = view.findViewById(R.id.btn_konfirmasi_pembayaran)
         val btnProses: Button = view.findViewById(R.id.btn_proses_pesanan)
         val btnSelesaikan: Button = view.findViewById(R.id.btn_selesaikan_pesanan)
     }
@@ -43,19 +46,28 @@ class AdminOrdersAdapter(
         holder.tvTotal.text = "Total: ${currencyFormat.format(order.totalAmount)}"
         holder.tvStatus.text = "Status: ${order.status}"
 
+        holder.btnConfirmPayment.setOnClickListener { onConfirmPaymentClick(order) }
         holder.btnProses.setOnClickListener { onProsesClick(order) }
         holder.btnSelesaikan.setOnClickListener { onSelesaikanClick(order) }
 
         when (order.status) {
+            "Menunggu Pembayaran" -> {
+                holder.btnConfirmPayment.visibility = View.VISIBLE
+                holder.btnProses.visibility = View.GONE
+                holder.btnSelesaikan.visibility = View.GONE
+            }
             "Menunggu Konfirmasi" -> {
+                holder.btnConfirmPayment.visibility = View.GONE
                 holder.btnProses.visibility = View.VISIBLE
                 holder.btnSelesaikan.visibility = View.GONE
             }
             "Diproses" -> {
+                holder.btnConfirmPayment.visibility = View.GONE
                 holder.btnProses.visibility = View.GONE
                 holder.btnSelesaikan.visibility = View.VISIBLE
             }
-            else -> { // Selesai
+            else -> { // Selesai atau status lain
+                holder.btnConfirmPayment.visibility = View.GONE
                 holder.btnProses.visibility = View.GONE
                 holder.btnSelesaikan.visibility = View.GONE
             }

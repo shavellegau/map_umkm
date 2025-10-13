@@ -9,9 +9,11 @@ data class Product(
     val name: String = "",
     val category: String = "",
     val description: String = "",
-    val image: String = "",
-    val price_hot: Int = 0,
-    val price_iced: Int = 0,
+    // [FIXED] Ubah menjadi String? agar bisa menerima null dan URL internet
+    val image: String? = null,
+    // [FIXED] Ubah menjadi Int? agar bisa menerima null
+    val price_hot: Int? = 0,
+    val price_iced: Int? = 0,
     var isFavorite: Boolean = false,
     var quantity: Int = 0,
     var selectedType: String = "hot"

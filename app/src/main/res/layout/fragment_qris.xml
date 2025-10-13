@@ -1,20 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="24dp"
+    android:background="@color/white"
     tools:context=".QrisFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pindai untuk Membayar"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/tuku_dark"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tunjukkan kode QR ini pada kasir"
+        android:textSize="16sp"
+        android:textColor="@color/text_bantuan"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- [FIXED] ImageView sekarang merujuk ke gambar yang sudah ada -->
+    <ImageView
+        android:id="@+id/ivQrCode"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:src="@drawable/qr_code_dummy_background"
+        android:contentDescription="QR Code untuk pembayaran"
+        android:layout_marginBottom="32dp"/>
+
     <Button
         android:id="@+id/btnSelesai"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Cek Status Pembayaran"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/purple_500"
+        android:text="Saya Sudah Bayar"
+        android:backgroundTint="@color/tuku_primary"
         android:textColor="@android:color/white"
-        android:textStyle="bold"/>
+        android:layout_marginBottom="12dp"
+        android:padding="14dp" />
 
+    <Button
+        android:id="@+id/btnBack"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Kembali"
+        android:textColor="@color/tuku_dark"/>
 
-</FrameLayout>
+</LinearLayout>

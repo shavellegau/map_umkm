@@ -15,7 +15,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- [FIXED] ID yang benar adalah tv_order_user_info -->
         <TextView
             android:id="@+id/tv_order_user_info"
             android:layout_width="wrap_content"
@@ -62,7 +61,17 @@
             android:orientation="horizontal"
             android:layout_marginTop="12dp">
 
-            <!-- [FIXED] ID yang benar adalah btn_proses_pesanan -->
+            <Button
+                android:id="@+id/btn_konfirmasi_pembayaran"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Konfirmasi Bayar"
+                android:backgroundTint="@color/design_default_color_secondary"
+                android:visibility="gone"
+                tools:visibility="visible"/>
+
             <Button
                 android:id="@+id/btn_proses_pesanan"
                 android:layout_width="0dp"
@@ -72,7 +81,6 @@
                 android:layout_marginEnd="4dp"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
-            <!-- [FIXED] ID yang benar adalah btn_selesaikan_pesanan -->
             <Button
                 android:id="@+id/btn_selesaikan_pesanan"
                 android:layout_width="0dp"

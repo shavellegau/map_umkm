@@ -40,7 +40,6 @@ class CartItemAdapter(
 
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val item = items[position]
-
         Glide.with(holder.itemView.context)
             .load(item.image)
             .placeholder(R.drawable.placeholder_image)
@@ -49,7 +48,7 @@ class CartItemAdapter(
 
         holder.tvProductName.text = item.name
 
-        val finalPrice = if (item.selectedType == "iced") item.price_iced else item.price_hot
+        val finalPrice = (if (item.selectedType == "iced") item.price_iced else item.price_hot) ?: 0
         val formattedPrice = NumberFormat.getCurrencyInstance(Locale("in", "ID")).format(finalPrice.toLong())
         holder.tvProductPrice.text = formattedPrice
 
