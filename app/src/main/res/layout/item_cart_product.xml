@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -41,6 +42,18 @@
             android:textColor="@color/text_primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+
+        <!-- 🔹 Catatan produk -->
+        <TextView
+            android:id="@+id/tvNotes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Catatan: Tidak pakai gula"
+            android:textColor="@color/text_bantuan"
+            android:textSize="12sp"
+            android:layout_marginTop="4dp"
+            android:visibility="gone"
+            tools:text="Catatan: sedikit es" />
 
         <!-- Tombol + dan - -->
         <LinearLayout

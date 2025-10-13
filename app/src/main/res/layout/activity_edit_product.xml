@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/tuku_bg"
+    tools:context=".EditProductActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Toolbar -->
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar_edit_product"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/tuku_primary"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:title="Edit Produk"
+            app:titleTextColor="@android:color/white"
+            app:navigationIconTint="@android:color/white" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Preview gambar -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv_product_preview"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_gravity="center_horizontal"
+                android:scaleType="centerCrop"
+                android:src="@drawable/bg_category_default"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Large"
+                android:background="@drawable/bg_dialog_rounded" />
+
+            <TextView
+                android:id="@+id/tv_change_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:text="Ketuk untuk ubah gambar"
+                android:textColor="@color/tuku_primary"
+                android:textSize="14sp" />
+
+            <!-- Nama Produk -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Nama Produk"
+                android:textStyle="bold"
+                android:textColor="@color/tuku_dark" />
+
+            <EditText
+                android:id="@+id/et_product_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Contoh: Es Kopi Susu Tetangga"
+                android:backgroundTint="@color/tuku_primary"
+                android:inputType="textCapWords"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/tuku_dark" />
+
+            <!-- Harga Hot & Iced -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Harga Panas (Hot)"
+                        android:textStyle="bold"
+                        android:textColor="@color/tuku_dark" />
+
+                    <EditText
+                        android:id="@+id/et_product_price_hot"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="20000"
+                        android:inputType="number"
+                        android:backgroundTint="@color/tuku_primary"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/tuku_dark" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Harga Dingin (Iced)"
+                        android:textStyle="bold"
+                        android:textColor="@color/tuku_dark" />
+
+                    <EditText
+                        android:id="@+id/et_product_price_iced"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="23000"
+                        android:inputType="number"
+                        android:backgroundTint="@color/tuku_primary"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/tuku_dark" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Kategori -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Kategori"
+                android:textStyle="bold"
+                android:textColor="@color/tuku_dark" />
+
+            <Spinner
+                android:id="@+id/spinner_category"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:backgroundTint="@color/tuku_primary" />
+
+            <!-- Deskripsi -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Deskripsi (Opsional)"
+                android:textStyle="bold"
+                android:textColor="@color/tuku_dark" />
+
+            <EditText
+                android:id="@+id/et_product_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top"
+                android:hint="Deskripsi singkat produk..."
+                android:inputType="textMultiLine"
+                android:minLines="3"
+                android:backgroundTint="@color/tuku_primary"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/tuku_dark" />
+
+            <!-- Tombol Simpan -->
+            <Button
+                android:id="@+id/btn_save_product"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:layout_marginTop="24dp"
+                android:text="Simpan Perubahan"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@color/tuku_primary" />
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

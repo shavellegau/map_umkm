@@ -1,18 +1,20 @@
 package com.example.map_umkm.adapter
 
+import android.app.Dialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.map_umkm.R
+import com.example.map_umkm.model.Product
 import java.text.NumberFormat
 import java.util.Locale
-import com.example.map_umkm.model.Product
-
 
 class CartItemAdapter(
     private val items: MutableList<Product>,
@@ -25,9 +27,10 @@ class CartItemAdapter(
         val tvProductName: TextView = itemView.findViewById(R.id.tvProductName)
         val tvProductPrice: TextView = itemView.findViewById(R.id.tvProductPrice)
         val tvQuantity: TextView = itemView.findViewById(R.id.tvQuantity)
-        val btnPlus: Button = itemView.findViewById(R.id.btnPlus)
-        val btnMinus: Button = itemView.findViewById(R.id.btnMinus)
+        val btnPlus: ImageButton = itemView.findViewById(R.id.btnPlus)
+        val btnMinus: ImageButton = itemView.findViewById(R.id.btnMinus)
         val btnDelete: ImageView = itemView.findViewById(R.id.btnDelete)
+        val tvNotes: TextView = itemView.findViewById(R.id.tvNotes)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CartViewHolder {
@@ -41,42 +44,83 @@ class CartItemAdapter(
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val item = items[position]
 
-        // Load image: Use Glide to load the image from the URL.
+        // Tampilkan gambar produk
         Glide.with(holder.itemView.context)
             .load(item.image)
-            .placeholder(R.drawable.placeholder_image) // Shows placeholder while loading
-            .error(R.drawable.error_image) // Shows error image if load fails
+            .placeholder(R.drawable.placeholder_image)
+            .error(R.drawable.error_image)
             .into(holder.ivProductImage)
 
+        // Nama produk
         holder.tvProductName.text = item.name
 
-        // Show the price for the chosen temperature (hot or iced)
-        val finalPrice = if (item.price_iced != null && item.price_iced != 0) {
-            item.price_iced
-        } else {
-            item.price_hot
-        }
-
-        val formattedPrice =
-            NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(finalPrice)
+        // Harga produk (format Rupiah)
+        val finalPrice = (if (item.selectedType == "iced") item.price_iced else item.price_hot) ?: 0
+        val formattedPrice = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
+            .format(finalPrice.toLong())
         holder.tvProductPrice.text = formattedPrice
 
+        // Jumlah item
         holder.tvQuantity.text = item.quantity.toString()
 
+        // Catatan (jika ada)
+        if (!item.notes.isNullOrBlank()) {
+            holder.tvNotes.text = "Catatan: ${item.notes}"
+            holder.tvNotes.visibility = View.VISIBLE
+        } else {
+            holder.tvNotes.visibility = View.GONE
+        }
+
+        // Tombol tambah
         holder.btnPlus.setOnClickListener {
             item.quantity++
             notifyItemChanged(position)
             onQuantityChanged()
         }
 
+        // Tombol kurang (tidak boleh < 1)
         holder.btnMinus.setOnClickListener {
             if (item.quantity > 1) {
                 item.quantity--
                 notifyItemChanged(position)
                 onQuantityChanged()
+            } else {
+                Toast.makeText(
+                    holder.itemView.context,
+                    "Jumlah minimal adalah 1",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
-        holder.btnDelete.setOnClickListener { onDeleteItem(item) }
+        // Tombol hapus (dialog konfirmasi custom)
+        holder.btnDelete.setOnClickListener {
+            val context = holder.itemView.context
+            val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_confirm_delete, null)
+            val dialog = Dialog(context)
+            dialog.setContentView(dialogView)
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+            val tvMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
+            val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+            val btnDelete = dialogView.findViewById<Button>(R.id.btnDelete)
+
+            tvMessage.text = "Apakah kamu yakin ingin menghapus ${item.name} dari keranjang?"
+
+            btnCancel.setOnClickListener { dialog.dismiss() }
+            btnDelete.setOnClickListener {
+                onDeleteItem(item)
+                dialog.dismiss()
+            }
+            dialog.window?.attributes?.windowAnimations = R.style.DialogAnimation
+
+            dialog.show()
+        }
+    }
+
+    fun updateItems(newItems: List<Product>) {
+        items.clear()
+        items.addAll(newItems)
+        notifyDataSetChanged()
     }
 }

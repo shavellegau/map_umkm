@@ -1,4 +1,7 @@
+// [FIXED] Kesalahan ketik pada package dan import sudah diperbaiki
 package com.example.map_umkm
+
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -15,6 +18,10 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var btnLogin: Button
     private lateinit var btnRegister: Button
 
+    // Tambahkan DatabaseHelper
+    private lateinit var dbHelper: DatabaseHelper
+
+    // Firebase tetap ada
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
@@ -27,99 +34,82 @@ class LoginActivity : AppCompatActivity() {
         btnLogin = findViewById(R.id.btnLogin)
         btnRegister = findViewById(R.id.btnRegister)
 
-        // 🔹 Inisialisasi Firebase
+        // Inisialisasi DatabaseHelper dan Firebase
+        dbHelper = DatabaseHelper(this)
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        // 🔹 Tombol Login ditekan
         btnLogin.setOnClickListener {
-            val email = etEmail.text.toString().trim()
-            val password = etPassword.text.toString().trim()
-
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Isi email & password", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // 🔹 Login ke Firebase Authentication
-            auth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener { result ->
-                    val uid = result.user?.uid
-
-                    if (uid != null) {
-                        // 🔹 Jika admin login dan belum ada di Firestore → otomatis tambahkan
-                        if (email == "admin@gmail.com") {
-                            val adminData = hashMapOf(
-                                "name" to "Admin",
-                                "email" to email,
-                                "role" to "admin"
-                            )
-
-                            db.collection("users").document(uid).set(adminData)
-                                .addOnSuccessListener {
-                                    goToDashboard(uid, email)
-                                }
-                                .addOnFailureListener { e ->
-                                    Toast.makeText(this, "Gagal buat data admin: ${e.message}", Toast.LENGTH_SHORT).show()
-                                }
-                        } else {
-                            // 🔹 Ambil data user dari Firestore
-                            db.collection("users").document(uid).get()
-                                .addOnSuccessListener { document ->
-                                    if (document.exists()) {
-                                        goToDashboard(uid, email)
-                                    } else {
-                                        Toast.makeText(this, "Data user tidak ditemukan.", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                                .addOnFailureListener { e ->
-                                    Toast.makeText(this, "Gagal ambil data: ${e.message}", Toast.LENGTH_SHORT).show()
-                                }
-                        }
-                    } else {
-                        Toast.makeText(this, "UID user tidak valid.", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(this, "Login gagal: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
+            handleLogin()
         }
 
-        // 🔹 Pindah ke halaman register
         btnRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
     }
 
-    // 🔹 Fungsi untuk arahkan ke dashboard sesuai role
-    private fun goToDashboard(uid: String, email: String) {
-        db.collection("users").document(uid).get()
-            .addOnSuccessListener { document ->
-                val role = document.getString("role") ?: "user"
-                val name = document.getString("name") ?: ""
+    // Logika login digabung
+    private fun handleLogin() {
+        val email = etEmail.text.toString().trim()
+        val password = etPassword.text.toString().trim()
 
-                // 🔹 Simpan sesi user
-                val prefs = getSharedPreferences("USER_SESSION", MODE_PRIVATE)
-                prefs.edit()
-                    .putString("userUid", uid)
-                    .putString("userName", name)
-                    .putString("userEmail", email)
-                    .putString("userRole", role)
-                    .apply()
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Email dan Password tidak boleh kosong", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-                // 🔹 Arahkan sesuai role
-                if (role == "admin") {
-                    startActivity(Intent(this, AdminActivity::class.java))
-                    Toast.makeText(this, "Selamat datang Admin!", Toast.LENGTH_SHORT).show()
-                } else {
-                    startActivity(Intent(this, MainActivity::class.java))
-                    Toast.makeText(this, "Login berhasil", Toast.LENGTH_SHORT).show()
+        // 1. Coba login ke database LOKAL terlebih dahulu
+        val localUserData = dbHelper.checkUser(email, password)
+        if (localUserData != null) {
+            val name = localUserData["name"] ?: ""
+            val role = localUserData["role"] ?: "user"
+            // Jika berhasil, langsung masuk tanpa perlu Firebase
+            onLoginSuccess(name, email, role, null) // uid null karena dari lokal
+            return
+        }
+
+        // 2. Jika di lokal tidak ada, baru coba login ke FIREBASE
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnSuccessListener { result ->
+                val uid = result.user?.uid
+                if (uid != null) {
+                    db.collection("users").document(uid).get()
+                        .addOnSuccessListener { document ->
+                            val role = document.getString("role") ?: "user"
+                            val name = document.getString("name") ?: ""
+                            // Login via Firebase berhasil
+                            onLoginSuccess(name, email, role, uid)
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(this, "Gagal mengambil data user dari Firestore.", Toast.LENGTH_SHORT).show()
+                        }
                 }
+            }
+            .addOnFailureListener {
+                // Jika di lokal dan Firebase gagal, tampilkan error
+                Toast.makeText(this, "Email atau Password salah.", Toast.LENGTH_SHORT).show()
+            }
+    }
 
-                finish()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Gagal baca data user: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+    // Fungsi ini sekarang menerima uid yang bisa null
+    private fun onLoginSuccess(name: String, email: String, role: String, uid: String?) {
+        // Simpan sesi login ke SharedPreferences
+        val prefs = getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
+        prefs.edit()
+            .putString("userName", name)
+            .putString("userEmail", email)
+            .putString("userRole", role)
+            .putString("userUid", uid) // Simpan UID jika ada (dari Firebase)
+            .apply()
+
+        // Arahkan ke activity yang sesuai berdasarkan role
+        if (role == "admin") {
+            Toast.makeText(this, "Selamat datang, Admin!", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, AdminActivity::class.java))
+        } else {
+            Toast.makeText(this, "Login berhasil!", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, MainActivity::class.java))
+        }
+        finish() // Tutup LoginActivity agar tidak bisa kembali
     }
 }

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tuku_bg"
+    tools:context=".AdminMenuFragment">
+
+    <!-- RecyclerView untuk daftar produk -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_admin_products"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:padding="8dp"
+        android:scrollbars="vertical"
+        tools:listitem="@layout/item_admin_product" />
+
+    <!-- Tampilan kosong -->
+    <TextView
+        android:id="@+id/tv_empty_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Belum ada produk. Tekan tombol + untuk menambah."
+        android:textSize="16sp"
+        android:textColor="@color/text_primary"
+        android:gravity="center"
+        android:paddingHorizontal="24dp"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <!-- ProgressBar -->
+    <ProgressBar
+        android:id="@+id/progress_bar_admin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/tuku_primary"
+        android:visibility="gone" />
+
+</FrameLayout>

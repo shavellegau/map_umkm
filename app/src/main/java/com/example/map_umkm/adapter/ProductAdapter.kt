@@ -14,9 +14,11 @@ import java.text.NumberFormat
 import java.util.Locale
 
 class ProductAdapter(
-    private var products: MutableList<Product>,
+    internal var products: MutableList<Product>,
     private val onProductClick: (Product) -> Unit,
-    private val onFavoriteToggle: (Product, Boolean) -> Unit // ✅ Tambahan listener favorit
+    private val onFavoriteToggle: (Product, Boolean) -> Unit,
+    // [FIXED] Tambahkan listener baru untuk tombol Add to Cart
+    private val onAddToCartClick: (Product) -> Unit
 ) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -24,7 +26,7 @@ class ProductAdapter(
         val tvProductName: TextView = itemView.findViewById(R.id.tvProductName)
         val tvProductPrice: TextView = itemView.findViewById(R.id.tvProductPrice)
         val btnAddToCart: ImageButton = itemView.findViewById(R.id.btnAddToCart)
-        val btnFavorite: ImageButton = itemView.findViewById(R.id.btnFavorite) // ✅ Tambahan tombol favorite
+        val btnFavorite: ImageButton = itemView.findViewById(R.id.btnFavorite)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
@@ -36,47 +38,34 @@ class ProductAdapter(
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = products[position]
 
-        holder.tvProductName.text = product.name ?: "Produk"
+        holder.tvProductName.text = product.name
 
-        val formattedPrice = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
-            .format(product.price_hot) // Menggunakan price_hot karena itu harga utama
-
+        // Tampilkan harga yang tersedia pertama kali (hot atau iced)
+        val priceToShow = product.price_hot ?: product.price_iced ?: 0
+        val formattedPrice = NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(priceToShow.toLong())
         holder.tvProductPrice.text = formattedPrice
 
-        // Muat gambar dari URL menggunakan Glide
-        product.image?.let { imageUrl ->
-            Glide.with(holder.itemView.context)
-                .load(imageUrl)
-                .placeholder(R.drawable.placeholder_image)
-                .error(R.drawable.error_image)
-                .into(holder.ivProductImage)
-        } ?: run {
-            // Muat gambar default jika URL null
-            Glide.with(holder.itemView.context).load(R.drawable.default_image).into(holder.ivProductImage)
-        }
+        Glide.with(holder.itemView.context)
+            .load(product.image)
+            .placeholder(R.drawable.logo_tuku)
+            .error(R.drawable.logo_tuku)
+            .into(holder.ivProductImage)
 
-        // ✅ Atur icon favorite sesuai status
-        if (product.isFavorite) {
-            holder.btnFavorite.setImageResource(R.drawable.ic_favorite_filled)
-        } else {
-            holder.btnFavorite.setImageResource(R.drawable.ic_favorite_border)
-        }
+        holder.btnFavorite.setImageResource(
+            if (product.isFavorite) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_border
+        )
 
-        // ✅ Listener untuk tombol favorite
         holder.btnFavorite.setOnClickListener {
-            val newState = !product.isFavorite
-            product.isFavorite = newState
-            onFavoriteToggle(product, newState)
-            notifyItemChanged(holder.adapterPosition)
+            onFavoriteToggle(product, !product.isFavorite)
         }
 
-        // Listener untuk klik item produk
-        holder.itemView.setOnClickListener {
-            onProductClick(product)
-        }
-
-        // Listener untuk tombol cart (tetap seperti semula)
+        // [FIXED] Aksi klik pada tombol keranjang sekarang memanggil listener baru
         holder.btnAddToCart.setOnClickListener {
+            onAddToCartClick(product)
+        }
+
+        // Aksi klik pada item view tetap mengarahkan ke detail
+        holder.itemView.setOnClickListener {
             onProductClick(product)
         }
     }
@@ -89,4 +78,3 @@ class ProductAdapter(
         notifyDataSetChanged()
     }
 }
-
