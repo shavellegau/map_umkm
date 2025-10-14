@@ -8,25 +8,39 @@
     android:padding="16dp"
     tools:context=".VoucherSayaFragment">
 
-    <ImageView
-        android:id="@+id/btnBack"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:contentDescription="Kembali"
-        android:src="@drawable/ic_arrow_back" />
-    <TextView
-        android:id="@+id/tvVoucherHeader"
+    <!-- Header -->
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Voucher Saya"
-        android:padding="20dp"
-        android:textSize="40sp"
-        android:textStyle="bold"
-        android:textColor="#3E2723"
-        android:paddingBottom="12dp" />
+        android:layout_marginBottom="12dp"
+        android:paddingTop="20dp">
 
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:paddingTop="10dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_arrow_back"
+            android:contentDescription="Kembali"
+            android:tint="#3E2723" />
+
+        <TextView
+            android:id="@+id/tvVoucherHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Voucher Saya"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:textColor="#3E2723" />
+    </RelativeLayout>
+
+    <!-- Daftar Voucher -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvVoucher"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
 </LinearLayout>

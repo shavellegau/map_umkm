@@ -11,7 +11,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.map_umkm.adapter.WishlistAdapter
 import com.example.map_umkm.databinding.FragmentWishlistBinding
-import com.example.map_umkm.model.Product
 import com.example.map_umkm.viewmodel.FavoriteViewModel
 
 class WishlistFragment : Fragment() {
@@ -32,6 +31,12 @@ class WishlistFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // 🔙 Tombol Back
+        binding.btnBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
         setupRecyclerView()
         observeFavorites()
     }

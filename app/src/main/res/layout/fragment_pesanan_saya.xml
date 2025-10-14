@@ -10,18 +10,35 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Header -->
-        <TextView
-            android:text="Pesanan Saya"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#3E2723"
-            android:gravity="center"
-            android:layout_marginBottom="16dp"
+        <!-- 🔹 Header dengan tombol back -->
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:paddingTop="20dp">
 
-        <!-- Tabs -->
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_arrow_back"
+                android:tint="#3E2723"
+                android:contentDescription="Kembali" />
+
+            <TextView
+                android:id="@+id/tvHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="Pesanan Saya"
+                android:textSize="25dp"
+                android:textStyle="bold"
+                android:textColor="#3E2723" />
+        </RelativeLayout>
+
+        <!-- 🔽 Tabs -->
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -41,7 +58,6 @@
                 android:backgroundTint="#D7B98E"
                 android:textColor="#FFFFFF" />
 
-
             <Button
                 android:id="@+id/btnRiwayatPesanan"
                 android:layout_width="0dp"
@@ -52,7 +68,7 @@
                 android:textColor="#D7B98E" />
         </LinearLayout>
 
-        <!-- Layout Pesanan Aktif -->
+        <!-- 🔽 Layout Pesanan Aktif -->
         <LinearLayout
             android:id="@+id/layoutPesananAktif"
             android:orientation="vertical"
@@ -62,13 +78,11 @@
             android:padding="16dp"
             android:layout_marginBottom="16dp">
 
-            <!-- Progress Circle + Mug -->
             <FrameLayout
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center">
 
-                <!-- Progress Circle -->
                 <ProgressBar
                     android:id="@+id/progressPesanan"
                     style="?android:attr/progressBarStyleHorizontal"
@@ -81,7 +95,6 @@
                     android:progressDrawable="@drawable/circular_progress_drawable"
                     android:layout_gravity="center" />
 
-                <!-- Mug Icon -->
                 <ImageView
                     android:layout_width="60dp"
                     android:layout_height="60dp"
@@ -130,7 +143,7 @@
                 android:layout_gravity="center_horizontal" />
         </LinearLayout>
 
-        <!-- Layout Riwayat Pesanan -->
+        <!-- 🔽 Layout Riwayat Pesanan -->
         <LinearLayout
             android:id="@+id/layoutRiwayatPesanan"
             android:orientation="vertical"

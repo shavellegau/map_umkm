@@ -75,13 +75,29 @@
         android:id="@+id/alamatFragment"
         android:name="com.example.map_umkm.AlamatFragment"
         android:label="Alamat Pengiriman"
-        tools:layout="@layout/fragment_alamat" />
+        tools:layout="@layout/fragment_alamat">
+        <action
+            android:id="@+id/action_nav_profile_to_alamatFragment"
+            app:destination="@id/alamatFragment" />
+    </fragment>
+
+
 
     <fragment
         android:id="@+id/pengaturanAkunFragment"
         android:name="com.example.map_umkm.PengaturanAkunFragment"
-        android:label="Pengaturan Akun"
-        tools:layout="@layout/fragment_pengaturan_akun" />
+        android:label="Settings"
+        tools:layout="@layout/fragment_pengaturan_akun">
+        <action
+            android:id="@+id/action_pengaturanAkunFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.map_umkm.EditProfileFragment"
+        android:label="Edit Profile"
+        tools:layout="@layout/fragment_edit_profile" />
 
 <!--    &lt;!&ndash; Riwayat Pesanan &ndash;&gt;-->
 <!--    <fragment-->

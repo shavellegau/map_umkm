@@ -8,24 +8,35 @@
     android:padding="16dp"
     tools:context=".WishlistFragment">
 
-    <ImageView
-        android:id="@+id/btnBack"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:contentDescription="Kembali"
-        android:src="@drawable/ic_arrow_back" />
-
-    <TextView
-        android:text="Favorit Saya"
-        android:textStyle="bold"
-        android:padding="20dp"
-        android:textColor="#3E2723"
-        android:textSize="40sp"
-        android:paddingBottom="12dp"
+    <!-- Header -->
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:paddingTop="20dp">
 
-    <!-- Tambahan: tampilkan jika wishlist kosong -->
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_arrow_back"
+            android:tint="#3E2723"
+            android:contentDescription="Kembali" />
+
+        <TextView
+            android:id="@+id/tvHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Favorit Saya"
+            android:textStyle="bold"
+            android:textColor="#3E2723"
+            android:textSize="25sp" />
+    </RelativeLayout>
+
+    <!-- View jika wishlist kosong -->
     <TextView
         android:id="@+id/emptyView"
         android:layout_width="match_parent"
@@ -36,12 +47,12 @@
         android:gravity="center"
         android:layout_marginTop="40dp"
         android:visibility="gone"
-        tools:visibility="visible"/>
+        tools:visibility="visible" />
 
+    <!-- Daftar produk favorit -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerWishlist"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="8dp"/>
-
+        android:padding="8dp" />
 </LinearLayout>

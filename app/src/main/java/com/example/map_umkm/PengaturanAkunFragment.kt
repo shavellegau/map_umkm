@@ -5,41 +5,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.map_umkm.databinding.FragmentPengaturanAkunBinding
+import androidx.navigation.fragment.findNavController
 
 class PengaturanAkunFragment : Fragment() {
-
-    private var _binding: FragmentPengaturanAkunBinding? = null
-    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentPengaturanAkunBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_pengaturan_akun, container, false)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        val menuMyProfile = view.findViewById<View>(R.id.menuMyProfile)
+        val btnBack = view.findViewById<View>(R.id.btnBack)
 
-        // contoh: tombol kembali ke profil
-        binding.btnBack.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+        // Navigasi ke Edit Profile
+        menuMyProfile.setOnClickListener {
+            findNavController().navigate(R.id.action_pengaturanAkunFragment_to_editProfileFragment)
         }
 
-        // contoh: listener lainnya
-        binding.btnUbahPassword.setOnClickListener {
-            // aksi ubah password (nanti bisa diarahkan ke fragment lain juga)
+        // Tombol Back berfungsi kembali
+        btnBack.setOnClickListener {
+            findNavController().popBackStack()
         }
 
-        binding.btnHapusAkun.setOnClickListener {
-            // aksi hapus akun
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+        return view
     }
 }

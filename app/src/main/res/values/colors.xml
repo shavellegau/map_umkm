@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-
+        <color name="black">#FF000000</color>
+        <color name="white">#FFFFFFFF</color>
         <color name="purple_200">#BB86FC</color>
         <color name="purple_500">#6200EE</color>
         <color name="purple_700">#3700B3</color>
@@ -18,7 +17,6 @@
         <color name="tuku_bg">#FFF8F0</color>           <!-- latar krem -->
         <color name="text_primary">#2E2E2E</color>
         <color name="text_bantuan">#795548</color>
-
-
-
+        <color name="divider">#E0E0E0</color>
+        <color name="tuku_brown">#B68C5A</color>
 </resources>

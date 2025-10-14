@@ -9,31 +9,35 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="16dp"
+        android:paddingTop="48dp"> <!-- Tambah paddingTop biar aman dari kamera -->
 
         <!-- Tombol Back dan Judul -->
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
             android:paddingVertical="8dp">
 
             <ImageView
                 android:id="@+id/btnBack"
                 android:layout_width="wrap_content"
                 android:layout_height="24dp"
+                android:layout_alignParentStart="true"
                 android:contentDescription="Kembali"
                 android:src="@drawable/ic_arrow_back" />
 
             <TextView
-                android:layout_marginStart="12dp"
+                android:id="@+id/tvTitleAlamat"
                 android:text="Alamat Pengiriman"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="#3A2A1A"
+                android:layout_centerInParent="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
-        </LinearLayout>
+        </RelativeLayout>
 
         <!-- Kartu Alamat Utama -->
         <LinearLayout
@@ -53,7 +57,6 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-
                 <TextView
                     android:text="Rumah"
                     android:textStyle="bold"
@@ -69,6 +72,7 @@
                     android:paddingHorizontal="10dp"
                     android:paddingVertical="4dp"
                     android:textSize="12sp"
+                    android:layout_marginStart="8dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>
@@ -183,7 +187,6 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-
                 <TextView
                     android:text="Pesanan Favoritku"
                     android:textStyle="bold"
@@ -196,6 +199,7 @@
                     android:text="Rp 45.000"
                     android:textStyle="bold"
                     android:textColor="#3A2A1A"
+                    android:layout_marginStart="8dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>

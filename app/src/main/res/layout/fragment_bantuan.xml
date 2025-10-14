@@ -6,24 +6,45 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     android:background="#FFFDF9"
+    android:fitsSystemWindows="true"
     tools:context=".BantuanFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingHorizontal="24dp"
+        android:paddingBottom="24dp">
 
-        <!-- Judul -->
-        <TextView
+        <!-- Header -->
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Pusat Bantuan"
-            android:textColor="#3E2723"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="24dp" />
+            android:paddingTop="48dp"
+            android:paddingBottom="40dp">
+
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentStart="true"
+                android:src="@drawable/ic_arrow_back"
+                android:tint="#000000"
+                android:contentDescription="Back"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="Pusat Bantuan"
+                android:textColor="#3E2723"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
 
         <!-- Ikon tengah -->
         <ImageView
@@ -61,7 +82,7 @@
                 android:textColorHint="#BCAAA4" />
         </LinearLayout>
 
-        <!-- Bagian Topik Bantuan -->
+        <!-- Topik Bantuan -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

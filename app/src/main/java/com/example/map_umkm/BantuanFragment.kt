@@ -21,6 +21,11 @@ class BantuanFragment : Fragment() {
         _binding = FragmentBantuanBinding.inflate(inflater, container, false)
         val view = binding.root
 
+        // Tombol Back
+        binding.btnBack.setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+
         // Tombol Chat Langsung
         binding.btnChatLangsung.setOnClickListener {
             Toast.makeText(requireContext(), "Membuka Chat Langsung...", Toast.LENGTH_SHORT).show()
