@@ -1,5 +1,6 @@
 package com.example.map_umkm
 
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -11,11 +12,11 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.map_umkm.adapter.BannerAdapter
-import com.example.map_umkm.adapter.ProductAdapter
 import com.example.map_umkm.databinding.FragmentHomeBinding
-import com.example.map_umkm.model.Product
+import com.example.map_umkm.model.MenuData
+import com.example.map_umkm.model.MenuItem
 import com.example.map_umkm.viewmodel.CartViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -27,9 +28,7 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var productAdapter: ProductAdapter
     private val cartViewModel: CartViewModel by activityViewModels()
-
     private val handler = Handler(Looper.getMainLooper())
     private var timer: Timer? = null
     private var updateRunnable: Runnable? = null
@@ -44,9 +43,9 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupRecyclerView()
+
         setupBannerCarousel()
-        loadProductsFromJson()
+        loadNewestMenuFromJson()
         setupListeners()
     }
 
@@ -64,64 +63,58 @@ class HomeFragment : Fragment() {
         timer = Timer()
         timer?.schedule(object : TimerTask() {
             override fun run() {
-                // Pastikan runnable tidak null saat dijalankan
                 updateRunnable?.let { handler.post(it) }
             }
         }, 3000, 3000)
     }
 
-    private fun setupRecyclerView() {
-        productAdapter = ProductAdapter(
-            products = mutableListOf(),
-            onProductClick = { product ->
-                val action = HomeFragmentDirections.actionNavHomeToProductDetailFragment(product)
-                findNavController().navigate(action)
-            },
-            onFavoriteToggle = { product, isFavorite ->
-                Log.d("HomeFragment", "Status favorit ${product.name} berubah jadi $isFavorite")
-            },
-            onAddToCartClick = { product ->
-                val defaultType = if (product.price_hot != null) "hot" else "iced"
-                cartViewModel.addToCart(product, defaultType)
-                Toast.makeText(requireContext(), "${product.name} ditambahkan", Toast.LENGTH_SHORT).show()
-            }
-        )
-        binding.recyclerMenu.layoutManager = LinearLayoutManager(context)
-        binding.recyclerMenu.adapter = productAdapter
-        binding.recyclerMenu.isNestedScrollingEnabled = false
-    }
-
-    private fun loadProductsFromJson() {
+    private fun loadNewestMenuFromJson() {
         try {
             val inputStream = context?.assets?.open("menu_items.json")
             val reader = InputStreamReader(inputStream)
-            val menuListType = object : TypeToken<Map<String, Any>>() {}.type
-            val jsonObject: Map<String, Any> = Gson().fromJson(reader, menuListType)
-            val menuArray = jsonObject["menu"] as? List<Map<String, Any>>
-            val products = mutableListOf<Product>()
-            menuArray?.forEach { map ->
-                val id = (map["id"] as? Double)?.toInt() ?: 0
-                val name = map["name"] as? String ?: ""
-                val category = map["category"] as? String ?: ""
-                val description = map["description"] as? String ?: ""
-                val image = map["image"] as? String
-                val price_hot = (map["price_hot"] as? Double)?.toInt()
-                val price_iced = (map["price_iced"] as? Double)?.toInt()
-                products.add(Product(id.toString(), name, category, description, image, price_hot, price_iced))
+            val menuDataType = object : TypeToken<MenuData>() {}.type
+            val menuData: MenuData = Gson().fromJson(reader, menuDataType)
+
+            if (menuData.menu.isNotEmpty()) {
+                val newestMenuItem = menuData.menu.maxByOrNull { it.createdAt ?: "" }
+
+                if (newestMenuItem != null) {
+                    binding.newestMenuCard.visibility = View.VISIBLE
+                    binding.tvNewestMenuName.text = newestMenuItem.name
+
+                    val priceHot = newestMenuItem.price_hot?.let { "Hot: Rp $it" } ?: ""
+                    val priceIced = newestMenuItem.price_iced?.let { "Iced: Rp $it" } ?: ""
+                    binding.tvNewestMenuPrice.text = listOf(priceHot, priceIced).filter { it.isNotEmpty() }.joinToString(" / ")
+
+                    newestMenuItem.image?.let {
+                        Glide.with(this)
+                            .load(Uri.parse(it))
+                            .into(binding.ivNewestMenuImage)
+                    }
+
+                    binding.newestMenuCard.setOnClickListener {
+                        Toast.makeText(requireContext(), "${newestMenuItem.name} diklik!", Toast.LENGTH_SHORT).show()
+                    }
+
+                } else {
+                    binding.newestMenuCard.visibility = View.GONE
+                }
+            } else {
+                binding.newestMenuCard.visibility = View.GONE
             }
-            productAdapter.updateData(products)
         } catch (e: Exception) {
             Log.e("HomeFragment", "Error loading JSON: ${e.message}")
+            binding.newestMenuCard.visibility = View.GONE
         }
     }
 
     private fun setupListeners() {
+        // ### PERBAIKAN DI SINI ###
+        // Mengakses 'btnNotification' langsung dari 'binding' utama, bukan melalui 'userInfoCard'.
         binding.btnNotification.setOnClickListener {
             findNavController().navigate(R.id.action_nav_home_to_notificationFragment)
         }
     }
-
-    // [DIHAPUS] Fungsi updateBottomBar dihapus.
 
     override fun onDestroyView() {
         timer?.cancel()
