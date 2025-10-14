@@ -5,13 +5,15 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardElevation="4dp"
+    android:backgroundTint="@color/tuku_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="8dp"
+        android:background="@color/tuku_bg">
 
         <!-- Gambar produk -->
         <ImageView
@@ -31,14 +33,15 @@
             android:textStyle="bold"
             android:textSize="14sp"
             android:paddingTop="6dp"
-            android:textColor="@color/black" />
+            android:textColor="@color/tuku_dark" />
 
         <!-- Harga + tombol tambah -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingTop="4dp">
+            android:paddingTop="4dp"
+            android:gravity="center_vertical">
 
             <!-- Harga (baru & lama) -->
             <LinearLayout
@@ -53,7 +56,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Rp10.000"
-                    android:textColor="@color/black"
+                    android:textColor="@color/tuku_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
@@ -63,7 +66,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Rp20.000"
-                    android:textColor="@android:color/holo_red_dark"
+                    android:textColor="@color/tuku_accent"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -73,10 +76,12 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:src="@android:drawable/ic_input_add"
-                android:tint="@android:color/white"
+                app:tint="@android:color/white"
+                android:backgroundTint="@color/tuku_primary"
                 android:background="@drawable/bg_circle_red"
                 android:layout_gravity="center_vertical" />
 
+            <!-- Tombol favorit -->
             <ImageView
                 android:id="@+id/btnFavorite"
                 android:layout_width="24dp"
@@ -84,6 +89,7 @@
                 android:layout_alignParentEnd="true"
                 android:src="@drawable/ic_favorite_border"
                 android:contentDescription="@string/favorite"
+                app:tint="@color/tuku_dark"
                 android:padding="4dp" />
 
         </LinearLayout>

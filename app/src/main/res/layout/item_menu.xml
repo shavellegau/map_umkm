@@ -5,14 +5,17 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="6dp">
+    app:cardElevation="6dp"
+    android:backgroundTint="@color/tuku_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="8dp"
+        android:background="@color/tuku_bg">
 
+        <!-- Gambar produk -->
         <ImageView
             android:id="@+id/ivProductImage"
             android:layout_width="match_parent"
@@ -20,6 +23,7 @@
             android:scaleType="centerCrop"
             android:src="@drawable/banner_kopi" />
 
+        <!-- Nama produk -->
         <TextView
             android:id="@+id/tvProductName"
             android:layout_width="wrap_content"
@@ -27,25 +31,30 @@
             android:layout_marginTop="8dp"
             android:text="Nama Produk"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/tuku_dark" />
 
+        <!-- Harga produk -->
         <TextView
             android:id="@+id/tvProductPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Rp10.000"
-            android:textColor="@color/black"
+            android:textColor="@color/tuku_primary"
             android:textSize="14sp" />
 
+        <!-- Tombol tambah ke keranjang -->
         <ImageButton
             android:id="@+id/btnAddToCart"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="end"
+            android:backgroundTint="@color/tuku_primary"
             android:background="@drawable/bg_circle_red"
             android:src="@drawable/ic_add"
-            android:tint="@android:color/white" />
+            app:tint="@android:color/white" />
 
+        <!-- Tombol favorit -->
         <ImageButton
             android:id="@+id/btnFavorite"
             android:layout_width="24dp"
@@ -55,8 +64,7 @@
             android:layout_marginTop="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_favorite_border"
-            android:tint="#E53935"/>
-
+            app:tint="@color/tuku_accent" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>
