@@ -8,14 +8,35 @@
     android:padding="16dp"
     tools:context=".WishlistFragment">
 
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:contentDescription="Kembali"
+        android:src="@drawable/ic_arrow_back" />
+
     <TextView
         android:text="Favorit Saya"
         android:textStyle="bold"
+        android:padding="20dp"
         android:textColor="#3E2723"
-        android:textSize="20sp"
+        android:textSize="40sp"
         android:paddingBottom="12dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
+    <!-- Tambahan: tampilkan jika wishlist kosong -->
+    <TextView
+        android:id="@+id/emptyView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Belum ada produk favorit"
+        android:textColor="#9E9E9E"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:layout_marginTop="40dp"
+        android:visibility="gone"
+        tools:visibility="visible"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerWishlist"

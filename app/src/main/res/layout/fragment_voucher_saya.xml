@@ -8,12 +8,19 @@
     android:padding="16dp"
     tools:context=".VoucherSayaFragment">
 
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:contentDescription="Kembali"
+        android:src="@drawable/ic_arrow_back" />
     <TextView
         android:id="@+id/tvVoucherHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Voucher Saya"
-        android:textSize="20sp"
+        android:padding="20dp"
+        android:textSize="40sp"
         android:textStyle="bold"
         android:textColor="#3E2723"
         android:paddingBottom="12dp" />

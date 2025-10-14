@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import androidx.room.Room
+import com.example.map_umkm.data.AppDatabase
 import com.example.map_umkm.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -43,14 +45,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // 3. SETUP NAVIGATION COMPONENT
-
-        // Dapatkan NavHostFragment dari layout (ID asumsikan R.id.nav_host_fragment)
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
-
-        // Tautkan BottomNavigationView ke NavController menggunakan View Binding
-        // Asumsi ID di activity_main.xml adalah @id/bottom_nav (yang diakses via binding.bottomNav)
         binding.bottomNav.setupWithNavController(navController)
+
+        // 4. SETUP ROOM DATABASE (TANPA MENGUBAH KODE LAMA)
+        val db = AppDatabase.getDatabase(applicationContext) // pakai versi singleton
+        val favoriteDao = db.favoriteDao()
+
+        // Coba akses (misal nanti buat fitur Favorite)
+        // contoh hanya untuk test agar tidak error
+        // val userFavorites = favoriteDao.getFavoritesByUser(1)
     }
 }

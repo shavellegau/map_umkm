@@ -55,19 +55,19 @@ class ProfileFragment : Fragment() {
             findNavController().navigate(R.id.action_nav_profile_to_bantuanFragment)
         }
 
-        // Listener untuk tombol/menu yang mengarah ke Activity
-        binding.btnEditProfile.setOnClickListener {
-            startActivity(Intent(activity, EditProfileActivity::class.java))
-        }
+//        // Listener untuk tombol/menu yang mengarah ke Activity
+//        binding.btnEditProfile.setOnClickListener {
+//            startActivity(Intent(activity, EditProfileActivity::class.java))
+//        }
 
         binding.menuAlamat.setOnClickListener {
-            startActivity(Intent(activity, AlamatActivity::class.java))
+            findNavController().navigate(R.id.action_nav_profile_to_alamatFragment)
         }
 
         binding.menuPengaturanAkun.setOnClickListener {
-            // Jika Anda memiliki activity khusus, gunakan ini. Contoh:
-            // startActivity(Intent(activity, PengaturanAkunActivity::class.java))
+            findNavController().navigate(R.id.action_nav_profile_to_pengaturanAkunFragment)
         }
+
 
         // Listener untuk logout
         binding.btnLogout.setOnClickListener {

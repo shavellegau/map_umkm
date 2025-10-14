@@ -6,10 +6,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -22,6 +19,7 @@ import com.example.map_umkm.data.JsonHelper
 import com.example.map_umkm.model.Category
 import com.example.map_umkm.model.Product
 import com.example.map_umkm.viewmodel.CartViewModel
+import com.example.map_umkm.viewmodel.FavoriteViewModel
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -38,11 +36,12 @@ class CartFragment : Fragment() {
     private lateinit var btnViewOrder: Button
 
     private val cartViewModel: CartViewModel by activityViewModels()
+    private val favoriteViewModel: FavoriteViewModel by activityViewModels()
+
     private lateinit var productAdapter: ProductAdapter
     private var allProducts: List<Product> = emptyList()
     private var selectedCategory: String? = null
     private lateinit var jsonHelper: JsonHelper
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -56,8 +55,9 @@ class CartFragment : Fragment() {
         setupBottomBarListener()
         setupProductAdapter()
         loadMenu()
+        observeFavorites()
 
-        cartViewModel.cartList.observe(viewLifecycleOwner) { cart ->
+        cartViewModel.cartList.observe(viewLifecycleOwner) {
             updateTotal()
         }
 
@@ -83,23 +83,37 @@ class CartFragment : Fragment() {
         productAdapter = ProductAdapter(
             products = mutableListOf(),
             onProductClick = { product ->
-                // [FIXED] Gunakan action yang benar dari nav_graph.xml
                 val action = CartFragmentDirections.actionNavCartToProductDetailFragment(product)
                 findNavController().navigate(action)
             },
             onFavoriteToggle = { product, isFav ->
+                // gunakan FavoriteViewModel untuk menyimpan state favorite
+                if (isFav) {
+                    favoriteViewModel.addFavorite(product)
+                    Toast.makeText(requireContext(), "${product.name} ditambahkan ke favorit", Toast.LENGTH_SHORT).show()
+                } else {
+                    favoriteViewModel.removeFavorite(product)
+                    Toast.makeText(requireContext(), "${product.name} dihapus dari favorit", Toast.LENGTH_SHORT).show()
+                }
+                // update property di model lokal agar UI langsung berubah
                 product.isFavorite = isFav
-                Toast.makeText(requireContext(), "${product.name} ${if (isFav) "ditambah" else "dihapus"} dari favorit", Toast.LENGTH_SHORT).show()
             },
             onAddToCartClick = { product ->
-                // Arahkan ke halaman detail produk
                 val action = CartFragmentDirections.actionNavCartToProductDetailFragment(product)
                 findNavController().navigate(action)
             }
-
         )
         rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
         rvProducts.adapter = productAdapter
+    }
+
+    private fun observeFavorites() {
+        favoriteViewModel.favoriteProducts.observe(viewLifecycleOwner) { favorites ->
+            val favoriteIds = favorites.map { it.id }.toSet()
+            productAdapter.updateFavorites(favoriteIds)
+            // juga update underlying allProducts flags agar sinkron saat filter/dll
+            allProducts = allProducts.map { p -> p.copy(isFavorite = favoriteIds.contains(p.id)) }
+        }
     }
 
     private fun loadMenu() {
@@ -117,10 +131,11 @@ class CartFragment : Fragment() {
                 description = menuItem.description ?: "",
                 image = menuItem.image,
                 price_hot = menuItem.price_hot,
-                price_iced = menuItem.price_iced
+                price_iced = menuItem.price_iced,
+                isFavorite = favoriteViewModel.isFavorite(menuItem.id.toString())
             )
         }
-        productAdapter.updateData(allProducts)
+        productAdapter.updateProducts(allProducts)
 
         val categories = allProducts.map { it.category }.distinct().map { Category(it) }
         rvCategory.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -151,7 +166,6 @@ class CartFragment : Fragment() {
             if (cartViewModel.cartList.value.isNullOrEmpty()) {
                 Toast.makeText(context, "Keranjang masih kosong!", Toast.LENGTH_SHORT).show()
             } else {
-                // [FIXED] Gunakan action yang benar dari nav_graph.xml
                 findNavController().navigate(R.id.action_nav_cart_to_paymentFragment)
             }
         }
@@ -169,7 +183,7 @@ class CartFragment : Fragment() {
         } else {
             filteredByCategory.filter { it.name.contains(currentQuery, ignoreCase = true) }
         }
-        productAdapter.updateData(finalFiltered)
+        productAdapter.updateProducts(finalFiltered)
     }
 
     private fun updateTotal() {

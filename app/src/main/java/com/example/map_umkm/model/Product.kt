@@ -18,4 +18,5 @@ data class Product(
     var quantity: Int = 0,
     var selectedType: String = "hot",
     var notes: String? = null
+
 ) : Parcelable

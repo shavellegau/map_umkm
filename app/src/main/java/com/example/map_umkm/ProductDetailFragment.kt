@@ -12,6 +12,7 @@ import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.map_umkm.model.Product
 import com.example.map_umkm.viewmodel.CartViewModel
+import com.example.map_umkm.viewmodel.FavoriteViewModel
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -31,6 +32,7 @@ class ProductDetailFragment : Fragment() {
     private lateinit var btnBack: ImageButton
 
     private val cartViewModel: CartViewModel by activityViewModels()
+    private val favoriteViewModel: FavoriteViewModel by activityViewModels()
     private val args: ProductDetailFragmentArgs by navArgs()
     private lateinit var selectedProduct: Product
 
@@ -40,7 +42,6 @@ class ProductDetailFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_product_detail, container, false)
 
-        // 🔹 Inisialisasi View
         ivImage = view.findViewById(R.id.ivImage)
         tvName = view.findViewById(R.id.tvName)
         tvDescription = view.findViewById(R.id.tvDescription)
@@ -54,13 +55,15 @@ class ProductDetailFragment : Fragment() {
         etNotes = view.findViewById(R.id.etNotes)
         btnBack = view.findViewById(R.id.btnBack)
 
-        // 🔹 Ambil data dari SafeArgs
         selectedProduct = args.product
 
-        // 🔹 Tampilkan data produk
+        // Sinkronkan flag isFavorite dari FavoriteViewModel
+        selectedProduct = selectedProduct.copy(isFavorite = favoriteViewModel.isFavorite(selectedProduct.id))
+
         tvName.text = selectedProduct.name
         tvDescription.text = selectedProduct.description
         tvCategory.text = selectedProduct.category
+
         Glide.with(this)
             .load(selectedProduct.image)
             .placeholder(R.drawable.placeholder_image)
@@ -71,12 +74,17 @@ class ProductDetailFragment : Fragment() {
         rbHot.isChecked = true
         updateUiForProduct(selectedProduct)
 
-        // 🔹 Tombol kembali ke Home
         btnBack.setOnClickListener {
             findNavController().navigate(R.id.nav_cart)
         }
 
-        // 🔹 Pilihan suhu (Hot / Iced)
+        // observe favorites agar icon update bila diubah di tempat lain
+        favoriteViewModel.favoriteProducts.observe(viewLifecycleOwner) { favorites ->
+            val isFav = favorites.any { it.id == selectedProduct.id }
+            selectedProduct = selectedProduct.copy(isFavorite = isFav)
+            updateFavoriteIcon(isFav)
+        }
+
         rgTemperature.setOnCheckedChangeListener { _, checkedId ->
             if (!selectedProduct.category.equals("TUKUDAPAN", ignoreCase = true)) {
                 updatePriceForSelection(selectedProduct, checkedId)
@@ -93,20 +101,24 @@ class ProductDetailFragment : Fragment() {
             }
 
             val selectedType = if (rbHot.isChecked) "hot" else "iced"
-
-            // 🔹 Kirim langsung ke ViewModel (notes ikut dikirim)
             cartViewModel.addToCart(selectedProduct, selectedType, notes)
 
             Toast.makeText(requireContext(), "${selectedProduct.name} ditambahkan ke keranjang", Toast.LENGTH_SHORT).show()
-
             findNavController().navigateUp()
         }
 
-
-        // 🔹 Toggle favorit
         ivFavorite.setOnClickListener {
-            selectedProduct.isFavorite = !selectedProduct.isFavorite
-            updateFavoriteIcon(selectedProduct.isFavorite)
+            val newState = !selectedProduct.isFavorite
+            selectedProduct = selectedProduct.copy(isFavorite = newState)
+            updateFavoriteIcon(newState)
+
+            if (newState) {
+                favoriteViewModel.addFavorite(selectedProduct)
+                Toast.makeText(requireContext(), "${selectedProduct.name} ditambahkan ke favorit", Toast.LENGTH_SHORT).show()
+            } else {
+                favoriteViewModel.removeFavorite(selectedProduct)
+                Toast.makeText(requireContext(), "${selectedProduct.name} dihapus dari favorit", Toast.LENGTH_SHORT).show()
+            }
         }
 
         return view
@@ -134,13 +146,6 @@ class ProductDetailFragment : Fragment() {
             else -> product.price_hot ?: 0
         }
         tvPrice.text = formatCurrency(newPrice)
-    }
-
-    private fun addToCart(product: Product) {
-        val selectedType = if (rbIced.isChecked && product.price_iced != null) "iced" else "hot"
-        cartViewModel.addToCart(product, selectedType)
-        Toast.makeText(requireContext(), "${product.name} ditambahkan ke keranjang!", Toast.LENGTH_SHORT).show()
-        findNavController().popBackStack()
     }
 
     private fun formatCurrency(amount: Int): String {

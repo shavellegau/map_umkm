@@ -3,23 +3,21 @@ package com.example.map_umkm
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.map_umkm.adapter.BannerAdapter
 import com.example.map_umkm.adapter.ProductAdapter
 import com.example.map_umkm.databinding.FragmentHomeBinding
 import com.example.map_umkm.model.Product
 import com.example.map_umkm.viewmodel.CartViewModel
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import java.io.InputStreamReader
+import com.example.map_umkm.viewmodel.FavoriteViewModel
+import org.json.JSONObject
 import java.util.*
 
 class HomeFragment : Fragment() {
@@ -29,6 +27,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var productAdapter: ProductAdapter
     private val cartViewModel: CartViewModel by activityViewModels()
+    private val favoriteViewModel: FavoriteViewModel by activityViewModels()
 
     private val handler = Handler(Looper.getMainLooper())
     private var timer: Timer? = null
@@ -46,28 +45,9 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
         setupBannerCarousel()
-        loadProductsFromJson()
         setupListeners()
-    }
-
-    private fun setupBannerCarousel() {
-        val bannerImages = listOf(R.drawable.banner_tuku_hut, R.drawable.tuku_banner, R.drawable.banner_tuku_mrt)
-        val bannerAdapter = BannerAdapter(bannerImages)
-        binding.bannerViewPager.adapter = bannerAdapter
-        var currentPage = 0
-        updateRunnable = Runnable {
-            if (bannerImages.isNotEmpty() && _binding != null) {
-                currentPage = (currentPage + 1) % bannerImages.size
-                binding.bannerViewPager.setCurrentItem(currentPage, true)
-            }
-        }
-        timer = Timer()
-        timer?.schedule(object : TimerTask() {
-            override fun run() {
-                // Pastikan runnable tidak null saat dijalankan
-                updateRunnable?.let { handler.post(it) }
-            }
-        }, 3000, 3000)
+        observeFavorites()
+        loadProducts()
     }
 
     private fun setupRecyclerView() {
@@ -78,57 +58,69 @@ class HomeFragment : Fragment() {
                 findNavController().navigate(action)
             },
             onFavoriteToggle = { product, isFavorite ->
-                Log.d("HomeFragment", "Status favorit ${product.name} berubah jadi $isFavorite")
+                if (isFavorite) {
+                    favoriteViewModel.addFavorite(product)
+                } else {
+                    favoriteViewModel.removeFavorite(product)
+                }
             },
             onAddToCartClick = { product ->
                 val defaultType = if (product.price_hot != null) "hot" else "iced"
                 cartViewModel.addToCart(product, defaultType)
-                Toast.makeText(requireContext(), "${product.name} ditambahkan", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "${product.name} ditambahkan ke keranjang", Toast.LENGTH_SHORT).show()
             }
         )
+
         binding.recyclerMenu.layoutManager = LinearLayoutManager(context)
         binding.recyclerMenu.adapter = productAdapter
-        binding.recyclerMenu.isNestedScrollingEnabled = false
     }
 
-    private fun loadProductsFromJson() {
-        try {
-            val inputStream = context?.assets?.open("menu_items.json")
-            val reader = InputStreamReader(inputStream)
-            val menuListType = object : TypeToken<Map<String, Any>>() {}.type
-            val jsonObject: Map<String, Any> = Gson().fromJson(reader, menuListType)
-            val menuArray = jsonObject["menu"] as? List<Map<String, Any>>
-            val products = mutableListOf<Product>()
-            menuArray?.forEach { map ->
-                val id = (map["id"] as? Double)?.toInt() ?: 0
-                val name = map["name"] as? String ?: ""
-                val category = map["category"] as? String ?: ""
-                val description = map["description"] as? String ?: ""
-                val image = map["image"] as? String
-                val price_hot = (map["price_hot"] as? Double)?.toInt()
-                val price_iced = (map["price_iced"] as? Double)?.toInt()
-                products.add(Product(id.toString(), name, category, description, image, price_hot, price_iced))
-            }
-            productAdapter.updateData(products)
-        } catch (e: Exception) {
-            Log.e("HomeFragment", "Error loading JSON: ${e.message}")
+    private fun loadProducts() {
+        val menuList = loadMenuFromJson()
+        productAdapter.updateProducts(menuList)
+    }
+
+    private fun observeFavorites() {
+        favoriteViewModel.favoriteProducts.observe(viewLifecycleOwner, Observer { favorites ->
+            val favoriteIds = favorites.map { it.id }.toSet()
+            productAdapter.updateFavorites(favoriteIds)
+        })
+    }
+
+    private fun loadMenuFromJson(): List<Product> {
+        val jsonString = requireContext().assets.open("menu_items.json").bufferedReader().use { it.readText() }
+        val jsonObject = JSONObject(jsonString)
+        val jsonArray = jsonObject.getJSONArray("menu")
+
+        val list = mutableListOf<Product>()
+        for (i in 0 until jsonArray.length()) {
+            val obj = jsonArray.getJSONObject(i)
+            list.add(
+                Product(
+                    id = obj.getInt("id").toString(),
+                    category = obj.getString("category"),
+                    name = obj.getString("name"),
+                    description = obj.getString("description"),
+                    image = obj.getString("image"),
+                    price_hot = if (obj.isNull("price_hot")) null else obj.getInt("price_hot"),
+                    price_iced = if (obj.isNull("price_iced")) null else obj.getInt("price_iced"),
+                    isFavorite = false
+                )
+            )
         }
+        return list
     }
 
-    private fun setupListeners() {
-        binding.btnNotification.setOnClickListener {
-            findNavController().navigate(R.id.action_nav_home_to_notificationFragment)
-        }
-    }
+    private fun setupBannerCarousel() { /* boleh dikosongkan sementara */ }
 
-    // [DIHAPUS] Fungsi updateBottomBar dihapus.
+    private fun setupListeners() { /* boleh dikosongkan sementara */ }
 
     override fun onDestroyView() {
         timer?.cancel()
         timer = null
         updateRunnable?.let { handler.removeCallbacks(it) }
         updateRunnable = null
-        super.onDestroyView()
         _binding = null
+        super.onDestroyView()
     }
 }

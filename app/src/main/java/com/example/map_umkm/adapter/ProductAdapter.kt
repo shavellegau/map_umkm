@@ -14,10 +14,9 @@ import java.text.NumberFormat
 import java.util.Locale
 
 class ProductAdapter(
-    internal var products: MutableList<Product>,
+    private var products: MutableList<Product>,
     private val onProductClick: (Product) -> Unit,
     private val onFavoriteToggle: (Product, Boolean) -> Unit,
-    // [FIXED] Tambahkan listener baru untuk tombol Add to Cart
     private val onAddToCartClick: (Product) -> Unit
 ) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
@@ -40,31 +39,38 @@ class ProductAdapter(
 
         holder.tvProductName.text = product.name
 
-        // Tampilkan harga yang tersedia pertama kali (hot atau iced)
+        // Pilih harga mana yang ditampilkan (prioritas: hot → iced)
         val priceToShow = product.price_hot ?: product.price_iced ?: 0
-        val formattedPrice = NumberFormat.getCurrencyInstance(Locale("id", "ID")).format(priceToShow.toLong())
+        val formattedPrice = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
+            .format(priceToShow.toLong())
         holder.tvProductPrice.text = formattedPrice
 
+        // Load gambar produk (dengan placeholder dan fallback)
         Glide.with(holder.itemView.context)
             .load(product.image)
             .placeholder(R.drawable.logo_tuku)
             .error(R.drawable.logo_tuku)
             .into(holder.ivProductImage)
 
+        // Atur icon favorite
         holder.btnFavorite.setImageResource(
             if (product.isFavorite) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_border
         )
 
+        // Toggle favorite
         holder.btnFavorite.setOnClickListener {
-            onFavoriteToggle(product, !product.isFavorite)
+            val newState = !product.isFavorite
+            onFavoriteToggle(product, newState)
+            product.isFavorite = newState
+            notifyItemChanged(position)
         }
 
-        // [FIXED] Aksi klik pada tombol keranjang sekarang memanggil listener baru
+        // Klik tombol add to cart
         holder.btnAddToCart.setOnClickListener {
             onAddToCartClick(product)
         }
 
-        // Aksi klik pada item view tetap mengarahkan ke detail
+        // Klik item untuk buka detail
         holder.itemView.setOnClickListener {
             onProductClick(product)
         }
@@ -72,9 +78,18 @@ class ProductAdapter(
 
     override fun getItemCount(): Int = products.size
 
-    fun updateData(newProducts: List<Product>) {
+    // 🔹 Update seluruh data produk
+    fun updateProducts(newProducts: List<Product>) {
         products.clear()
         products.addAll(newProducts)
+        notifyDataSetChanged()
+    }
+
+    // 🔹 Update status favorit berdasarkan ID favorit
+    fun updateFavorites(favoriteIds: Set<String>) {
+        for (product in products) {
+            product.isFavorite = favoriteIds.contains(product.id)
+        }
         notifyDataSetChanged()
     }
 }

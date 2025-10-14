@@ -6,74 +6,78 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.adapter.WishlistAdapter
-import com.example.map_umkm.helper.FirestoreHelper
+import com.example.map_umkm.databinding.FragmentWishlistBinding
 import com.example.map_umkm.model.Product
+import com.example.map_umkm.viewmodel.FavoriteViewModel
 
 class WishlistFragment : Fragment() {
 
-    private lateinit var recyclerView: RecyclerView
+    private var _binding: FragmentWishlistBinding? = null
+    private val binding get() = _binding!!
+
     private lateinit var adapter: WishlistAdapter
-    private val favoriteItems = mutableListOf<Product>()
+    private val favoriteViewModel: FavoriteViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_wishlist, container, false)
-
-        recyclerView = view.findViewById(R.id.recyclerWishlist)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-
-        // Use WishlistAdapter and pass the correct lambda for item removal
-        adapter = WishlistAdapter(favoriteItems, onRemoveFavorite = { product ->
-            FirestoreHelper.removeFromWishlist(product.id) { success ->
-                if (success) {
-                    val position = favoriteItems.indexOf(product)
-                    if (position != -1) {
-                        favoriteItems.removeAt(position)
-                        adapter.notifyItemRemoved(position)
-                        Toast.makeText(requireContext(), "${product.name} dihapus dari favorit", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    Toast.makeText(requireContext(), "Gagal menghapus item", Toast.LENGTH_SHORT).show()
-                }
-            }
-        })
-
-        recyclerView.adapter = adapter
-        loadFavorites()
-
-        return view
+    ): View {
+        _binding = FragmentWishlistBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    private fun loadFavorites() {
-        FirestoreHelper.getWishlist { data ->
-            if (data.isEmpty()) {
-                Toast.makeText(requireContext(), "Belum ada item favorit", Toast.LENGTH_SHORT).show()
-            } else {
-                val productList = data.mapNotNull { map ->
-                    try {
-                        Product(
-                            id = map["id"]?.toString() ?: "",
-                            name = map["name"] as? String ?: "",
-                            price_hot = (map["price_hot"] as? Number)?.toInt() ?: 0, // Correctly access price_hot
-                            price_iced = (map["price_iced"] as? Number)?.toInt() ?: 0,
-                            image = map["image"] as? String ?: "",
-                            category = map["category"] as? String ?: "",
-                            isFavorite = true,
-                            description = map["description"] as? String ?: ""
-                        )
-                    } catch (e: Exception) {
-                        null
-                    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupRecyclerView()
+        observeFavorites()
+    }
+
+    private fun setupRecyclerView() {
+        adapter = WishlistAdapter(
+            favoriteList = mutableListOf(),
+            onProductClick = { product ->
+                try {
+                    val action = WishlistFragmentDirections
+                        .actionWishlistFragmentToProductDetailFragment(product)
+                    findNavController().navigate(action)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(requireContext(), "Gagal membuka detail produk", Toast.LENGTH_SHORT).show()
                 }
-                favoriteItems.clear()
-                favoriteItems.addAll(productList)
-                adapter.notifyDataSetChanged()
+            },
+            onFavoriteToggle = { product, isFavorite ->
+                try {
+                    if (isFavorite) {
+                        favoriteViewModel.addFavorite(product)
+                        Toast.makeText(requireContext(), "${product.name} ditambahkan ke favorit", Toast.LENGTH_SHORT).show()
+                    } else {
+                        favoriteViewModel.removeFavorite(product)
+                        Toast.makeText(requireContext(), "${product.name} dihapus dari favorit", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(requireContext(), "Terjadi kesalahan pada favorit", Toast.LENGTH_SHORT).show()
+                }
             }
+        )
+
+        binding.recyclerWishlist.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerWishlist.adapter = adapter
+    }
+
+    private fun observeFavorites() {
+        favoriteViewModel.favoriteProducts.observe(viewLifecycleOwner) { favorites ->
+            adapter.updateData(favorites ?: emptyList())
+            binding.emptyView.visibility = if (favorites.isNullOrEmpty()) View.VISIBLE else View.GONE
         }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 }

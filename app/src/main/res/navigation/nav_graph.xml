@@ -63,7 +63,33 @@
         <action
             android:id="@+id/action_nav_profile_to_bantuanFragment"
             app:destination="@id/bantuanFragment" />
+        <action
+            android:id="@+id/action_nav_profile_to_alamatFragment"
+            app:destination="@id/alamatFragment" />
+        <action
+            android:id="@+id/action_nav_profile_to_pengaturanAkunFragment"
+            app:destination="@id/pengaturanAkunFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/alamatFragment"
+        android:name="com.example.map_umkm.AlamatFragment"
+        android:label="Alamat Pengiriman"
+        tools:layout="@layout/fragment_alamat" />
+
+    <fragment
+        android:id="@+id/pengaturanAkunFragment"
+        android:name="com.example.map_umkm.PengaturanAkunFragment"
+        android:label="Pengaturan Akun"
+        tools:layout="@layout/fragment_pengaturan_akun" />
+
+<!--    &lt;!&ndash; Riwayat Pesanan &ndash;&gt;-->
+<!--    <fragment-->
+<!--        android:id="@+id/riwayatPesananFragment"-->
+<!--        android:name="com.example.map_umkm.RiwayatPesananFragment"-->
+<!--        android:label="Riwayat Pesanan"-->
+<!--        tools:layout="@layout/fragment_riwayat_pesanan" />-->
+
 
     <!-- ALUR PEMBAYARAN YANG SUDAH DIPERBAIKI -->
     <fragment
@@ -129,7 +155,13 @@
         android:id="@+id/wishlistFragment"
         android:name="com.example.map_umkm.WishlistFragment"
         android:label="Wishlist"
-        tools:layout="@layout/fragment_wishlist" />
+        tools:layout="@layout/fragment_wishlist">
+
+        <action
+            android:id="@+id/action_wishlistFragment_to_productDetailFragment"
+            app:destination="@id/productDetailFragment" />
+    </fragment>
+
     <fragment
         android:id="@+id/bantuanFragment"
         android:name="com.example.map_umkm.BantuanFragment"
@@ -145,5 +177,14 @@
         android:name="com.example.map_umkm.RiwayatPoinFragment"
         android:label="Riwayat Poin"
         tools:layout="@layout/fragment_riwayat_poin" />
+    <fragment
+        android:id="@+id/menuAlamat"
+        android:name="com.example.map_umkm.RiwayatPoinFragment"
+        android:label="Riwayat Poin"
+        tools:layout="@layout/fragment_riwayat_poin" />
+
+
+
+
 
 </navigation>
