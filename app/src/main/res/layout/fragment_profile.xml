@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F9F6F1">
+    android:background="@color/tuku_bg">
 
     <ScrollView
         android:id="@+id/scrollMain"
@@ -25,7 +25,7 @@
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp"
-                app:cardBackgroundColor="#FFFFFF">
+                app:cardBackgroundColor="@android:color/white">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -57,7 +57,7 @@
                             android:text="Hi, Budi Santoso"
                             android:textSize="18sp"
                             android:textStyle="bold"
-                            android:textColor="#000000" />
+                            android:textColor="@color/text_primary" />
 
                         <TextView
                             android:id="@+id/tvMember"
@@ -65,7 +65,7 @@
                             android:layout_height="wrap_content"
                             android:text="Gold Member • 5480 Points"
                             android:textSize="14sp"
-                            android:textColor="#666666" />
+                            android:textColor="@color/text_bantuan" />
                     </LinearLayout>
 
                     <ImageButton
@@ -74,7 +74,7 @@
                         android:layout_height="40dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:src="@android:drawable/ic_menu_edit"
-                        android:tint="#444"
+                        app:tint="@color/tuku_dark"
                         android:contentDescription="Edit Profil" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -85,7 +85,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="#3B2C26">
+                app:cardBackgroundColor="@color/tuku_primary">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -99,17 +99,15 @@
                         android:text="Aktivitas Saya"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@android:color/white"
                         android:layout_marginBottom="12dp" />
 
                     <GridLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:columnCount="2"
-                        android:rowCount="2"
                         android:alignmentMode="alignMargins"
-                        android:columnOrderPreserved="false"
-                        android:rowOrderPreserved="false">
+                        android:columnOrderPreserved="false">
 
                         <!-- Pesanan Saya -->
                         <androidx.cardview.widget.CardView
@@ -120,7 +118,7 @@
                             android:layout_columnWeight="1"
                             app:cardCornerRadius="12dp"
                             app:cardElevation="2dp"
-                            app:cardBackgroundColor="#FFFFFF">
+                            app:cardBackgroundColor="@android:color/white">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -132,14 +130,14 @@
                                     android:layout_width="32dp"
                                     android:layout_height="32dp"
                                     android:src="@android:drawable/ic_menu_agenda"
-                                    android:tint="#3B2C26" />
+                                    app:tint="@color/tuku_dark" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Pesanan Saya"
                                     android:textSize="14sp"
-                                    android:textColor="#000000" />
+                                    android:textColor="@color/text_primary" />
                             </LinearLayout>
                         </androidx.cardview.widget.CardView>
 
@@ -152,7 +150,7 @@
                             android:layout_columnWeight="1"
                             app:cardCornerRadius="12dp"
                             app:cardElevation="2dp"
-                            app:cardBackgroundColor="#FFFFFF">
+                            app:cardBackgroundColor="@android:color/white">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -164,13 +162,13 @@
                                     android:layout_width="32dp"
                                     android:layout_height="32dp"
                                     android:src="@android:drawable/btn_star_big_off"
-                                    android:tint="#3B2C26" />
+                                    app:tint="@color/tuku_dark" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Favorite"
-                                    android:textColor="#000000"
+                                    android:textColor="@color/text_primary"
                                     android:textSize="14sp" />
                             </LinearLayout>
                         </androidx.cardview.widget.CardView>
@@ -184,7 +182,7 @@
                             android:layout_columnWeight="1"
                             app:cardCornerRadius="12dp"
                             app:cardElevation="2dp"
-                            app:cardBackgroundColor="#FFFFFF">
+                            app:cardBackgroundColor="@android:color/white">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -196,14 +194,14 @@
                                     android:layout_width="32dp"
                                     android:layout_height="32dp"
                                     android:src="@android:drawable/ic_menu_edit"
-                                    android:tint="#3B2C26" />
+                                    app:tint="@color/tuku_dark" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Ulasan"
                                     android:textSize="14sp"
-                                    android:textColor="#000000" />
+                                    android:textColor="@color/text_primary" />
                             </LinearLayout>
                         </androidx.cardview.widget.CardView>
 
@@ -216,7 +214,7 @@
                             android:layout_columnWeight="1"
                             app:cardCornerRadius="12dp"
                             app:cardElevation="2dp"
-                            app:cardBackgroundColor="#FFFFFF">
+                            app:cardBackgroundColor="@android:color/white">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -228,14 +226,14 @@
                                     android:layout_width="32dp"
                                     android:layout_height="32dp"
                                     android:src="@android:drawable/ic_menu_gallery"
-                                    android:tint="#3B2C26" />
+                                    app:tint="@color/tuku_dark" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Voucher Saya"
                                     android:textSize="14sp"
-                                    android:textColor="#000000" />
+                                    android:textColor="@color/text_primary" />
                             </LinearLayout>
                         </androidx.cardview.widget.CardView>
                     </GridLayout>
@@ -255,7 +253,7 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp"
                     android:text="Pengaturan Akun"
-                    android:textColor="#000000"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:background="@drawable/bg_item_menu" />
 
@@ -265,7 +263,7 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp"
                     android:text="Alamat Pengiriman"
-                    android:textColor="#000000"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:background="@drawable/bg_item_menu" />
 
@@ -275,7 +273,7 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp"
                     android:text="Pusat Bantuan &amp; S&amp;K"
-                    android:textColor="#000000"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:background="@drawable/bg_item_menu" />
             </LinearLayout>
@@ -286,13 +284,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:backgroundTint="@android:color/holo_red_dark"
+                android:backgroundTint="@color/tuku_accent"
                 android:text="Logout"
                 android:textColor="@android:color/white"
                 android:textStyle="bold"
                 android:padding="12dp" />
-
         </LinearLayout>
     </ScrollView>
-
 </RelativeLayout>

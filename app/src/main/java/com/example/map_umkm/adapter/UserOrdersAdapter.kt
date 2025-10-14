@@ -10,7 +10,14 @@ import com.example.map_umkm.model.Order
 import java.text.NumberFormat
 import java.util.*
 
-class UserOrdersAdapter(private var orders: List<Order>) : RecyclerView.Adapter<UserOrdersAdapter.ViewHolder>() {
+class UserOrdersAdapter(
+    private var orders: List<Order>,
+    private val listener: OnItemClickListener
+) : RecyclerView.Adapter<UserOrdersAdapter.ViewHolder>() {
+
+    interface OnItemClickListener {
+        fun onItemClick(order: Order)
+    }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvDate: TextView = view.findViewById(R.id.tv_order_date)
@@ -33,6 +40,10 @@ class UserOrdersAdapter(private var orders: List<Order>) : RecyclerView.Adapter<
         holder.tvItems.text = itemNames
         holder.tvTotal.text = "Total: ${currencyFormat.format(order.totalAmount)}"
         holder.tvStatus.text = "Status: ${order.status}"
+
+        holder.itemView.setOnClickListener {
+            listener.onItemClick(order)
+        }
     }
 
     override fun getItemCount() = orders.size
@@ -42,4 +53,3 @@ class UserOrdersAdapter(private var orders: List<Order>) : RecyclerView.Adapter<
         notifyDataSetChanged()
     }
 }
-    

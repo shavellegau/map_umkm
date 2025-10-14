@@ -1,6 +1,7 @@
 package com.example.map_umkm
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,8 +12,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.adapter.UserOrdersAdapter
 import com.example.map_umkm.data.JsonHelper
+import com.example.map_umkm.model.Order
 
-class HistoryOrdersFragment : Fragment() {
+class HistoryOrdersFragment : Fragment(), UserOrdersAdapter.OnItemClickListener {
     private lateinit var jsonHelper: JsonHelper
     private lateinit var rvOrders: RecyclerView
     private lateinit var tvEmpty: TextView
@@ -36,7 +38,7 @@ class HistoryOrdersFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        adapter = UserOrdersAdapter(emptyList())
+        adapter = UserOrdersAdapter(emptyList(), this)
         rvOrders.layoutManager = LinearLayoutManager(context)
         rvOrders.adapter = adapter
     }
@@ -66,5 +68,11 @@ class HistoryOrdersFragment : Fragment() {
     private fun showEmptyView(isEmpty: Boolean) {
         tvEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
         rvOrders.visibility = if (isEmpty) View.GONE else View.VISIBLE
+    }
+
+    override fun onItemClick(order: Order) {
+        val intent = Intent(requireContext(), OrderDetailActivity::class.java)
+        intent.putExtra("ORDER_DATA", order)
+        startActivity(intent)
     }
 }

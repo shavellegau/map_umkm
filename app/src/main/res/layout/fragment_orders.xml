@@ -10,21 +10,26 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/tuku_primary"
         android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabIndicatorColor="@android:color/holo_red_light"
-            app:tabSelectedTextColor="@android:color/black"
-            app:tabTextColor="@android:color/darker_gray" />
+            app:tabIndicatorColor="@color/tuku_accent"
+            app:tabSelectedTextColor="@android:color/white"
+            app:tabTextColor="@color/tuku_bg"
+            app:tabIndicatorHeight="3dp"
+            app:tabIndicatorFullWidth="false"
+            app:tabBackground="@color/tuku_primary" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:background="@color/tuku_bg" />
 
 </LinearLayout>

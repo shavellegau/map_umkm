@@ -1,6 +1,7 @@
 package com.example.map_umkm
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +14,7 @@ import com.example.map_umkm.adapter.UserOrdersAdapter
 import com.example.map_umkm.data.JsonHelper
 import com.example.map_umkm.model.Order
 
-class OngoingOrdersFragment : Fragment() {
+class OngoingOrdersFragment : Fragment(), UserOrdersAdapter.OnItemClickListener {
 
     private lateinit var jsonHelper: JsonHelper
     private lateinit var rvOrders: RecyclerView
@@ -39,7 +40,7 @@ class OngoingOrdersFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        adapter = UserOrdersAdapter(emptyList())
+        adapter = UserOrdersAdapter(emptyList(), this)
         rvOrders.layoutManager = LinearLayoutManager(context)
         rvOrders.adapter = adapter
     }
@@ -54,8 +55,6 @@ class OngoingOrdersFragment : Fragment() {
         }
 
         val allOrders = jsonHelper.getMenuData()?.orders ?: emptyList()
-
-        // [FIXED] Tambahkan "Menunggu Pembayaran" ke dalam daftar status ongoing.
         val ongoingStatuses = listOf("Menunggu Pembayaran", "Menunggu Konfirmasi", "Diproses")
 
         val myOngoingOrders = allOrders.filter {
@@ -66,7 +65,6 @@ class OngoingOrdersFragment : Fragment() {
             showEmptyView(true)
         } else {
             showEmptyView(false)
-            // Urutkan berdasarkan tanggal, pesanan terbaru di paling atas
             adapter.updateData(myOngoingOrders.sortedByDescending { it.orderDate })
         }
     }
@@ -74,5 +72,11 @@ class OngoingOrdersFragment : Fragment() {
     private fun showEmptyView(isEmpty: Boolean) {
         tvEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
         rvOrders.visibility = if (isEmpty) View.GONE else View.VISIBLE
+    }
+
+    override fun onItemClick(order: Order) {
+        val intent = Intent(requireContext(), OrderDetailActivity::class.java)
+        intent.putExtra("ORDER_DATA", order)
+        startActivity(intent)
     }
 }
