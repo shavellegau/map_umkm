@@ -67,6 +67,10 @@ class ProfileFragment : Fragment() {
         binding.menuPengaturanAkun.setOnClickListener {
             findNavController().navigate(R.id.action_nav_profile_to_pengaturanAkunFragment)
         }
+        binding.menuPengaturanAkun.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_profile_to_pengaturanAkunFragment)
+        }
+
 
 
         // Listener untuk logout
