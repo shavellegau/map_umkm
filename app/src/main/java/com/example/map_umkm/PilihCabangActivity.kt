@@ -1,5 +1,7 @@
 package com.example.map_umkm
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
@@ -17,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 
+// data class Cabang tetap sama
 data class Cabang(
     val nama: String,
     val alamat: String,
@@ -31,6 +34,7 @@ class PilihCabangActivity : AppCompatActivity() {
     private lateinit var etSearch: EditText
     private lateinit var cabangAdapter: CabangAdapter
     private val daftarCabangLengkap = listOf(
+        // Data cabang Anda tetap sama...
         Cabang("Kopi Tuku — Outlet Kedoya", "Jl. Kedoya Raya No.12, Kedoya, Kebon Jeruk, Jakarta Barat 11520", "07:00–22:00", "Buka", "Detail: +62 21 555-0101; WiFi, Parkir motor & mobil, Area smoking, Takeaway & Delivery."),
         Cabang("Kopi Tuku — Outlet Senayan", "Jl. Asia Afrika No.8, Gelora, Tanah Abang, Jakarta Pusat 10270", "07:30–22:30", "Buka", "Detail: +62 21 555-0102; WiFi, AC, Meja kerja, Layanan reservasi."),
         Cabang("Kopi Tuku — Outlet Pantai Indah Kapuk", "Jl. Marina Indah Blok B3 No.5, PIK, Penjaringan, Jakarta Utara 14470", "08:00–23:00", "Buka", "Detail: +62 21 555-0103; Parkir luas, Outdoor seating, Kids friendly."),
@@ -49,21 +53,33 @@ class PilihCabangActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pilih_cabang)
 
-        // Inisialisasi semua view
         val toolbar: MaterialToolbar = findViewById(R.id.toolbar)
         rvCabang = findViewById(R.id.rv_cabang)
-        etSearch = findViewById(R.id.et_search_cabang) // ID ini sekarang sudah ada di layout
+        etSearch = findViewById(R.id.et_search_cabang)
 
-        // Setup fungsionalitas
         setupToolbar(toolbar)
         setupRecyclerView()
-        setupSearchListener() // Menghubungkan logika pencarian
+        setupSearchListener()
+    }
+
+    private fun showConfirmationDialog(cabang: Cabang) {
+        AlertDialog.Builder(this)
+            .setTitle("Konfirmasi Pilihan")
+            .setMessage("Anda memilih ${cabang.nama} sebagai lokasi pesanan Anda.")
+            .setPositiveButton("OK") { dialog, _ ->
+                val resultIntent = Intent()
+                resultIntent.putExtra("NAMA_CABANG_TERPILIH", cabang.nama)
+                setResult(Activity.RESULT_OK, resultIntent)
+
+                dialog.dismiss()
+                finish()
+            }
+            .setNegativeButton("Batal", null)
+            .show()
     }
 
     private fun setupToolbar(toolbar: MaterialToolbar) {
-        toolbar.setNavigationOnClickListener {
-            finish()
-        }
+        toolbar.setNavigationOnClickListener { finish() }
     }
 
     private fun setupRecyclerView() {
@@ -77,39 +93,21 @@ class PilihCabangActivity : AppCompatActivity() {
     private fun setupSearchListener() {
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                filter(s.toString()) // Memanggil fungsi filter setiap kali teks berubah
-            }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { filter(s.toString()) }
             override fun afterTextChanged(s: Editable?) {}
         })
     }
 
-    // Fungsi untuk memfilter daftar cabang berdasarkan query pencarian
     private fun filter(query: String) {
         val filteredList = if (query.isEmpty()) {
             daftarCabangLengkap
         } else {
-            daftarCabangLengkap.filter {
-                it.nama.contains(query, ignoreCase = true) || it.alamat.contains(query, ignoreCase = true)
-            }
+            daftarCabangLengkap.filter { it.nama.contains(query, ignoreCase = true) || it.alamat.contains(query, ignoreCase = true) }
         }
         cabangAdapter.updateData(filteredList)
     }
-
-    private fun showConfirmationDialog(cabang: Cabang) {
-        AlertDialog.Builder(this)
-            .setTitle("Konfirmasi Pilihan")
-            .setMessage("Anda memilih ${cabang.nama} sebagai lokasi pesanan Anda.")
-            .setPositiveButton("OK") { dialog, _ ->
-                dialog.dismiss()
-                finish()
-            }
-            .setNegativeButton("Batal", null)
-            .show()
-    }
 }
 
-// Adapter untuk RecyclerView
 class CabangAdapter(
     private var cabangList: MutableList<Cabang>,
     private val onPilihClick: (Cabang) -> Unit
@@ -125,19 +123,18 @@ class CabangAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CabangViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_cabang_tuku, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_cabang_tuku, parent, false)
         return CabangViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: CabangViewHolder, position: Int) {
         val cabang = cabangList[position]
-        val context = holder.itemView.context
         holder.namaCabang.text = cabang.nama
         holder.alamatCabang.text = cabang.alamat
         holder.jamBuka.text = cabang.jamBuka
         holder.statusBuka.text = cabang.statusBuka
         holder.detailCabang.text = cabang.detail
+        val context = holder.itemView.context
         val (bgColor, textColor) = when (cabang.statusBuka) {
             "Buka", "Buka 24 Jam" -> R.color.green_status to Color.WHITE
             "Tutup" -> R.color.red_button to Color.WHITE
@@ -150,10 +147,10 @@ class CabangAdapter(
 
     override fun getItemCount() = cabangList.size
 
-    // Fungsi untuk mengupdate data di adapter setelah difilter
     fun updateData(newList: List<Cabang>) {
         cabangList.clear()
         cabangList.addAll(newList)
         notifyDataSetChanged()
     }
 }
+

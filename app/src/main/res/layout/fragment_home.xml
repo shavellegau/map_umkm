@@ -55,6 +55,7 @@
                         android:layout_marginHorizontal="16dp"
                         android:gravity="center_vertical"
                         android:weightSum="3">
+                        <!-- ... Konten 3 icon di sini (tidak diubah) ... -->
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -148,6 +149,7 @@
                         android:layout_marginHorizontal="16dp"
                         android:layout_marginTop="1dp"
                         android:weightSum="2">
+                        <!-- ... Konten voucher_card dan referral_card (tidak diubah) ... -->
                         <androidx.cardview.widget.CardView
                             android:id="@+id/voucher_card"
                             android:layout_width="0dp"
@@ -242,6 +244,8 @@
                         android:textColor="@color/tuku_dark"
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="16dp"/>
+
+                    <!-- [FIXED] SAYA HANYA MENAMBAHKAN ID DI BAWAH INI -->
                     <androidx.cardview.widget.CardView
                         android:id="@+id/location_card"
                         android:layout_width="match_parent"
@@ -282,6 +286,8 @@
                                 android:paddingVertical="4dp"/>
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
+
+                    <!-- ... Sisa layout Anda (tidak diubah) ... -->
                     <LinearLayout
                         android:id="@+id/takeaway_delivery_layout"
                         android:layout_width="match_parent"
