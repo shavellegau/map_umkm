@@ -40,7 +40,11 @@ class ProfileFragment : Fragment() {
         // Setup Listeners menggunakan binding dengan ID yang benar
         binding.cardPesanan.setOnClickListener {
             // Navigasi ke pesanan saya. Asumsi ID action di nav_graph sudah benar
-            findNavController().navigate(R.id.action_nav_profile_to_pesananSayaFragment)
+            findNavController().navigate(R.id.action_nav_profile_to_historyOrdersFragment)
+        }
+
+        binding.cardTukuPoint.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_profile_to_tukuPointFragment)
         }
 
         binding.cardWishlist.setOnClickListener {

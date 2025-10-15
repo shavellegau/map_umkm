@@ -16,13 +16,38 @@
             app:destination="@id/productDetailFragment" />
         <action
             android:id="@+id/action_nav_home_to_notificationFragment" app:destination="@id/notificationFragment" />
+        <action
+            android:id="@+id/action_nav_home_to_tukuPointFragment"
+            app:destination="@id/tukuPointFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/ongoingOrdersFragment"
+        android:name="com.example.map_umkm.OngoingOrdersFragment"
+        android:label="Pesanan Berlangsung"
+        tools:layout="@layout/fragment_ongoing_orders" />
+
 
     <fragment
         android:id="@+id/notificationFragment"
         android:name="com.example.map_umkm.NotificationFragment"
         android:label="Notifikasi"
         tools:layout="@layout/fragment_notification" />
+
+    <fragment
+        android:id="@+id/tukuPointFragment"
+        android:name="com.example.map_umkm.TukuPointFragment"
+        android:label="Tuku Point">
+        <action
+            android:id="@+id/action_tukuPointFragment_to_pointDetailFragment"
+            app:destination="@id/pointDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/pointDetailFragment"
+        android:name="com.example.map_umkm.PointDetailFragment"
+        android:label="Point Detail" />
+
 
     <fragment
         android:id="@+id/nav_cart"
@@ -44,19 +69,31 @@
         tools:layout="@layout/fragment_orders" />
 
     <fragment
+        android:id="@+id/historyOrdersFragment"
+        android:name="com.example.map_umkm.HistoryOrdersFragment"
+        android:label="Riwayat Pesanan"
+        tools:layout="@layout/fragment_history_orders">
+        <action
+            android:id="@+id/action_nav_profile_to_historyOrdersFragment"
+            app:destination="@id/historyOrdersFragment" />
+
+    </fragment>
+
+
+    <fragment
         android:id="@+id/nav_profile"
         android:name="com.example.map_umkm.ProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_profile" >
         <action
-            android:id="@+id/action_nav_profile_to_riwayatPoinFragment"
-            app:destination="@id/riwayatPoinFragment" />
+            android:id="@+id/action_nav_profile_to_tukuPointFragment"
+            app:destination="@id/tukuPointFragment" />
         <action
             android:id="@+id/action_nav_profile_to_voucherSayaFragment"
             app:destination="@id/voucherSayaFragment" />
         <action
-            android:id="@+id/action_nav_profile_to_pesananSayaFragment"
-            app:destination="@id/pesananSayaFragment" />
+            android:id="@+id/action_nav_profile_to_historyOrdersFragment"
+            app:destination="@id/historyOrdersFragment" />
         <action
             android:id="@+id/action_nav_profile_to_wishlistFragment"
             app:destination="@id/wishlistFragment" />

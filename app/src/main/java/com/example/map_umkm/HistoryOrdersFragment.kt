@@ -13,8 +13,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.adapter.UserOrdersAdapter
 import com.example.map_umkm.data.JsonHelper
 import com.example.map_umkm.model.Order
+import android.widget.ImageView
+import androidx.navigation.fragment.findNavController
 
 class HistoryOrdersFragment : Fragment(), UserOrdersAdapter.OnItemClickListener {
+
     private lateinit var jsonHelper: JsonHelper
     private lateinit var rvOrders: RecyclerView
     private lateinit var tvEmpty: TextView
@@ -29,6 +32,13 @@ class HistoryOrdersFragment : Fragment(), UserOrdersAdapter.OnItemClickListener 
         rvOrders = view.findViewById(R.id.rv_history_orders)
         tvEmpty = view.findViewById(R.id.tv_empty_history)
         setupRecyclerView()
+
+        // Tombol back
+        val btnBack = view.findViewById<ImageView>(R.id.btn_back_history)
+        btnBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
         return view
     }
 
