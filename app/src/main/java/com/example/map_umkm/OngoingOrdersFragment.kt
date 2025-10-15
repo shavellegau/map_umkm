@@ -31,20 +31,19 @@ class OngoingOrdersFragment : Fragment(), UserOrdersAdapter.OnItemClickListener 
     ): View? {
         val view = inflater.inflate(R.layout.fragment_ongoing_orders, container, false)
         jsonHelper = JsonHelper(requireContext())
-        return inflater.inflate(R.layout.fragment_ongoing_orders, container, false)
-
 
         // Inisialisasi view
         rvOrders = view.findViewById(R.id.rv_ongoing_orders)
         tvEmpty = view.findViewById(R.id.tv_empty_ongoing)
-//        btnBack = view.findViewById(R.id.btnBack)
+//    btnBack = view.findViewById(R.id.btnBack)
         tvHeader = view.findViewById(R.id.tvHeader)
 
         setupRecyclerView()
-        setupListeners()
+//    setupListeners()
 
         return view
     }
+
 
     override fun onResume() {
         super.onResume()
@@ -57,15 +56,15 @@ class OngoingOrdersFragment : Fragment(), UserOrdersAdapter.OnItemClickListener 
         rvOrders.adapter = adapter
     }
 
-    private fun setupListeners() {
+//    private fun setupListeners() {
 //        // Tombol back kembali ke fragment sebelumnya
 //        btnBack.setOnClickListener {
 //            findNavController().popBackStack()
 //        }
-
-        // (Opsional) kalau mau ubah judul dinamis
-        tvHeader.text = "Pesanan Saya"
-    }
+//
+//         (Opsional) kalau mau ubah judul dinamis
+//        tvHeader.text = "Pesanan Saya"
+//    }
 
     private fun loadOngoingOrders() {
         val userEmail = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
