@@ -114,6 +114,16 @@ class HomeFragment : Fragment() {
         binding.btnNotification.setOnClickListener {
             findNavController().navigate(R.id.action_nav_home_to_notificationFragment)
         }
+
+        binding.btnTukuPoint.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_home_to_tukuPointFragment)
+        }
+
+        binding.btnTetanggaTuku.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_home_to_tukuPointFragment)
+        }
+
+
     }
 
     override fun onDestroyView() {

@@ -16,7 +16,17 @@
             app:destination="@id/productDetailFragment" />
         <action
             android:id="@+id/action_nav_home_to_notificationFragment" app:destination="@id/notificationFragment" />
+        <action
+            android:id="@+id/action_nav_home_to_tukuPointFragment"
+            app:destination="@id/tukuPointFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/ongoingOrdersFragment"
+        android:name="com.example.map_umkm.OngoingOrdersFragment"
+        android:label="Pesanan Berlangsung"
+        tools:layout="@layout/fragment_ongoing_orders" />
+
 
     <fragment
         android:id="@+id/notificationFragment"
@@ -59,6 +69,18 @@
         tools:layout="@layout/fragment_orders" />
 
     <fragment
+        android:id="@+id/historyOrdersFragment"
+        android:name="com.example.map_umkm.HistoryOrdersFragment"
+        android:label="Riwayat Pesanan"
+        tools:layout="@layout/fragment_history_orders">
+        <action
+            android:id="@+id/action_nav_profile_to_historyOrdersFragment"
+            app:destination="@id/historyOrdersFragment" />
+
+    </fragment>
+
+
+    <fragment
         android:id="@+id/nav_profile"
         android:name="com.example.map_umkm.ProfileFragment"
         android:label="Profile"
@@ -70,8 +92,8 @@
             android:id="@+id/action_nav_profile_to_voucherSayaFragment"
             app:destination="@id/voucherSayaFragment" />
         <action
-            android:id="@+id/action_nav_profile_to_pesananSayaFragment"
-            app:destination="@id/pesananSayaFragment" />
+            android:id="@+id/action_nav_profile_to_historyOrdersFragment"
+            app:destination="@id/historyOrdersFragment" />
         <action
             android:id="@+id/action_nav_profile_to_wishlistFragment"
             app:destination="@id/wishlistFragment" />

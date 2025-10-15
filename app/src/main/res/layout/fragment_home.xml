@@ -63,6 +63,7 @@
                             android:gravity="center_horizontal"
                             android:paddingHorizontal="4dp">
                             <ImageView
+                                android:id="@+id/btn_tetangga_tuku"
                                 android:layout_width="55dp"
                                 android:layout_height="55dp"
                                 android:src="@drawable/ic_cup_kopi"
@@ -90,13 +91,16 @@
                             android:orientation="vertical"
                             android:gravity="center_horizontal"
                             android:paddingHorizontal="4dp">
+
                             <ImageView
+                                android:id="@+id/btn_tuku_point"
                                 android:layout_width="55dp"
                                 android:layout_height="55dp"
-                                android:src="@drawable/ic_point"
                                 android:background="@drawable/circle_brown_bg"
+                                android:contentDescription="Tuku Point"
                                 android:padding="8dp"
-                                android:contentDescription="Tuku Point"/>
+                                android:src="@drawable/ic_point" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -118,13 +122,15 @@
                             android:orientation="vertical"
                             android:gravity="center_horizontal"
                             android:paddingHorizontal="4dp">
+
                             <ImageView
                                 android:layout_width="55dp"
                                 android:layout_height="55dp"
-                                android:src="@drawable/ic_subscription"
                                 android:background="@drawable/circle_brown_bg"
+                                android:contentDescription="Subscription"
                                 android:padding="8dp"
-                                android:contentDescription="Subscription"/>
+                                android:src="@drawable/ic_subscription" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -441,6 +447,39 @@
                             android:scaleType="centerCrop"
                             android:src="@drawable/tuku_banner" />
                     </androidx.cardview.widget.CardView>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="13dp">
+
+                        <TextView
+                            android:id="@+id/tv_user_greeting"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Hi, Abdul !"
+                            android:textColor="@color/tuku_dark"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <ImageButton
+                                android:id="@+id/btn_notification"
+                                android:layout_width="28dp"
+                                android:layout_height="match_parent"
+                                android:background="@android:color/transparent"
+                                android:contentDescription="Notifications"
+                                android:scaleType="centerInside"
+                                android:src="@drawable/ic_notification"
+                                app:tint="@color/tuku_accent" />
+                        </FrameLayout>
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -455,35 +494,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/main_content_card"
                 app:layout_constraintBottom_toTopOf="@+id/main_content_card">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="13dp"
-                    android:gravity="center_vertical">
-                    <TextView
-                        android:id="@+id/tv_user_greeting"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Hi, Abdul !"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/tuku_dark"/>
-                    <FrameLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-                        <ImageButton
-                            android:id="@+id/btn_notification"
-                            android:layout_width="28dp"
-                            android:layout_height="28dp"
-                            android:src="@drawable/ic_notification"
-                            android:background="@android:color/transparent"
-                            android:contentDescription="Notifications"
-                            app:tint="@color/tuku_accent"
-                            android:scaleType="centerInside" />
-                    </FrameLayout>
-                </LinearLayout>
+
             </androidx.cardview.widget.CardView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
