@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FAF4EB"
+    android:padding="16dp"
+    tools:context=".PointDetailFragment">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- 🔙 Header dengan tombol back -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:paddingTop="20dp">
+
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_arrow_back"
+                android:tint="#3E2723"
+                android:contentDescription="Kembali" />
+
+            <TextView
+                android:id="@+id/tvHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="Semua Rewards"
+                android:textStyle="bold"
+                android:textColor="#3E2723"
+                android:textSize="22sp" />
+        </RelativeLayout>
+
+        <!-- Header XP & Poin -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:background="@drawable/bg_card"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Tetangga Tuku\n520 / 1.000 XP"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:textColor="#5D4037"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:text="Tuku Point\n22.000 Points"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:textColor="#5D4037"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!-- Grid Semua Reward -->
+        <GridLayout
+            android:id="@+id/gridRewards"
+            android:columnCount="2"
+            android:alignmentMode="alignMargins"
+            android:columnOrderPreserved="false"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:useDefaultMargins="true" />
+    </LinearLayout>
+</ScrollView>

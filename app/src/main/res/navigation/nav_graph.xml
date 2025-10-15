@@ -25,6 +25,21 @@
         tools:layout="@layout/fragment_notification" />
 
     <fragment
+        android:id="@+id/tukuPointFragment"
+        android:name="com.example.map_umkm.TukuPointFragment"
+        android:label="Tuku Point">
+        <action
+            android:id="@+id/action_tukuPointFragment_to_pointDetailFragment"
+            app:destination="@id/pointDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/pointDetailFragment"
+        android:name="com.example.map_umkm.PointDetailFragment"
+        android:label="Point Detail" />
+
+
+    <fragment
         android:id="@+id/nav_cart"
         android:name="com.example.map_umkm.CartFragment"
         android:label="Keranjang"
@@ -49,8 +64,8 @@
         android:label="Profile"
         tools:layout="@layout/fragment_profile" >
         <action
-            android:id="@+id/action_nav_profile_to_riwayatPoinFragment"
-            app:destination="@id/riwayatPoinFragment" />
+            android:id="@+id/action_nav_profile_to_tukuPointFragment"
+            app:destination="@id/tukuPointFragment" />
         <action
             android:id="@+id/action_nav_profile_to_voucherSayaFragment"
             app:destination="@id/voucherSayaFragment" />

@@ -43,6 +43,10 @@ class ProfileFragment : Fragment() {
             findNavController().navigate(R.id.action_nav_profile_to_pesananSayaFragment)
         }
 
+        binding.cardTukuPoint.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_profile_to_tukuPointFragment)
+        }
+
         binding.cardWishlist.setOnClickListener {
             findNavController().navigate(R.id.action_nav_profile_to_wishlistFragment)
         }
