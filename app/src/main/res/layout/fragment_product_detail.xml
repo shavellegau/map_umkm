@@ -1,140 +1,205 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/tuku_bg">
+    android:background="@color/tuku_bg"
+    android:paddingBottom="80dp"
+    tools:context=".ProductDetailFragment">
 
-    <!-- Tombol Back -->
-    <ImageButton
-        android:id="@+id/btnBack"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignParentStart="true"
-        android:layout_margin="12dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Kembali"
-        android:src="@drawable/ic_arrow_back"
-        android:tint="@color/tuku_dark" />
+    <!-- Tombol kembali -->
+<ImageButton
+android:id="@+id/btnBack"
+android:layout_width="48dp"
+android:layout_height="48dp"
+android:layout_marginStart="8dp"
+android:layout_marginTop="8dp"
+android:background="?attr/selectableItemBackgroundBorderless"
+android:contentDescription="Kembali"
+android:src="@drawable/ic_arrow_back"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintTop_toTopOf="parent"
+app:tint="@color/tuku_dark" />
 
-    <!-- Konten Scrollable -->
-    <ScrollView
+    <!-- Tombol favorit -->
+<ImageButton
+android:id="@+id/ivFavorite"
+android:layout_width="48dp"
+android:layout_height="48dp"
+android:layout_marginTop="8dp"
+android:layout_marginEnd="8dp"
+android:background="?attr/selectableItemBackgroundBorderless"
+android:contentDescription="Favorite"
+android:src="@drawable/ic_favorite_border"
+app:layout_constraintEnd_toEndOf="parent"
+app:layout_constraintTop_toTopOf="parent"
+app:tint="@color/tuku_accent" />
+
+    <!-- Konten scroll -->
+<ScrollView
+android:id="@+id/scrollContent"
+android:layout_width="0dp"
+android:layout_height="0dp"
+android:layout_marginTop="8dp"
+android:fillViewport="true"
+app:layout_constraintTop_toBottomOf="@id/btnBack"
+app:layout_constraintBottom_toTopOf="@id/btnAddToCart"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintEnd_toEndOf="parent">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Gambar produk -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/ivImage"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/btnBack"
-        android:padding="16dp">
+        android:layout_height="300dp"
+        android:layout_marginBottom="24dp"
+        android:background="@color/tuku_primary_light"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/RoundedImageView" />
 
-        <LinearLayout
-            android:orientation="vertical"
+    <!-- Nama produk -->
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="Nama Produk"
+        android:textColor="@color/tuku_dark"
+        android:textSize="28sp"
+        android:textStyle="bold" />
+
+    <!-- Kategori + Harga -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:weightSum="2">
+
+        <TextView
+            android:id="@+id/tvCategory"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Kategori"
+            android:textColor="@color/tuku_brown"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tvPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rp90.000"
+            android:textColor="@color/tuku_primary"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Pilihan suhu -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="Pilihan Suhu"
+        android:textColor="@color/tuku_dark"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <RadioGroup
+        android:id="@+id/rgTemperature"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rbHot"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Hot"
+            android:gravity="center"
+            android:paddingVertical="12dp"
+            android:textColor="@color/radio_button_text_color"
+            android:background="@drawable/radio_button_background"
+            android:button="@null" />
+
+        <RadioButton
+            android:id="@+id/rbIced"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Iced"
+            android:gravity="center"
+            android:paddingVertical="12dp"
+            android:textColor="@color/radio_button_text_color"
+            android:background="@drawable/radio_button_background"
+            android:button="@null" />
+    </RadioGroup>
+
+    <!-- Deskripsi -->
+    <TextView
+        android:id="@+id/tvDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:lineSpacingExtra="4dp"
+        android:text="Deskripsi produk akan ditampilkan di sini."
+        android:textColor="@color/text_primary"
+        android:textSize="16sp" />
+
+    <!-- Catatan -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:hintEnabled="false"
+        app:boxBackgroundColor="@color/white"
+        app:boxCornerRadiusTopStart="8dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusBottomStart="8dp"
+        app:boxCornerRadiusBottomEnd="8dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etNotes"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:hint="Tambahkan catatan (maks. 50 kata)"
+            android:inputType="textMultiLine"
+            android:maxLines="3"
+            android:gravity="top|start"
+            android:textColor="@color/tuku_dark"
+            android:textColorHint="@color/text_bantuan"
+            android:background="@android:color/transparent" />
+    </com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>
+</ScrollView>
 
-            <!-- Gambar produk -->
-            <ImageView
-                android:id="@+id/ivImage"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:scaleType="centerCrop"
-                android:layout_marginBottom="16dp"
-                android:background="@color/tuku_primary" />
+    <!-- Tombol tambah ke keranjang -->
+<Button
+android:id="@+id/btnAddToCart"
+android:layout_width="0dp"
+android:layout_height="wrap_content"
+android:layout_marginStart="24dp"
+android:layout_marginEnd="24dp"
+android:layout_marginBottom="24dp"
+android:backgroundTint="@color/tuku_primary"
+android:paddingVertical="12dp"
+android:text="Tambah ke Keranjang"
+android:textColor="@color/white"
+android:textStyle="bold"
+app:cornerRadius="12dp"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintEnd_toEndOf="parent"
+app:layout_constraintBottom_toBottomOf="parent" />
 
-            <!-- Nama produk -->
-            <TextView
-                android:id="@+id/tvName"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:layout_marginBottom="8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <!-- Kategori -->
-            <TextView
-                android:id="@+id/tvCategory"
-                android:textSize="14sp"
-                android:textColor="@color/text_bantuan"
-                android:layout_marginBottom="8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <!-- Deskripsi -->
-            <TextView
-                android:id="@+id/tvDescription"
-                android:textSize="16sp"
-                android:textColor="@color/tuku_dark"
-                android:layout_marginBottom="16dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <!-- Pilihan suhu -->
-            <RadioGroup
-                android:id="@+id/rgTemperature"
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp">
-
-                <RadioButton
-                    android:id="@+id/rbHot"
-                    android:text="Hot"
-                    android:checked="true"
-                    android:textColor="@color/text_primary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-                <RadioButton
-                    android:id="@+id/rbIced"
-                    android:text="Iced"
-                    android:textColor="@color/text_primary"
-                    android:layout_marginStart="24dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </RadioGroup>
-
-            <!-- Harga -->
-            <TextView
-                android:id="@+id/tvPrice"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@color/tuku_primary"
-                android:layout_marginBottom="24dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <!-- Catatan -->
-            <EditText
-                android:id="@+id/etNotes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Tambahkan catatan (maks. 50 kata)"
-                android:inputType="textMultiLine"
-                android:maxLines="3"
-                android:gravity="top|start"
-                android:padding="12dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_bantuan"
-                android:backgroundTint="@color/tuku_primary"
-                android:layout_marginBottom="16dp" />
-
-            <!-- Tombol tambah -->
-            <Button
-                android:id="@+id/btnAddToCart"
-                android:text="Tambah ke Keranjang"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/tuku_primary"
-                android:textColor="@color/tuku_bg"
-                android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
-
-            <!-- Favorit -->
-            <ImageView
-                android:id="@+id/ivFavorite"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_favorite_border"
-                android:layout_margin="8dp"
-                android:contentDescription="Favorite"
-                android:tint="@color/tuku_accent" />
-
-        </LinearLayout>
-    </ScrollView>
-</RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
