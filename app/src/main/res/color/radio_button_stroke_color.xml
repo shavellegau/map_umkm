@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Saat tombol radio dicentang, warna garisnya adalah warna primer -->
     <item android:state_checked="true" android:color="@color/tuku_primary" />
-    <item android:color="@color/tuku_brown" />
+
+    <!-- Saat tidak dicentang (default), warna garisnya adalah abu-abu -->
+    <item android:color="@color/divider" />
 </selector>

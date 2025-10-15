@@ -9,6 +9,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -86,13 +87,37 @@ class AdminMenuFragment : Fragment() {
     }
 
     private fun showDeleteConfirmation(product: Product) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Hapus Produk")
-            .setMessage("Yakin ingin menghapus '${product.name}'?")
-            .setPositiveButton("Hapus") { _, _ -> deleteProductFromJson(product) }
-            .setNegativeButton("Batal", null)
-            .show()
+        // Inflate layout kustom
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_confirm_delete, null)
+
+        // Buat dialog menggunakan AlertDialog.Builder
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        val tvMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+        val btnDelete = dialogView.findViewById<Button>(R.id.btnDelete)
+
+        tvMessage.text = "Yakin ingin menghapus '${product.name}'?"
+
+        // Atur listener untuk tombol
+        btnCancel.setOnClickListener {
+            dialog.dismiss() // Tutup dialog
+        }
+        btnDelete.setOnClickListener {
+            deleteProductFromJson(product) // Jalankan fungsi hapus
+            dialog.dismiss() // Tutup dialog
+        }
+
+        // Atur agar background dialog transparan (karena kita pakai CardView)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        // Tampilkan dialog
+        dialog.show()
     }
+
+
 
     private fun deleteProductFromJson(product: Product) {
         val currentMenuData = jsonHelper.getMenuData()

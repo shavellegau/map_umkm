@@ -2,10 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Izin-izin yang diperlukan oleh aplikasi -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
-
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission
@@ -26,6 +26,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Map_umkm"
         android:usesCleartextTraffic="true">
+
+        <!-- FileProvider untuk kamera -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -35,31 +37,42 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-        <activity
-            android:name=".EditProductActivity"
-            android:exported="false" />
-        <!-- <activity android:name=".PesananSayaFragment" /> -->
-        <!-- <activity android:name=".BantuanFragment" /> -->
-        <!-- <activity android:name=".WishlistFragment" /> -->
-        <!-- <activity android:name=".RiwayatPoinFragment" /> -->
-        <!-- <activity android:name=".VoucherSayaFragment" /> -->
-        <!-- <activity android:name=".PengaturanAkunActivity" /> -->
-        <!-- <activity android:name=".AlamatActivity" /> -->
-        <!-- <activity android:name=".BantuanFragment" /> -->
-        <activity android:name=".AdminActivity" />
-        <activity android:name=".RegisterActivity" /> <!-- Admin Activity -->
-        <activity android:name=".AddProductActivity" />
+
+        <!-- Deklarasi semua Activity. Masing-masing HANYA SATU KALI. -->
+
+        <!-- Activity yang menjadi titik masuk aplikasi (Launcher) -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- Login Activity jadi launcher -->
-        <activity android:name=".MainActivity" /> <!-- Kalau mau, MainActivity tetap ada tapi tanpa intent-filter -->
-        <activity android:name=".OrderDetailActivity" />
+        </activity>
+
+        <!-- Activity lainnya -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AddProductActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EditProductActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PilihCabangActivity"
+            android:exported="false" />
+        <activity
+            android:name=".OrderDetailActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

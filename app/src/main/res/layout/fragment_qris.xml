@@ -21,7 +21,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tunjukkan kode QR ini pada kasir"
+        android:text="Scan QR ini untuk membayar"
         android:textSize="16sp"
         android:textColor="@color/text_bantuan"
         android:layout_marginBottom="24dp"/>
@@ -31,7 +31,7 @@
         android:id="@+id/ivQrCode"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        android:src="@drawable/qr_code_dummy_background"
+        android:src="@drawable/qr_code_dummy"
         android:contentDescription="QR Code untuk pembayaran"
         android:layout_marginBottom="32dp"/>
 

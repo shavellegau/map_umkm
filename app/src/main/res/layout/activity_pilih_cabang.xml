@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?><LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/tuku_bg"
+    tools:context=".PilihCabangActivity">
+
+    <!-- Toolbar dengan judul dan tombol kembali -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/white"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="@color/tuku_dark"
+        app:title="Pilih Cabang Tuku Coffee"
+        app:titleTextColor="@color/tuku_dark"
+        app:titleCentered="true"
+        android:elevation="2dp" />
+
+    <!-- [FIXED] Search Bar yang Fungsional dan Rapi -->
+    <EditText
+        android:id="@+id/et_search_cabang"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/bg_search_bar_rounded"
+        android:drawableStart="@drawable/ic_search"
+        android:drawablePadding="12dp"
+        android:hint="Cari cabang terdekat..."
+        android:inputType="text"
+        android:maxLines="1"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
+        android:textColor="@color/text_primary"
+        android:textColorHint="@color/text_secondary"
+        android:textSize="14sp" />
+
+    <!-- RecyclerView untuk menampilkan daftar cabang -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_cabang"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingHorizontal="8dp"
+        android:paddingBottom="16dp"
+        tools:listitem="@layout/item_cabang_tuku" />
+
+</LinearLayout>

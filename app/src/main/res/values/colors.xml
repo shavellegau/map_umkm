@@ -1,7 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+        <!-- Warna dasar -->
         <color name="black">#FF000000</color>
         <color name="white">#FFFFFFFF</color>
+
+        <!-- PALET WARNA TUKU (LENGKAP & DIPERBAIKI) -->
+        <color name="tuku_primary">#B07C4A</color>          <!-- Coklat Kopi untuk Toolbar, Button, Aksen Utama -->
+        <color name="tuku_primary_light">#D7BFA7</color>    <!-- [FIXED] Warna coklat lebih terang untuk aksen/hover -->
+        <color name="tuku_dark">#5B3A2E</color>             <!-- Coklat Tua untuk Teks Penting/Judul -->
+        <color name="tuku_accent">#FF6B5E</color>           <!-- Merah Lembut untuk Notifikasi/Badge -->
+        <color name="tuku_bg">#FFF8F0</color>               <!-- Krem untuk Latar Belakang Semua Halaman -->
+
+        <color name="text_primary">#424242</color>          <!-- [FIXED] Hitam/Abu-abu tua untuk teks isi -->
+        <color name="text_secondary">#757575</color>        <!-- [FIXED] Abu-abu untuk teks deskripsi/hint -->
+
+        <color name="divider">#E0E0E0</color>              <!-- Abu-abu muda untuk garis pemisah -->
+        <color name="text_bantuan">#795548</color>          <!-- Warna teks bantuan yang sudah ada -->
+        <color name="tuku_brown">#B68C5A</color>            <!-- Nama ini sudah ada, pastikan tetap ada -->
+
+        <!-- Warna lama (opsional, bisa dihapus jika tidak dipakai lagi) -->
         <color name="purple_200">#BB86FC</color>
         <color name="purple_500">#6200EE</color>
         <color name="purple_700">#3700B3</color>
@@ -11,12 +28,5 @@
         <color name="light_gray">#F5F5F5</color>
         <color name="red_button">#E53935</color>
         <color name="orange_button">#FB8C00</color>
-        <color name="tuku_primary">#B07C4A</color>      <!-- coklat kopi -->
-        <color name="tuku_dark">#5B3A2E</color>         <!-- teks / aksen gelap -->
-        <color name="tuku_accent">#FF6B5E</color>       <!-- aksen merah lembut -->
-        <color name="tuku_bg">#FFF8F0</color>           <!-- latar krem -->
-        <color name="text_primary">#2E2E2E</color>
-        <color name="text_bantuan">#795548</color>
-        <color name="divider">#E0E0E0</color>
-        <color name="tuku_brown">#B68C5A</color>
+    <color name="green_status">#4CAF50</color>
 </resources>

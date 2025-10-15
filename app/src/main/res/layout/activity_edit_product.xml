@@ -68,7 +68,7 @@
                 android:backgroundTint="@color/tuku_primary"
                 android:inputType="textCapWords"
                 android:textColor="@color/text_primary"
-                android:textColorHint="@color/tuku_dark" />
+                android:textColorHint="@color/text_secondary" />
 
             <!-- Harga Hot & Iced -->
             <LinearLayout
@@ -99,7 +99,7 @@
                         android:inputType="number"
                         android:backgroundTint="@color/tuku_primary"
                         android:textColor="@color/text_primary"
-                        android:textColorHint="@color/tuku_dark" />
+                        android:textColorHint="@color/text_secondary" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -124,7 +124,7 @@
                         android:inputType="number"
                         android:backgroundTint="@color/tuku_primary"
                         android:textColor="@color/text_primary"
-                        android:textColorHint="@color/tuku_dark" />
+                        android:textColorHint="@color/text_secondary" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -143,7 +143,6 @@
                 android:layout_height="48dp"
                 android:backgroundTint="@color/tuku_primary" />
 
-            <!-- [FIXED] EditText YANG HILANG DITAMBAHKAN DI SINI -->
             <EditText
                 android:id="@+id/et_image_url"
                 android:layout_width="match_parent"
@@ -152,7 +151,7 @@
                 android:inputType="textUri"
                 android:enabled="false"
                 android:visibility="gone"
-                android:textColor="@android:color/darker_gray" />
+                android:textColor="@color/text_secondary" />
 
             <!-- Deskripsi -->
             <TextView
@@ -173,7 +172,7 @@
                 android:minLines="3"
                 android:backgroundTint="@color/tuku_primary"
                 android:textColor="@color/text_primary"
-                android:textColorHint="@color/tuku_dark" />
+                android:textColorHint="@color/text_secondary" />
 
             <!-- Tombol Simpan -->
             <Button

@@ -1,5 +1,6 @@
 package com.example.map_umkm
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -86,11 +87,21 @@ class HomeFragment : Fragment() {
                     val priceIced = newestMenuItem.price_iced?.let { "Iced: Rp $it" } ?: ""
                     binding.tvNewestMenuPrice.text = listOf(priceHot, priceIced).filter { it.isNotEmpty() }.joinToString(" / ")
 
-                    newestMenuItem.image?.let {
-                        Glide.with(this)
-                            .load(Uri.parse(it))
-                            .into(binding.ivNewestMenuImage)
+                    // [FIXED] Penanganan path gambar lokal dan URL
+                    val imagePath = newestMenuItem.image
+                    val imageSource = if (imagePath != null && !imagePath.startsWith("http")) {
+                        // Jika path adalah file lokal, muat dari File
+                        java.io.File(imagePath)
+                    } else {
+                        // Jika path adalah URL http atau null, biarkan Glide menanganinya
+                        imagePath
                     }
+
+                    Glide.with(this)
+                        .load(imageSource)
+                        .error(R.drawable.logo_tuku) // Fallback jika gagal load
+                        .into(binding.ivNewestMenuImage)
+
 
                     binding.newestMenuCard.setOnClickListener {
                         Toast.makeText(requireContext(), "${newestMenuItem.name} diklik!", Toast.LENGTH_SHORT).show()
@@ -109,10 +120,15 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        // ### PERBAIKAN DI SINI ###
-        // Mengakses 'btnNotification' langsung dari 'binding' utama, bukan melalui 'userInfoCard'.
         binding.btnNotification.setOnClickListener {
             findNavController().navigate(R.id.action_nav_home_to_notificationFragment)
+        }
+
+        // [FIXED & DITAMBAHKAN] Listener untuk membuka halaman Pilih Cabang
+        // 'orderNowCard' adalah ID dari CardView yang berisi tulisan "Buat Pesanan Sekarang"
+        binding.orderNowCard.setOnClickListener {
+            val intent = Intent(requireActivity(), PilihCabangActivity::class.java)
+            startActivity(intent)
         }
     }
 
