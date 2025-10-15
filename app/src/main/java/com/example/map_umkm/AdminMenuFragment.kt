@@ -49,8 +49,9 @@ class AdminMenuFragment : Fragment() {
             productList = emptyList(),
             onDeleteClick = { product -> showDeleteConfirmation(product) },
             onEditClick = { product ->
+                // [FIXED] Jangan kirim seluruh objek. Kirim ID-nya saja.
                 val intent = Intent(activity, EditProductActivity::class.java).apply {
-                    putExtra("PRODUCT_EXTRA", product)
+                    putExtra("PRODUCT_ID", product.id.toIntOrNull()) // Kirim ID sebagai Int
                 }
                 startActivity(intent)
             }
@@ -58,6 +59,7 @@ class AdminMenuFragment : Fragment() {
         rvProducts.layoutManager = LinearLayoutManager(context)
         rvProducts.adapter = adapter
     }
+
 
     private fun fetchProductsFromJson() {
         showLoading(true)

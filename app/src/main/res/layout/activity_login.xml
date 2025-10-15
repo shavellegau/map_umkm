@@ -2,7 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F5F1">
+    android:background="@color/tuku_bg"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Welcome to Tuku"
-            android:textColor="#3E2723"
+            android:textColor="@color/tuku_dark"
             android:textStyle="bold"
             android:textSize="24sp"
             android:layout_marginBottom="8dp" />
@@ -36,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Enjoy your favorite coffee!"
-            android:textColor="#6D4C41"
+            android:textColor="@color/text_secondary"
             android:textSize="14sp"
             android:layout_marginBottom="24dp" />
 
@@ -55,15 +56,15 @@
                 android:background="@drawable/bg_edittext"
                 android:paddingStart="48dp"
                 android:padding="14dp"
-                android:textColor="#3E2723"
-                android:textColorHint="#A1887F" />
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary" />
 
             <ImageView
                 android:id="@+id/iconEmail"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@drawable/ic_email"
-                android:tint="#6D4C41"
+                android:tint="@color/tuku_dark"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"/>
@@ -84,15 +85,15 @@
                 android:background="@drawable/bg_edittext"
                 android:paddingStart="48dp"
                 android:padding="14dp"
-                android:textColor="#3E2723"
-                android:textColorHint="#A1887F" />
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary" />
 
             <ImageView
                 android:id="@+id/iconLock"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@drawable/ic_lock"
-                android:tint="#6D4C41"
+                android:tint="@color/tuku_dark"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"/>
@@ -104,7 +105,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Login"
-            android:backgroundTint="#6D4C41"
+            android:backgroundTint="@color/tuku_primary"
             android:textColor="@android:color/white"
             android:padding="14dp"
             android:textStyle="bold"
@@ -116,7 +117,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Register"
-            android:backgroundTint="#A1887F"
+            android:backgroundTint="@color/tuku_dark"
             android:textColor="@android:color/white"
             android:padding="14dp" />
 

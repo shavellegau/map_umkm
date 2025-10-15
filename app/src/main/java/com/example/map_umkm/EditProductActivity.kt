@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.Window
 import android.widget.*
@@ -17,7 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.bumptech.glide.Glide
 import com.example.map_umkm.data.JsonHelper
-import com.example.map_umkm.model.Product
+import com.example.map_umkm.model.MenuItem
 import com.google.android.material.appbar.MaterialToolbar
 import java.io.File
 
@@ -33,12 +32,11 @@ class EditProductActivity : AppCompatActivity() {
     private lateinit var btnSave: Button
     private lateinit var ivProductPreview: ImageView
 
-    private var currentProduct: Product? = null
-    private var tempImageUri: Uri? = null // URI sementara untuk hasil kamera
+    private var currentMenuItem: MenuItem? = null
+    private var tempImageUri: Uri? = null
 
     private val categories = listOf("WHITE-MILK", "BLACK", "NON-COFFEE", "TUKUDAPAN")
 
-    // [DISEMPURNAKAN] Kontrak untuk membuka Photo Picker modern.
     private val galleryLauncher =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
             uri?.let {
@@ -47,7 +45,6 @@ class EditProductActivity : AppCompatActivity() {
             }
         }
 
-    // Kontrak untuk mengambil foto dari kamera (tetap sama, sudah modern)
     private val cameraLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success: Boolean ->
             if (success) {
@@ -58,7 +55,6 @@ class EditProductActivity : AppCompatActivity() {
             }
         }
 
-    // Kontrak untuk meminta izin (tetap sama)
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             val granted = permissions.entries.all { it.value }
@@ -71,24 +67,30 @@ class EditProductActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_edit_product) // Pastikan ini benar
+        setContentView(R.layout.activity_edit_product)
 
         jsonHelper = JsonHelper(this)
+
+        // [FIXED] Panggil initializeViews() di awal agar semua view siap pakai.
         initializeViews()
 
-        currentProduct = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra("PRODUCT_EXTRA", Product::class.java)
-        } else {
-            @Suppress("DEPRECATION")
-            intent.getParcelableExtra("PRODUCT_EXTRA")
+        val productId = intent.getIntExtra("PRODUCT_ID", -1)
+        if (productId == -1) {
+            Toast.makeText(this, "ID Produk tidak valid.", Toast.LENGTH_SHORT).show()
+            finish()
+            return
         }
 
-        if (currentProduct == null) {
+        val menuData = jsonHelper.getMenuData()
+        currentMenuItem = menuData?.menu?.find { it.id == productId }
+
+        if (currentMenuItem == null) {
             Toast.makeText(this, "Gagal memuat data produk", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
 
+        // [FIXED] Panggil setupUI() dan populateData() setelah view dan data siap.
         setupUI()
         populateData()
     }
@@ -98,7 +100,7 @@ class EditProductActivity : AppCompatActivity() {
         etPriceHot = findViewById(R.id.et_product_price_hot)
         etPriceIced = findViewById(R.id.et_product_price_iced)
         spinnerCategory = findViewById(R.id.spinner_category)
-        etImageUrl = findViewById(R.id.et_image_url)
+        etImageUrl = findViewById(R.id.et_image_url) // ID ini ada di activity_add_product.xml, pastikan sama
         etDescription = findViewById(R.id.et_product_description)
         btnSave = findViewById(R.id.btn_save_product)
         val toolbar: MaterialToolbar = findViewById(R.id.toolbar_edit_product)
@@ -112,11 +114,11 @@ class EditProductActivity : AppCompatActivity() {
     }
 
     private fun populateData() {
-        currentProduct?.let { product ->
+        currentMenuItem?.let { product ->
             etName.setText(product.name)
-            etPriceHot.setText(product.price_hot.toString())
+            etPriceHot.setText(product.price_hot?.toString() ?: "")
             etPriceIced.setText(product.price_iced?.toString() ?: "")
-            etDescription.setText(product.description)
+            etDescription.setText(product.description ?: "")
 
             if (!product.image.isNullOrEmpty()) {
                 etImageUrl.setText(product.image)
@@ -127,76 +129,19 @@ class EditProductActivity : AppCompatActivity() {
                     .into(ivProductPreview)
             }
 
-            val categoryPosition = categories.indexOf(product.category)
+            val categoryPosition = categories.indexOfFirst { it.equals(product.category, ignoreCase = true) }
             if (categoryPosition != -1) {
                 spinnerCategory.setSelection(categoryPosition)
             }
         }
     }
 
-    private fun checkPermissionsAndShowDialog() {
-        val permissionsToRequest = mutableListOf<String>()
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            permissionsToRequest.add(Manifest.permission.CAMERA)
-        }
-
-        // Untuk Photo Picker modern, kita tidak perlu meminta izin galeri secara eksplisit
-        // karena sistem yang menanganinya. Jadi, kita hanya cek izin kamera.
-        if (permissionsToRequest.isNotEmpty()) {
-            requestPermissionLauncher.launch(permissionsToRequest.toTypedArray())
-        } else {
-            showImagePickerDialog()
-        }
-    }
-
-    private fun showImagePickerDialog() {
-        val dialog = Dialog(this)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setContentView(R.layout.dialog_image_picker)
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-
-        val optionCamera = dialog.findViewById<LinearLayout>(R.id.option_camera)
-        val optionGallery = dialog.findViewById<LinearLayout>(R.id.option_gallery)
-
-        // [FIXED] Menggunakan `let` block untuk memastikan tempImageUri tidak null saat digunakan
-        optionCamera.setOnClickListener {
-            createImageUri()?.let { uri ->
-                tempImageUri = uri
-                cameraLauncher.launch(uri)
-                dialog.dismiss()
-            }
-        }
-
-        optionGallery.setOnClickListener {
-            // [DISEMPURNAKAN] Memanggil Photo Picker
-            galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-            dialog.dismiss()
-        }
-        dialog.show()
-    }
-
-    private fun createImageUri(): Uri? {
-        val image = File(filesDir, "camera_photo.jpg")
-        return FileProvider.getUriForFile(
-            this,
-            "${applicationContext.packageName}.provider",
-            image
-        )
-    }
-
-    // Sisanya tetap sama...
-    private fun setupUI() {
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerCategory.adapter = adapter
-        btnSave.setOnClickListener { saveChanges() }
-    }
-
     private fun saveChanges() {
-        val productId = currentProduct?.id?.toIntOrNull() ?: run {
-            Toast.makeText(this, "ID Produk tidak valid.", Toast.LENGTH_SHORT).show()
+        val menuItemToUpdate = currentMenuItem ?: run {
+            Toast.makeText(this, "Produk tidak valid.", Toast.LENGTH_SHORT).show()
             return
         }
+
         val name = etName.text.toString().trim()
         val priceHot = etPriceHot.text.toString().toIntOrNull()
         val priceIced = etPriceIced.text.toString().toIntOrNull()
@@ -214,12 +159,12 @@ class EditProductActivity : AppCompatActivity() {
             return
         }
 
-        val productToUpdate = menuData.menu.find { it.id == productId } ?: run {
+        val productInList = menuData.menu.find { it.id == menuItemToUpdate.id } ?: run {
             Toast.makeText(this, "Produk tidak ditemukan untuk diperbarui.", Toast.LENGTH_SHORT).show()
             return
         }
 
-        productToUpdate.apply {
+        productInList.apply {
             this.name = name
             this.price_hot = priceHot
             this.price_iced = priceIced
@@ -231,5 +176,58 @@ class EditProductActivity : AppCompatActivity() {
         jsonHelper.saveMenuData(menuData)
         Toast.makeText(this, "Produk berhasil diperbarui", Toast.LENGTH_SHORT).show()
         finish()
+    }
+
+    private fun setupUI() {
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerCategory.adapter = adapter
+        btnSave.setOnClickListener { saveChanges() }
+    }
+
+    private fun checkPermissionsAndShowDialog() {
+        val permissionsToRequest = mutableListOf<String>()
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add(Manifest.permission.CAMERA)
+        }
+
+        if (permissionsToRequest.isNotEmpty()) {
+            requestPermissionLauncher.launch(permissionsToRequest.toTypedArray())
+        } else {
+            showImagePickerDialog()
+        }
+    }
+
+    private fun showImagePickerDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_image_picker)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        val optionCamera = dialog.findViewById<LinearLayout>(R.id.option_camera)
+        val optionGallery = dialog.findViewById<LinearLayout>(R.id.option_gallery)
+
+        optionCamera.setOnClickListener {
+            createImageUri()?.let { uri ->
+                tempImageUri = uri
+                cameraLauncher.launch(uri)
+                dialog.dismiss()
+            }
+        }
+
+        optionGallery.setOnClickListener {
+            galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            dialog.dismiss()
+        }
+        dialog.show()
+    }
+
+    private fun createImageUri(): Uri? {
+        val image = File(filesDir, "camera_photo.jpg")
+        return FileProvider.getUriForFile(
+            this,
+            "${applicationContext.packageName}.provider",
+            image
+        )
     }
 }

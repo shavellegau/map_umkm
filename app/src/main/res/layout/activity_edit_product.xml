@@ -143,6 +143,17 @@
                 android:layout_height="48dp"
                 android:backgroundTint="@color/tuku_primary" />
 
+            <!-- [FIXED] EditText YANG HILANG DITAMBAHKAN DI SINI -->
+            <EditText
+                android:id="@+id/et_image_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="URL akan muncul di sini..."
+                android:inputType="textUri"
+                android:enabled="false"
+                android:visibility="gone"
+                android:textColor="@android:color/darker_gray" />
+
             <!-- Deskripsi -->
             <TextView
                 android:layout_width="wrap_content"

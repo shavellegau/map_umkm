@@ -18,5 +18,10 @@
         <color name="text_primary">#2E2E2E</color>
         <color name="text_bantuan">#795548</color>
         <color name="divider">#E0E0E0</color>
-        <color name="tuku_brown">#B68C5A</color>
+        <color name="tuku_brown">#B68C5A</color>      <!-- Hitam/Abu-abu tua untuk teks isi -->
+    <color name="text_secondary">#757575</color>
+           <!-- Krem untuk Latar Belakang Semua Halaman -->
+    <!-- <color name="text_primary">#424242</color> -->
+           <!-- Krem untuk Latar Belakang Semua Halaman -->
+    <!-- <color name="text_primary">#424242</color> -->
 </resources>
