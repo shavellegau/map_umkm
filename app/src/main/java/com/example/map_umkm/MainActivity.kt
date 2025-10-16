@@ -7,14 +7,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import androidx.room.Room
-import com.example.map_umkm.data.AppDatabase
 import com.example.map_umkm.databinding.ActivityMainBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
+
+    // ### PERBAIKAN 1: DEKLARASIKAN DI SINI ###
+    // Variabel ini dibuat publik agar bisa diakses dari HomeFragment.
+    lateinit var bottomNavigationView: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,22 +43,21 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // 2. SETUP VIEW BINDING & TAMPILAN UTAMA (HANYA JIKA SUDAH LOGIN & BUKAN ADMIN)
+        // 2. SETUP VIEW BINDING & TAMPILAN UTAMA
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // ### PERBAIKAN 2: INISIALISASI DI SINI ###
+        // Hubungkan variabel publik dengan view dari layout.
+        // Nama 'bottomNav' berasal dari ID di file activity_main.xml Anda.
+        bottomNavigationView = binding.bottomNav
 
         // 3. SETUP NAVIGATION COMPONENT
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
-        binding.bottomNav.setupWithNavController(navController)
 
-        // 4. SETUP ROOM DATABASE (TANPA MENGUBAH KODE LAMA)
-        val db = AppDatabase.getDatabase(applicationContext) // pakai versi singleton
-        val favoriteDao = db.favoriteDao()
-
-        // Coba akses (misal nanti buat fitur Favorite)
-        // contoh hanya untuk test agar tidak error
-        // val userFavorites = favoriteDao.getFavoritesByUser(1)
+        // Sekarang, setup bisa menggunakan variabel yang sudah kita buat
+        bottomNavigationView.setupWithNavController(navController)
     }
 }
