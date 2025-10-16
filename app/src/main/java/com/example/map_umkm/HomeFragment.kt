@@ -1,7 +1,10 @@
 package com.example.map_umkm
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -10,6 +13,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -31,16 +37,12 @@ class HomeFragment : Fragment() {
     private var timer: Timer? = null
     private var updateRunnable: Runnable? = null
 
-    // "Penangkap" hasil dari PilihCabangActivity
     private val pilihCabangLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        // Blok kode ini akan dijalankan saat PilihCabangActivity ditutup
         if (result.resultCode == Activity.RESULT_OK) {
-            // Ambil data nama cabang yang dikirim kembali
             val namaCabangTerpilih = result.data?.getStringExtra("NAMA_CABANG_TERPILIH")
             if (namaCabangTerpilih != null) {
-                // Perbarui TextView lokasi di Home
                 binding.tvCurrentLocation.text = namaCabangTerpilih
             }
         }
@@ -63,10 +65,8 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        // Listener untuk membuka halaman pilih cabang sekarang menggunakan launcher
         binding.locationCard.setOnClickListener {
             val intent = Intent(requireActivity(), PilihCabangActivity::class.java)
-            // Jalankan activity dan minta hasilnya
             pilihCabangLauncher.launch(intent)
         }
 
@@ -82,9 +82,46 @@ class HomeFragment : Fragment() {
             findNavController().navigate(R.id.action_nav_home_to_voucherSayaFragment)
         }
 
+        binding.tukuCareCard.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_home_to_bantuanFragment)
+        }
+
+        binding.ivKodeRedeem.setOnClickListener {
+            showRedeemDialog()
+        }
     }
 
-    // Fungsi lain tidak berubah
+    private fun showRedeemDialog() {
+        val dialog = Dialog(requireContext())
+        dialog.setContentView(R.layout.dialog_redeem_code)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        // ### PERBAIKAN LEBAR DIALOG DI SINI ###
+        // Mengatur lebar dialog menjadi 90% dari lebar layar
+        val width = (resources.displayMetrics.widthPixels * 0.90).toInt()
+        dialog.window?.setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+        val etCode = dialog.findViewById<EditText>(R.id.et_redeem_code)
+        val btnCancel = dialog.findViewById<Button>(R.id.btn_cancel_redeem)
+        val btnApply = dialog.findViewById<Button>(R.id.btn_apply_redeem)
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnApply.setOnClickListener {
+            val code = etCode.text.toString().trim()
+            if (code.isNotEmpty()) {
+                Toast.makeText(requireContext(), "Kode '$code' sedang diproses...", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            } else {
+                Toast.makeText(requireContext(), "Kode tidak boleh kosong", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        dialog.show()
+    }
+
     private fun setupBannerCarousel() {
         val bannerImages = listOf(R.drawable.banner_tuku_hut, R.drawable.tuku_banner, R.drawable.banner_tuku_mrt)
         val bannerAdapter = BannerAdapter(bannerImages)
@@ -118,9 +155,15 @@ class HomeFragment : Fragment() {
                 val priceHot = newestMenuItem.price_hot?.let { "Hot: Rp $it" } ?: ""
                 val priceIced = newestMenuItem.price_iced?.let { "Iced: Rp $it" } ?: ""
                 binding.tvNewestMenuPrice.text = listOf(priceHot, priceIced).filter { it.isNotEmpty() }.joinToString(" / ")
+
                 newestMenuItem.image?.let {
                     Glide.with(this).load(Uri.parse(it)).into(binding.ivNewestMenuImage)
                 }
+
+                binding.newestMenuCard.setOnClickListener {
+                    Toast.makeText(requireContext(), "Clicked on ${newestMenuItem.name}", Toast.LENGTH_SHORT).show()
+                }
+
             } else {
                 binding.newestMenuCard.visibility = View.GONE
             }

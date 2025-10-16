@@ -11,6 +11,12 @@
         android:name="com.example.map_umkm.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home">
+
+        <!-- ### ACTION BARU DITAMBAHKAN DI SINI ### -->
+        <action
+            android:id="@+id/action_nav_home_to_bantuanFragment"
+            app:destination="@id/bantuanFragment" />
+
         <action
             android:id="@+id/action_nav_home_to_productDetailFragment"
             app:destination="@id/productDetailFragment" />
@@ -23,6 +29,8 @@
             android:id="@+id/action_nav_home_to_voucherSayaFragment"
             app:destination="@id/voucherSayaFragment" />
     </fragment>
+
+    <!-- ... sisa file nav_graph Anda tidak berubah ... -->
 
     <fragment
         android:id="@+id/ongoingOrdersFragment"
@@ -142,12 +150,12 @@
         android:label="Edit Profile"
         tools:layout="@layout/fragment_edit_profile" />
 
-<!--    &lt;!&ndash; Riwayat Pesanan &ndash;&gt;-->
-<!--    <fragment-->
-<!--        android:id="@+id/riwayatPesananFragment"-->
-<!--        android:name="com.example.map_umkm.RiwayatPesananFragment"-->
-<!--        android:label="Riwayat Pesanan"-->
-<!--        tools:layout="@layout/fragment_riwayat_pesanan" />-->
+    <!--    &lt;!&ndash; Riwayat Pesanan &ndash;&gt;-->
+    <!--    <fragment-->
+    <!--        android:id="@+id/riwayatPesananFragment"-->
+    <!--        android:name="com.example.map_umkm.RiwayatPesananFragment"-->
+    <!--        android:label="Riwayat Pesanan"-->
+    <!--        tools:layout="@layout/fragment_riwayat_pesanan" />-->
 
 
     <!-- ALUR PEMBAYARAN YANG SUDAH DIPERBAIKI -->
@@ -261,9 +269,5 @@
         android:name="com.example.map_umkm.RiwayatPoinFragment"
         android:label="Riwayat Poin"
         tools:layout="@layout/fragment_riwayat_poin" />
-
-
-
-
 
 </navigation>
