@@ -126,18 +126,18 @@
                                 android:src="@drawable/ic_subscription"
                                 android:background="@drawable/circle_brown_bg"
                                 android:padding="8dp"
-                                android:contentDescription="Subscription"/>
+                                android:contentDescription="KodeRedeem"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Subscription"
+                                android:text="KodeRedeem"
                                 android:textSize="12sp"
                                 android:layout_marginTop="4dp"
                                 android:textColor="@color/tuku_dark"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="0 Subscription"
+                                android:text="Tukarkan Kode Disini"
                                 android:textSize="10sp"
                                 android:textColor="@color/text_bantuan"/>
                         </LinearLayout>
@@ -365,7 +365,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="16dp"
                         android:layout_marginTop="24dp"
-                        android:text="Our Newest Menu"
+                        android:text="Menu Terbaru"
                         android:textColor="@color/tuku_dark"
                         android:textSize="18sp"
                         android:textStyle="bold" />
