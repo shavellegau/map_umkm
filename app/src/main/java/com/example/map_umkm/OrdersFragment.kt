@@ -24,15 +24,14 @@ class OrdersFragment : Fragment() {
         val adapter = OrdersPagerAdapter(this)
         viewPager.adapter = adapter
 
+        // Hanya 1 tab: "Ongoing"
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = if (position == 0) "Ongoing" else "History"
+            tab.text = "Ongoing"
         }.attach()
     }
 
     class OrdersPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
-        override fun getItemCount(): Int = 2
-        override fun createFragment(position: Int): Fragment {
-            return if (position == 0) OngoingOrdersFragment() else HistoryOrdersFragment()
-        }
+        override fun getItemCount(): Int = 1  // hanya 1 fragment
+        override fun createFragment(position: Int): Fragment = OngoingOrdersFragment()
     }
 }
