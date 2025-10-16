@@ -71,8 +71,17 @@ class HomeFragment : Fragment() {
         }
 
         binding.btnNotification.setOnClickListener {
-            // Logika notifikasi Anda (misalnya findNavController()...)
+            findNavController().navigate(R.id.action_nav_home_to_notificationFragment)
         }
+
+        binding.ivTukuPoint.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_home_to_tukuPointFragment)
+        }
+
+        binding.voucherCard.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_home_to_voucherSayaFragment)
+        }
+
     }
 
     // Fungsi lain tidak berubah

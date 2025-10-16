@@ -92,6 +92,7 @@
                             android:gravity="center_horizontal"
                             android:paddingHorizontal="4dp">
                             <ImageView
+                                android:id="@+id/iv_tuku_point"
                                 android:layout_width="55dp"
                                 android:layout_height="55dp"
                                 android:src="@drawable/ic_point"

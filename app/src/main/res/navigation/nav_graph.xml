@@ -19,6 +19,9 @@
         <action
             android:id="@+id/action_nav_home_to_tukuPointFragment"
             app:destination="@id/tukuPointFragment" />
+        <action
+            android:id="@+id/action_nav_home_to_voucherSayaFragment"
+            app:destination="@id/voucherSayaFragment" />
     </fragment>
 
     <fragment

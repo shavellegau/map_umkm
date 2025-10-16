@@ -63,20 +63,39 @@ class PilihCabangActivity : AppCompatActivity() {
     }
 
     private fun showConfirmationDialog(cabang: Cabang) {
-        AlertDialog.Builder(this)
-            .setTitle("Konfirmasi Pilihan")
-            .setMessage("Anda memilih ${cabang.nama} sebagai lokasi pesanan Anda.")
-            .setPositiveButton("OK") { dialog, _ ->
-                val resultIntent = Intent()
-                resultIntent.putExtra("NAMA_CABANG_TERPILIH", cabang.nama)
-                setResult(Activity.RESULT_OK, resultIntent)
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_custom_confirmation, null)
 
-                dialog.dismiss()
-                finish()
-            }
-            .setNegativeButton("Batal", null)
-            .show()
+        val tvTitle = dialogView.findViewById<TextView>(R.id.tvDialogTitle)
+        val tvMessage = dialogView.findViewById<TextView>(R.id.tvDialogMessage)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
+        val btnConfirm = dialogView.findViewById<Button>(R.id.btnDelete) // gunakan btnDelete sebagai tombol "OK"
+
+        tvTitle.text = "Konfirmasi Pilihan"
+        tvMessage.text = "Anda memilih ${cabang.nama} sebagai lokasi pesanan Anda."
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        // Hapus background default dialog agar rounded bg dari XML terlihat
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnConfirm.text = "OK"
+        btnConfirm.setOnClickListener {
+            val resultIntent = Intent()
+            resultIntent.putExtra("NAMA_CABANG_TERPILIH", cabang.nama)
+            setResult(Activity.RESULT_OK, resultIntent)
+            dialog.dismiss()
+            finish()
+        }
+
+        dialog.show()
     }
+
 
     private fun setupToolbar(toolbar: MaterialToolbar) {
         toolbar.setNavigationOnClickListener { finish() }
