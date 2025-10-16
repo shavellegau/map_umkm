@@ -446,7 +446,7 @@
                             android:layout_height="180dp"
                             android:contentDescription="TUKU Care Banner"
                             android:scaleType="centerCrop"
-                            android:src="@drawable/tuku_banner" />
+                            android:src="@drawable/tuku_care" />
                     </androidx.cardview.widget.CardView>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
