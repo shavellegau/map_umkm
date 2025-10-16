@@ -64,8 +64,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Gold Member • 5480 Points"
-                            android:textSize="14sp"
-                            android:textColor="@color/text_bantuan" />
+                            android:textColor="@color/brown_profile"
+                            android:textSize="14sp" />
                     </LinearLayout>
 
 <!--                    <ImageButton-->
@@ -127,15 +127,15 @@
                                 android:orientation="vertical">
 
                                 <ImageView
-                                    android:layout_width="32dp"
-                                    android:layout_height="32dp"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
                                     android:src="@android:drawable/ic_menu_agenda"
-                                    app:tint="@color/tuku_dark" />
+                                    app:tint="@color/brown_profile" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Riwayat Pesanan Saya"
+                                    android:text="Riwayat Pesanan"
                                     android:textSize="14sp"
                                     android:textColor="@color/text_primary" />
                             </LinearLayout>
@@ -159,10 +159,10 @@
                                 android:orientation="vertical">
 
                                 <ImageView
-                                    android:layout_width="32dp"
-                                    android:layout_height="32dp"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
                                     android:src="@android:drawable/btn_star_big_off"
-                                    app:tint="@color/tuku_dark" />
+                                    app:tint="@color/brown_profile" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -177,37 +177,37 @@
                         <androidx.cardview.widget.CardView
                             android:id="@+id/cardTukuPoint"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="8dp"
+                            android:layout_height="94dp"
                             android:layout_columnWeight="1"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="2dp"
-                            app:cardBackgroundColor="@android:color/white"
+                            android:layout_margin="8dp"
                             android:clickable="true"
-                            android:foreground="?attr/selectableItemBackground">
+                            android:foreground="?attr/selectableItemBackground"
+                            app:cardBackgroundColor="@android:color/white"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="2dp">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
+                                android:layout_height="match_parent"
                                 android:gravity="center_horizontal"
+                                android:orientation="vertical"
                                 android:padding="12dp">
 
                                 <ImageView
-                                    android:layout_width="50dp"
-                                    android:layout_height="50dp"
-                                    android:background="@drawable/circle_brown_bg"
+                                    android:layout_width="52dp"
+                                    android:layout_height="43dp"
+                                    android:background="@drawable/bg_card_tuku_point"
                                     android:contentDescription="Tuku Point"
-                                    android:padding="8dp"
-                                    android:src="@drawable/ic_point" />
+                                    android:padding="8dp" />
+                                <!--                                    android:src="@drawable/ic_point" />-->
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Tuku Point"
-                                    android:textSize="12sp"
                                     android:layout_marginTop="4dp"
-                                    android:textColor="@color/text_primary" />
+                                    android:text="Tuku Point"
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="14sp" />
 
                             </LinearLayout>
                         </androidx.cardview.widget.CardView>
@@ -217,12 +217,12 @@
                         <androidx.cardview.widget.CardView
                             android:id="@+id/cardVoucher"
                             android:layout_width="0dp"
-                            android:layout_height="100dp"
-                            android:layout_margin="8dp"
+                            android:layout_height="94dp"
                             android:layout_columnWeight="1"
+                            android:layout_margin="8dp"
+                            app:cardBackgroundColor="@android:color/white"
                             app:cardCornerRadius="12dp"
-                            app:cardElevation="2dp"
-                            app:cardBackgroundColor="@android:color/white">
+                            app:cardElevation="2dp">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -231,17 +231,17 @@
                                 android:orientation="vertical">
 
                                 <ImageView
-                                    android:layout_width="32dp"
-                                    android:layout_height="32dp"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
                                     android:src="@drawable/ic_voucher"
-                                    app:tint="@color/tuku_dark" />
+                                    app:tint="@color/brown_profile" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Kupon Saya"
-                                    android:textSize="14sp"
-                                    android:textColor="@color/text_primary" />
+                                    android:textColor="@color/text_primary"
+                                    android:textSize="14sp" />
                             </LinearLayout>
                         </androidx.cardview.widget.CardView>
                     </GridLayout>

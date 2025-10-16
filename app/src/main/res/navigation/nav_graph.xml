@@ -11,6 +11,12 @@
         android:name="com.example.map_umkm.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home">
+
+        <!-- ### ACTION BARU DITAMBAHKAN DI SINI ### -->
+        <action
+            android:id="@+id/action_nav_home_to_bantuanFragment"
+            app:destination="@id/bantuanFragment" />
+
         <action
             android:id="@+id/action_nav_home_to_productDetailFragment"
             app:destination="@id/productDetailFragment" />
@@ -23,6 +29,8 @@
             android:id="@+id/action_nav_home_to_voucherSayaFragment"
             app:destination="@id/voucherSayaFragment" />
     </fragment>
+
+    <!-- ... sisa file nav_graph Anda tidak berubah ... -->
 
     <fragment
         android:id="@+id/ongoingOrdersFragment"
@@ -52,14 +60,17 @@
         android:label="Point Detail" />
 
 
+    <!-- CART -->
     <fragment
         android:id="@+id/nav_cart"
         android:name="com.example.map_umkm.CartFragment"
         android:label="Keranjang"
         tools:layout="@layout/fragment_cart">
+
         <action
             android:id="@+id/action_nav_cart_to_productDetailFragment"
             app:destination="@id/productDetailFragment" />
+
         <action
             android:id="@+id/action_nav_cart_to_paymentFragment"
             app:destination="@id/paymentFragment" />
@@ -139,12 +150,12 @@
         android:label="Edit Profile"
         tools:layout="@layout/fragment_edit_profile" />
 
-<!--    &lt;!&ndash; Riwayat Pesanan &ndash;&gt;-->
-<!--    <fragment-->
-<!--        android:id="@+id/riwayatPesananFragment"-->
-<!--        android:name="com.example.map_umkm.RiwayatPesananFragment"-->
-<!--        android:label="Riwayat Pesanan"-->
-<!--        tools:layout="@layout/fragment_riwayat_pesanan" />-->
+    <!--    &lt;!&ndash; Riwayat Pesanan &ndash;&gt;-->
+    <!--    <fragment-->
+    <!--        android:id="@+id/riwayatPesananFragment"-->
+    <!--        android:name="com.example.map_umkm.RiwayatPesananFragment"-->
+    <!--        android:label="Riwayat Pesanan"-->
+    <!--        tools:layout="@layout/fragment_riwayat_pesanan" />-->
 
 
     <!-- ALUR PEMBAYARAN YANG SUDAH DIPERBAIKI -->
@@ -191,32 +202,52 @@
     </fragment>
 
 
-    <!-- FRAGMENT DETAIL & HALAMAN LAIN -->
+    <!-- PRODUCT DETAIL -->
     <fragment
         android:id="@+id/productDetailFragment"
         android:name="com.example.map_umkm.ProductDetailFragment"
         android:label="Detail Produk"
         tools:layout="@layout/fragment_product_detail">
+
         <argument
             android:name="product"
             app:argType="com.example.map_umkm.model.Product" />
+
+        <!-- ✅ ini yang penting -->
+        <argument
+            android:name="source"
+            app:argType="string"
+            android:defaultValue="" />
     </fragment>
+
 
     <fragment
         android:id="@+id/pesananSayaFragment"
         android:name="com.example.map_umkm.ui.pesanan.PesananSayaFragment"
         android:label="Pesanan Saya"
         tools:layout="@layout/fragment_pesanan_saya" />
+
+
     <fragment
         android:id="@+id/wishlistFragment"
         android:name="com.example.map_umkm.WishlistFragment"
-        android:label="Wishlist"
-        tools:layout="@layout/fragment_wishlist">
+        android:label="Wishlist">
 
         <action
             android:id="@+id/action_wishlistFragment_to_productDetailFragment"
-            app:destination="@id/productDetailFragment" />
+            app:destination="@id/productDetailFragment">
+            <argument
+                android:name="product"
+                app:argType="com.example.map_umkm.model.Product" />
+            <!-- ✅ Tambahkan ini -->
+            <argument
+                android:name="source"
+                app:argType="string"
+                android:defaultValue="" />
+        </action>
     </fragment>
+
+
 
     <fragment
         android:id="@+id/bantuanFragment"
@@ -238,9 +269,5 @@
         android:name="com.example.map_umkm.RiwayatPoinFragment"
         android:label="Riwayat Poin"
         tools:layout="@layout/fragment_riwayat_poin" />
-
-
-
-
 
 </navigation>

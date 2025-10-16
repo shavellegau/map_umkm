@@ -75,7 +75,11 @@ class ProductDetailFragment : Fragment() {
         updateUiForProduct(selectedProduct)
 
         btnBack.setOnClickListener {
-            findNavController().navigate(R.id.nav_cart)
+            when (args.source) {
+                "wishlist" -> findNavController().popBackStack(R.id.wishlistFragment, false)
+                "cart" -> findNavController().popBackStack(R.id.nav_cart, false)
+                else -> findNavController().navigateUp()
+            }
         }
 
         // observe favorites agar icon update bila diubah di tempat lain

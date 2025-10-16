@@ -29,4 +29,6 @@
         <color name="red_button">#E53935</color>
         <color name="orange_button">#FB8C00</color>
     <color name="green_status">#4CAF50</color>
+        <color name="brown_profile">#A86A3D</color>
+
 </resources>

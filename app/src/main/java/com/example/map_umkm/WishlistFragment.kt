@@ -32,7 +32,6 @@ class WishlistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 🔙 Tombol Back
         binding.btnBack.setOnClickListener {
             findNavController().popBackStack()
         }
@@ -48,7 +47,13 @@ class WishlistFragment : Fragment() {
                 try {
                     val action = WishlistFragmentDirections
                         .actionWishlistFragmentToProductDetailFragment(product)
-                    findNavController().navigate(action)
+
+                    // Kirim argumen source manual tanpa error
+                    val bundle = action.arguments
+                    bundle.putString("source", "wishlist")
+
+                    findNavController().navigate(R.id.productDetailFragment, bundle)
+
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Toast.makeText(requireContext(), "Gagal membuka detail produk", Toast.LENGTH_SHORT).show()
