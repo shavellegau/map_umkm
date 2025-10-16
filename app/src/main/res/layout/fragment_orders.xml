@@ -2,34 +2,31 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:fitsSystemWindows="true"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/tuku_bg"
+    tools:context=".OrdersFragment">
 
+    <!-- [FIXED] Header Coklat Sederhana di Atas -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/tuku_primary"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
+        android:background="@color/tuku_primary">
 
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabLayout"
+        <!-- Toolbar ini hanya untuk tinggi dan bayangan, tidak menampilkan apa-apa -->
+        <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:tabIndicatorColor="@color/tuku_accent"
-            app:tabSelectedTextColor="@android:color/white"
-            app:tabTextColor="@color/tuku_bg"
-            app:tabIndicatorHeight="3dp"
-            app:tabIndicatorFullWidth="false"
-            app:tabBackground="@color/tuku_primary" />
+            android:layout_height="?attr/actionBarSize"
+            app:contentInsetStart="0dp" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPager"
+    <!-- [FIXED] Container untuk menampung fragment pesanan -->
+    <FrameLayout
+        android:id="@+id/orders_container"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@color/tuku_bg" />
+        android:layout_height="match_parent" />
 
 </LinearLayout>

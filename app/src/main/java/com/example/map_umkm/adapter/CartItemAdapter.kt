@@ -112,7 +112,7 @@ class CartItemAdapter(
                 onDeleteItem(item)
                 dialog.dismiss()
             }
-            dialog.window?.attributes?.windowAnimations = R.style.DialogAnimation
+
 
             dialog.show()
         }

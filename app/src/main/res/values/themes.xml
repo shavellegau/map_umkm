@@ -5,9 +5,24 @@
         <item name="colorPrimary">@color/tuku_primary</item>
         <item name="colorPrimaryVariant">@color/tuku_dark</item>
         <item name="colorOnPrimary">@color/white</item>
+
+        <!-- Membuat status bar transparan -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
-    <!-- [FIXED] HANYA STYLE INI YANG PERLU DITAMBAHKAN DI SINI -->
+    <!-- [FIXED] Style yang hilang ditambahkan di sini -->
+    <style name="ToolbarTitleAppearance" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="RoundedImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item> <!-- Anda bisa sesuaikan radiusnya -->
+    </style>
+
+    <!-- Style ini sudah ada sebelumnya, biarkan saja -->
     <style name="ShapeAppearanceOverlay.App.CornerSize10Percent" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">10%</item>
