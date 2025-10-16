@@ -61,9 +61,7 @@ class CartFragment : Fragment() {
             updateTotal()
         }
 
-        // Panggil updateTotal sekali saat view dibuat
         updateTotal()
-
         return view
     }
 
@@ -83,11 +81,16 @@ class CartFragment : Fragment() {
         productAdapter = ProductAdapter(
             products = mutableListOf(),
             onProductClick = { product ->
-                val action = CartFragmentDirections.actionNavCartToProductDetailFragment(product)
-                findNavController().navigate(action)
+                val action = CartFragmentDirections
+                    .actionNavCartToProductDetailFragment(product)
+
+                // Kirim argumen "source" secara manual tanpa error
+                val bundle = action.arguments
+                bundle.putString("source", "cart")
+
+                findNavController().navigate(R.id.productDetailFragment, bundle)
             },
             onFavoriteToggle = { product, isFav ->
-                // gunakan FavoriteViewModel untuk menyimpan state favorite
                 if (isFav) {
                     favoriteViewModel.addFavorite(product)
                     Toast.makeText(requireContext(), "${product.name} ditambahkan ke favorit", Toast.LENGTH_SHORT).show()
@@ -95,14 +98,16 @@ class CartFragment : Fragment() {
                     favoriteViewModel.removeFavorite(product)
                     Toast.makeText(requireContext(), "${product.name} dihapus dari favorit", Toast.LENGTH_SHORT).show()
                 }
-                // update property di model lokal agar UI langsung berubah
                 product.isFavorite = isFav
             },
             onAddToCartClick = { product ->
                 val action = CartFragmentDirections.actionNavCartToProductDetailFragment(product)
-                findNavController().navigate(action)
+                val bundle = action.arguments
+                bundle.putString("source", "cart")
+                findNavController().navigate(R.id.productDetailFragment, bundle)
             }
         )
+
         rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
         rvProducts.adapter = productAdapter
     }
@@ -111,7 +116,6 @@ class CartFragment : Fragment() {
         favoriteViewModel.favoriteProducts.observe(viewLifecycleOwner) { favorites ->
             val favoriteIds = favorites.map { it.id }.toSet()
             productAdapter.updateFavorites(favoriteIds)
-            // juga update underlying allProducts flags agar sinkron saat filter/dll
             allProducts = allProducts.map { p -> p.copy(isFavorite = favoriteIds.contains(p.id)) }
         }
     }
@@ -144,6 +148,7 @@ class CartFragment : Fragment() {
             (rvCategory.adapter as? CategoryAdapter)?.setSelectedPosition(categories.indexOf(selected))
             filterProducts(selected.name, etSearch.text.toString())
         }
+
         if (categories.isNotEmpty()) {
             selectedCategory = categories[0].name
             (rvCategory.adapter as? CategoryAdapter)?.setSelectedPosition(0)

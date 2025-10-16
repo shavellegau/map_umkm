@@ -52,14 +52,17 @@
         android:label="Point Detail" />
 
 
+    <!-- CART -->
     <fragment
         android:id="@+id/nav_cart"
         android:name="com.example.map_umkm.CartFragment"
         android:label="Keranjang"
         tools:layout="@layout/fragment_cart">
+
         <action
             android:id="@+id/action_nav_cart_to_productDetailFragment"
             app:destination="@id/productDetailFragment" />
+
         <action
             android:id="@+id/action_nav_cart_to_paymentFragment"
             app:destination="@id/paymentFragment" />
@@ -191,32 +194,52 @@
     </fragment>
 
 
-    <!-- FRAGMENT DETAIL & HALAMAN LAIN -->
+    <!-- PRODUCT DETAIL -->
     <fragment
         android:id="@+id/productDetailFragment"
         android:name="com.example.map_umkm.ProductDetailFragment"
         android:label="Detail Produk"
         tools:layout="@layout/fragment_product_detail">
+
         <argument
             android:name="product"
             app:argType="com.example.map_umkm.model.Product" />
+
+        <!-- ✅ ini yang penting -->
+        <argument
+            android:name="source"
+            app:argType="string"
+            android:defaultValue="" />
     </fragment>
+
 
     <fragment
         android:id="@+id/pesananSayaFragment"
         android:name="com.example.map_umkm.ui.pesanan.PesananSayaFragment"
         android:label="Pesanan Saya"
         tools:layout="@layout/fragment_pesanan_saya" />
+
+
     <fragment
         android:id="@+id/wishlistFragment"
         android:name="com.example.map_umkm.WishlistFragment"
-        android:label="Wishlist"
-        tools:layout="@layout/fragment_wishlist">
+        android:label="Wishlist">
 
         <action
             android:id="@+id/action_wishlistFragment_to_productDetailFragment"
-            app:destination="@id/productDetailFragment" />
+            app:destination="@id/productDetailFragment">
+            <argument
+                android:name="product"
+                app:argType="com.example.map_umkm.model.Product" />
+            <!-- ✅ Tambahkan ini -->
+            <argument
+                android:name="source"
+                app:argType="string"
+                android:defaultValue="" />
+        </action>
     </fragment>
+
+
 
     <fragment
         android:id="@+id/bantuanFragment"
