@@ -233,7 +233,7 @@
                                 <ImageView
                                     android:layout_width="32dp"
                                     android:layout_height="32dp"
-                                    android:src="@android:drawable/ic_menu_gallery"
+                                    android:src="@drawable/ic_voucher"
                                     app:tint="@color/tuku_dark" />
 
                                 <TextView
