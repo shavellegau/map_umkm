@@ -21,6 +21,7 @@ class ProductAdapter(
 ) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        // ID ini disesuaikan dengan layout item
         val ivProductImage: ImageView = itemView.findViewById(R.id.ivProductImage)
         val tvProductName: TextView = itemView.findViewById(R.id.tvProductName)
         val tvProductPrice: TextView = itemView.findViewById(R.id.tvProductPrice)
@@ -29,6 +30,7 @@ class ProductAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
+        // Ganti 'item_menu' ke 'item_product' atau sebaliknya jika perlu
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_menu, parent, false)
         return ProductViewHolder(view)
@@ -39,25 +41,24 @@ class ProductAdapter(
 
         holder.tvProductName.text = product.name
 
-        // Pilih harga mana yang ditampilkan (prioritas: hot → iced)
         val priceToShow = product.price_hot ?: product.price_iced ?: 0
         val formattedPrice = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
             .format(priceToShow.toLong())
         holder.tvProductPrice.text = formattedPrice
 
-        // Load gambar produk (dengan placeholder dan fallback)
-        Glide.with(holder.itemView.context)
-            .load(product.image)
+        val context = holder.itemView.context
+        val imageResId = context.resources.getIdentifier(product.image, "drawable", context.packageName)
+
+        Glide.with(context)
+            .load(if (imageResId != 0) imageResId else R.drawable.placeholder_image)
             .placeholder(R.drawable.logo_tuku)
-            .error(R.drawable.logo_tuku)
+            .error(R.drawable.error_image)
             .into(holder.ivProductImage)
 
-        // Atur icon favorite
         holder.btnFavorite.setImageResource(
             if (product.isFavorite) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_border
         )
 
-        // Toggle favorite
         holder.btnFavorite.setOnClickListener {
             val newState = !product.isFavorite
             onFavoriteToggle(product, newState)
@@ -65,12 +66,10 @@ class ProductAdapter(
             notifyItemChanged(position)
         }
 
-        // Klik tombol add to cart
         holder.btnAddToCart.setOnClickListener {
             onAddToCartClick(product)
         }
 
-        // Klik item untuk buka detail
         holder.itemView.setOnClickListener {
             onProductClick(product)
         }
@@ -78,14 +77,12 @@ class ProductAdapter(
 
     override fun getItemCount(): Int = products.size
 
-    // 🔹 Update seluruh data produk
     fun updateProducts(newProducts: List<Product>) {
         products.clear()
         products.addAll(newProducts)
         notifyDataSetChanged()
     }
 
-    // 🔹 Update status favorit berdasarkan ID favorit
     fun updateFavorites(favoriteIds: Set<String>) {
         for (product in products) {
             product.isFavorite = favoriteIds.contains(product.id)
