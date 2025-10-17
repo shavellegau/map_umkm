@@ -34,7 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="Settings"
+            android:text="Pengaturan"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#000000" />
@@ -66,7 +66,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="My Profile"
+            android:text="Profil Saya"
             android:textSize="16sp"
             android:textColor="@color/black" />
 
@@ -136,7 +136,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Delete Account"
+            android:text="Hapus Akun"
             android:textSize="16sp"
             android:textColor="@color/red"
             android:layout_marginStart="12dp" />

@@ -31,7 +31,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="My Profile"
+                android:text="Profil Saya"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:gravity="center"
@@ -73,7 +73,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Nick Name*"
+            android:text="Nama Lengkap*"
             android:layout_marginTop="32dp"
             android:textColor="@color/text_bantuan"
             android:textSize="14sp" />
@@ -150,7 +150,7 @@
                 android:id="@+id/btnSetPin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SET"
+                android:text="set"
                 android:textStyle="bold"
                 android:textColor="@color/tuku_primary"
                 android:textSize="14sp" />
@@ -165,7 +165,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Gender"
+            android:text="Jenis Kelamin"
             android:layout_marginTop="16dp"
             android:textColor="@color/text_bantuan"
             android:textSize="14sp" />
@@ -183,7 +183,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Select your gender"
+                android:text="Pilih jenis kelamin"
                 android:textColor="@color/text_bantuan"
                 android:textSize="16sp" />
 
@@ -203,7 +203,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Birthday"
+            android:text="Tanggal Lahir"
             android:layout_marginTop="16dp"
             android:textColor="@color/text_bantuan"
             android:textSize="14sp" />
@@ -221,7 +221,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Select your birthday"
+                android:text="Pilih tanggal lahir"
                 android:textColor="@color/text_bantuan"
                 android:textSize="16sp" />
 
@@ -258,7 +258,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Get 50 Points"
+                    android:text="Dapatkan 50 Points"
                     android:textStyle="bold"
                     android:textColor="@color/tuku_dark"
                     android:textSize="14sp" />
@@ -266,7 +266,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Complete your profile to get rewards"
+                    android:text="Selesaikan profil untuk mendapatkan points"
                     android:textColor="@color/text_bantuan"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -287,7 +287,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:backgroundTint="@color/tuku_primary"
-            android:text="Save"
+            android:text="Simpan"
             android:textColor="@android:color/white"
             android:textStyle="bold"
             android:paddingVertical="12dp"

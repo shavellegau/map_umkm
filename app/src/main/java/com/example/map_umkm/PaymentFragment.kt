@@ -12,6 +12,7 @@ import android.view.Window
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -34,7 +35,7 @@ class PaymentFragment : Fragment() {
     private lateinit var tvSubtotal: TextView
     private lateinit var tvTax: TextView
     private lateinit var tvTotalPayment: TextView
-    private lateinit var btnPay: Button // Menggunakan ID dari layout Anda: btnPay
+    private lateinit var btnPay: Button
 
     private lateinit var cartAdapter: CartItemAdapter
 
@@ -45,26 +46,26 @@ class PaymentFragment : Fragment() {
         jsonHelper = JsonHelper(requireContext())
 
         // Inisialisasi semua View
-        val backButton: Button = view.findViewById(R.id.btnBack)
+        val toolbar: Toolbar = view.findViewById(R.id.toolbar_payment)
         rvOrderList = view.findViewById(R.id.rv_order_list)
         tvSubtotal = view.findViewById(R.id.tvSubtotal)
         tvTax = view.findViewById(R.id.tvTax)
         tvTotalPayment = view.findViewById(R.id.tvTotalPayment)
         btnPay = view.findViewById(R.id.btnPay)
-        btnPay.text = "Bayar Sekarang" // Ubah teks tombol agar lebih jelas
+        btnPay.text = "Bayar Sekarang"
 
         setupRecyclerView()
 
-        backButton.setOnClickListener {
+        // Atur listener untuk tombol kembali di toolbar
+        toolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
 
-        // Tombol ini sekarang akan menampilkan DIALOG POP-UP
         btnPay.setOnClickListener {
             if (cartViewModel.cartList.value.isNullOrEmpty()) {
                 Toast.makeText(context, "Keranjang kosong!", Toast.LENGTH_SHORT).show()
             } else {
-                showPaymentChoiceDialog() // Tampilkan pop-up pilihan
+                showPaymentChoiceDialog()
             }
         }
 
@@ -80,7 +81,7 @@ class PaymentFragment : Fragment() {
     private fun showPaymentChoiceDialog() {
         val dialog = Dialog(requireContext())
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setContentView(R.layout.dialog_payment_choice) // Gunakan layout baru kita
+        dialog.setContentView(R.layout.dialog_payment_choice)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         val btnQris: Button = dialog.findViewById(R.id.btnPayWithQris)
@@ -88,18 +89,18 @@ class PaymentFragment : Fragment() {
 
         btnQris.setOnClickListener {
             dialog.dismiss()
-            createOrder(isCashPayment = false) // Buat pesanan untuk QRIS
+            createOrder(isCashPayment = false)
         }
 
         btnCash.setOnClickListener {
             dialog.dismiss()
-            createOrder(isCashPayment = true) // Buat pesanan untuk Cash
+            createOrder(isCashPayment = true)
         }
 
         dialog.show()
     }
 
-    // Logika createOrder dipindahkan ke sini
+    // Logika createOrder
     private fun createOrder(isCashPayment: Boolean) {
         val currentCart = cartViewModel.cartList.value
         if (currentCart.isNullOrEmpty()) {
@@ -115,7 +116,7 @@ class PaymentFragment : Fragment() {
             val price = (if (it.selectedType == "iced") it.price_iced else it.price_hot) ?: 0
             price * it.quantity
         }.toDouble()
-        val totalAmount = subtotal * 1.11 // Pajak 11%
+        val totalAmount = subtotal * 1.11
 
         val newOrder = Order(
             orderId = "TUKU-${System.currentTimeMillis()}",
@@ -128,17 +129,14 @@ class PaymentFragment : Fragment() {
         )
 
         if (jsonHelper.addOrder(newOrder)) {
-            cartViewModel.clearCart() // Kosongkan keranjang
+            cartViewModel.clearCart()
 
-            // Navigasi berdasarkan pilihan
             if (isCashPayment) {
-                // Langsung ke halaman sukses untuk pembayaran tunai
                 val action = PaymentFragmentDirections.actionPaymentFragmentToPaymentSuccessFragment(
                     paymentMethod = "CASH"
                 )
                 findNavController().navigate(action)
             } else {
-                // Ke halaman QRIS untuk pembayaran QR
                 findNavController().navigate(R.id.action_paymentFragment_to_qrisFragment)
             }
         } else {
@@ -163,13 +161,6 @@ class PaymentFragment : Fragment() {
 
     private fun calculateAndDisplayTotals() {
         val currentCart = cartViewModel.cartList.value ?: emptyList()
-
-        // [FIXED] Logika popBackStack() DIHAPUS dari sini karena menyebabkan crash navigasi.
-        // if (currentCart.isEmpty() && isResumed) {
-        //     findNavController().popBackStack()
-        //     return
-        // }
-
         val subtotal = currentCart.sumOf {
             val price = (if (it.selectedType == "iced") it.price_iced else it.price_hot) ?: 0
             price * it.quantity

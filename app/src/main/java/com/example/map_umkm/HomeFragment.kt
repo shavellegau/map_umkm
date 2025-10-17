@@ -89,6 +89,23 @@ class HomeFragment : Fragment() {
         binding.ivKodeRedeem.setOnClickListener {
             showRedeemDialog()
         }
+
+        // ### PERBAIKAN UTAMA DI SINI ###
+        // Aksi untuk mengganti tab di Bottom Navigation Bar
+        val changeTabToMenu = {
+            if (activity is MainActivity) {
+                // Mengubah item yang aktif di BottomNavigationView ke tab Menu (nav_cart)
+                (activity as MainActivity).bottomNavigationView.selectedItemId = R.id.nav_cart
+            }
+        }
+
+        binding.takeAwayCard.setOnClickListener {
+            changeTabToMenu()
+        }
+
+        binding.deliveryCard.setOnClickListener {
+            changeTabToMenu()
+        }
     }
 
     private fun showRedeemDialog() {
@@ -96,8 +113,6 @@ class HomeFragment : Fragment() {
         dialog.setContentView(R.layout.dialog_redeem_code)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-        // ### PERBAIKAN LEBAR DIALOG DI SINI ###
-        // Mengatur lebar dialog menjadi 90% dari lebar layar
         val width = (resources.displayMetrics.widthPixels * 0.90).toInt()
         dialog.window?.setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
 
@@ -147,6 +162,7 @@ class HomeFragment : Fragment() {
             val reader = InputStreamReader(inputStream)
             val menuDataType = object : TypeToken<MenuData>() {}.type
             val menuData: MenuData = Gson().fromJson(reader, menuDataType)
+
             val newestMenuItem = menuData.menu.filter { !it.createdAt.isNullOrEmpty() }.maxByOrNull { it.createdAt!! }
 
             if (newestMenuItem != null) {
