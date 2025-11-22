@@ -1,38 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/tuku_bg"
     tools:context=".AdminActivity">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:title="Dashboard Admin"
-        app:menu="@menu/admin_toolbar_menu"
-        android:background="@color/tuku_primary"
-        app:titleTextColor="@android:color/white"
-        app:navigationIconTint="@android:color/white"
-        app:subtitleTextColor="@android:color/white" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/tuku_bg">
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tab_layout_admin"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Dashboard Admin"
+            app:menu="@menu/admin_toolbar_menu"
+            android:background="@color/tuku_primary"
+            app:titleTextColor="@android:color/white"
+            app:navigationIconTint="@android:color/white"
+            app:subtitleTextColor="@android:color/white" />
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout_admin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:tabTextColor="@color/tuku_dark"
+            app:tabSelectedTextColor="@color/tuku_primary"
+            app:tabIndicatorColor="@color/tuku_accent"
+            android:background="@color/tuku_bg" />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager_admin"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/tuku_bg" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/fragment_container_overlay"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:tabTextColor="@color/tuku_dark"
-        app:tabSelectedTextColor="@color/tuku_primary"
-        app:tabIndicatorColor="@color/tuku_accent"
-        android:background="@color/tuku_bg" />
+        android:layout_height="match_parent"
+        android:elevation="20dp"
+        android:background="@android:color/transparent" />
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/view_pager_admin"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@color/tuku_bg" />
-
-</LinearLayout>
+</FrameLayout>

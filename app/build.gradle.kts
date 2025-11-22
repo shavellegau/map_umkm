@@ -43,6 +43,20 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
+    packaging {
+        resources {
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/LICENSE"
+            excludes += "META-INF/LICENSE.txt"
+            excludes += "META-INF/license.txt"
+            excludes += "META-INF/NOTICE"
+            excludes += "META-INF/NOTICE.txt"
+            excludes += "META-INF/notice.txt"
+            excludes += "META-INF/ASL2.0"
+            excludes += "META-INF/*.kotlin_module"
+        }
+    }
 }
 
 dependencies {
@@ -77,6 +91,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+    implementation("com.android.volley:volley:1.2.1")
 
     // Room Database (untuk fitur Favorite)
     implementation("androidx.room:room-runtime:2.6.1")
@@ -89,4 +104,8 @@ dependencies {
 
     // Coroutines (opsional tapi disarankan)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.19.0") {
+        exclude(group = "org.apache.httpcomponents", module = "httpclient")
+    }
 }

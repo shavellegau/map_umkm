@@ -44,26 +44,25 @@ class CartItemAdapter(
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val item = items[position]
 
-        // Tampilkan gambar produk
-        Glide.with(holder.itemView.context)
-            .load(item.image)
+        // --- [PERUBAHAN UTAMA DI SINI] ---
+        val context = holder.itemView.context
+        val imageResId = context.resources.getIdentifier(item.image, "drawable", context.packageName)
+
+        Glide.with(context)
+            .load(if (imageResId != 0) imageResId else R.drawable.placeholder_image) // Muat gambar lokal
             .placeholder(R.drawable.placeholder_image)
             .error(R.drawable.error_image)
             .into(holder.ivProductImage)
 
-        // Nama produk
         holder.tvProductName.text = item.name
 
-        // Harga produk (format Rupiah)
         val finalPrice = (if (item.selectedType == "iced") item.price_iced else item.price_hot) ?: 0
         val formattedPrice = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
             .format(finalPrice.toLong())
         holder.tvProductPrice.text = formattedPrice
 
-        // Jumlah item
         holder.tvQuantity.text = item.quantity.toString()
 
-        // Catatan (jika ada)
         if (!item.notes.isNullOrBlank()) {
             holder.tvNotes.text = "Catatan: ${item.notes}"
             holder.tvNotes.visibility = View.VISIBLE
@@ -71,14 +70,12 @@ class CartItemAdapter(
             holder.tvNotes.visibility = View.GONE
         }
 
-        // Tombol tambah
         holder.btnPlus.setOnClickListener {
             item.quantity++
             notifyItemChanged(position)
             onQuantityChanged()
         }
 
-        // Tombol kurang (tidak boleh < 1)
         holder.btnMinus.setOnClickListener {
             if (item.quantity > 1) {
                 item.quantity--
@@ -93,9 +90,7 @@ class CartItemAdapter(
             }
         }
 
-        // Tombol hapus (dialog konfirmasi custom)
         holder.btnDelete.setOnClickListener {
-            val context = holder.itemView.context
             val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_confirm_delete, null)
             val dialog = Dialog(context)
             dialog.setContentView(dialogView)
@@ -112,8 +107,6 @@ class CartItemAdapter(
                 onDeleteItem(item)
                 dialog.dismiss()
             }
-            dialog.window?.attributes?.windowAnimations = R.style.DialogAnimation
-
             dialog.show()
         }
     }

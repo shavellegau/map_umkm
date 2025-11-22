@@ -16,7 +16,7 @@ import java.util.Locale
 class AdminProductAdapter(
     private var productList: List<Product>,
     private val onDeleteClick: (Product) -> Unit,
-    private val onEditClick: (Product) -> Unit // TAMBAHKAN INI
+    private val onEditClick: (Product) -> Unit
 ) : RecyclerView.Adapter<AdminProductAdapter.AdminProductViewHolder>() {
 
     inner class AdminProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -38,10 +38,14 @@ class AdminProductAdapter(
         holder.productName.text = product.name
 
         val format = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
-        holder.productPrice.text = format.format(product.price_hot)
+        val priceToShow = product.price_hot ?: product.price_iced ?: 0
+        holder.productPrice.text = format.format(priceToShow)
 
-        Glide.with(holder.itemView.context)
-            .load(product.image)
+        val context = holder.itemView.context
+        val imageResId = context.resources.getIdentifier(product.image, "drawable", context.packageName)
+
+        Glide.with(context)
+            .load(if (imageResId != 0) imageResId else R.drawable.logo_tuku)
             .placeholder(R.drawable.logo_tuku)
             .error(R.drawable.logo_tuku)
             .into(holder.productImage)
@@ -50,7 +54,6 @@ class AdminProductAdapter(
             onDeleteClick(product)
         }
 
-        // TAMBAHKAN LISTENER UNTUK KLIK ITEM VIEW
         holder.itemView.setOnClickListener {
             onEditClick(product)
         }

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Buat Voucher Baru"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="24dp"
+            android:gravity="center"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kode Voucher (Unik)"
+            android:textStyle="bold"/>
+        <EditText
+            android:id="@+id/et_voucher_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Contoh: TUKU50 (Otomatis Huruf Besar)"
+            android:textAllCaps="true"
+            android:background="@android:color/white"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Judul Promo"
+            android:textStyle="bold"/>
+        <EditText
+            android:id="@+id/et_voucher_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Contoh: Diskon Kemerdekaan"
+            android:background="@android:color/white"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nominal Potongan (Rp)"
+            android:textStyle="bold"/>
+        <EditText
+            android:id="@+id/et_voucher_disc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Contoh: 5000"
+            android:inputType="number"
+            android:background="@android:color/white"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Minimal Belanja (Rp)"
+            android:textStyle="bold"/>
+        <EditText
+            android:id="@+id/et_voucher_min"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Contoh: 20000"
+            android:inputType="number"
+            android:background="@android:color/white"
+            android:padding="12dp"
+            android:layout_marginBottom="24dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tanggal Berakhir"
+            android:textStyle="bold"/>
+        <EditText
+            android:id="@+id/et_voucher_expiry"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Contoh: 31 Des 2025"
+            android:background="@android:color/white"
+            android:padding="12dp"
+            android:layout_marginBottom="24dp"/>
+
+        <Button
+            android:id="@+id/btn_save_voucher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Simpan &amp; Sebar Notifikasi"
+            android:backgroundTint="@color/black"
+            android:textColor="@android:color/white"
+            android:padding="14dp"/>
+
+    </LinearLayout>
+</ScrollView>

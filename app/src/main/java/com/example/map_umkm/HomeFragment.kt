@@ -2,6 +2,7 @@ package com.example.map_umkm
 
 import android.app.Activity
 import android.app.Dialog
+import android.content.Context // <-- DITAMBAHKAN: Untuk mengakses SharedPreferences
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -59,9 +60,26 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // PANGGIL FUNGSI UNTUK MENAMPILKAN NAMA PENGGUNA
+        displayUserGreeting()
+
         setupBannerCarousel()
         loadNewestMenuFromJson()
         setupListeners()
+    }
+
+    /**
+     * Mengambil nama pengguna dari SharedPreferences dan menampilkannya di header.
+     */
+    private fun displayUserGreeting() {
+        // Mengakses SharedPreferences dengan nama file "USER_SESSION"
+        val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
+
+        // Mengambil nama pengguna. Default-nya adalah "Pengguna" jika tidak ditemukan.
+        val userName = prefs.getString("userName", "Pengguna")
+
+        // Mengatur teks sapaan. Pastikan ID TextView di layout Anda adalah tvUserGreeting.
+        binding.tvUserGreeting.text = "Hi, ${userName} !"
     }
 
     private fun setupListeners() {
@@ -95,6 +113,7 @@ class HomeFragment : Fragment() {
         val changeTabToMenu = {
             if (activity is MainActivity) {
                 // Mengubah item yang aktif di BottomNavigationView ke tab Menu (nav_cart)
+                // Pastikan R.id.nav_cart adalah ID menu yang benar di BottomNavigationView Anda
                 (activity as MainActivity).bottomNavigationView.selectedItemId = R.id.nav_cart
             }
         }
