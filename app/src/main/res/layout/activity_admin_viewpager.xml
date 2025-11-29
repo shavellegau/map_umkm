@@ -1,66 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AdminActivity">
+    android:background="@color/tuku_bg"
+    android:padding="16dp">
 
+    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="@color/tuku_bg">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="Dashboard Admin"
-            app:menu="@menu/admin_toolbar_menu"
-            android:background="@color/tuku_primary"
-            app:titleTextColor="@android:color/white"
-            app:navigationIconTint="@android:color/white" />
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tab_layout_admin"
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@color/tuku_bg"
-            app:tabTextColor="@color/tuku_dark"
-            app:tabSelectedTextColor="@color/tuku_primary"
-            app:tabIndicatorColor="@color/tuku_accent" />
-
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@color/tuku_bg">
+            android:text="Dashboard Admin"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/tuku_dark" />
 
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/view_pager_admin"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab_add_product"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="20dp"
-                android:contentDescription="Tambah Produk"
-                android:src="@drawable/ic_add"
-                app:tint="@android:color/white"
-                app:backgroundTint="@color/tuku_primary"
-                app:rippleColor="@color/tuku_accent" />
-
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_person_placeholder"
+            android:background="@drawable/bg_circle"
+            android:padding="6dp" />
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/fragment_container_overlay"
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="16dp" />
+
+    <!-- Grid Dashboard -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_admin_menu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:elevation="20dp"
-        android:background="@android:color/transparent" />
-</FrameLayout>
+        android:paddingTop="8dp"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        app:spanCount="2" />
+
+</LinearLayout>

@@ -87,7 +87,11 @@ class LoginActivity : AppCompatActivity() {
                             onLoginSuccess(name, email, role, uid)
                         }
                         .addOnFailureListener {
-                            Toast.makeText(this, "Gagal mengambil data user dari Firestore.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this,
+                                "Gagal mengambil data user dari Firestore.",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                 }
             }
@@ -112,9 +116,15 @@ class LoginActivity : AppCompatActivity() {
                         )
                         // Perbarui token di Firestore menggunakan SetOptions.merge()
                         db.collection("users").document(userId)
-                            .set(tokenData as Map<String, Any>, com.google.firebase.firestore.SetOptions.merge())
+                            .set(
+                                tokenData as Map<String, Any>,
+                                com.google.firebase.firestore.SetOptions.merge()
+                            )
                             .addOnFailureListener { e ->
-                                Log.e("LoginActivity", "Gagal menyimpan token saat login: ${e.message}")
+                                Log.e(
+                                    "LoginActivity",
+                                    "Gagal menyimpan token saat login: ${e.message}"
+                                )
                             }
                     }
                 }
@@ -140,11 +150,16 @@ class LoginActivity : AppCompatActivity() {
         // Arahkan ke activity yang sesuai berdasarkan role
         if (role == "admin") {
             Toast.makeText(this, "Selamat datang, Admin!", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, AdminActivity::class.java))
+
+            val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("openAdmin", true)
+            startActivity(intent)
+
         } else {
             Toast.makeText(this, "Login berhasil!", Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, MainActivity::class.java))
         }
-        finish() // Tutup LoginActivity agar tidak bisa kembali
+
+        finish()
     }
 }

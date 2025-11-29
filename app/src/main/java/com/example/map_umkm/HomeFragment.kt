@@ -2,7 +2,7 @@ package com.example.map_umkm
 
 import android.app.Activity
 import android.app.Dialog
-import android.content.Context // <-- DITAMBAHKAN: Untuk mengakses SharedPreferences
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -38,15 +38,11 @@ class HomeFragment : Fragment() {
     private var timer: Timer? = null
     private var updateRunnable: Runnable? = null
 
+    // Launcher ini tetap ada, tapi logika update TextView dipindahkan ke onResume/loadSavedLocation
     private val pilihCabangLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val namaCabangTerpilih = result.data?.getStringExtra("NAMA_CABANG_TERPILIH")
-            if (namaCabangTerpilih != null) {
-                binding.tvCurrentLocation.text = namaCabangTerpilih
-            }
-        }
+        // Anda tetap bisa memproses hasil di sini jika diperlukan
     }
 
     override fun onCreateView(
@@ -60,13 +56,29 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // PANGGIL FUNGSI UNTUK MENAMPILKAN NAMA PENGGUNA
         displayUserGreeting()
-
         setupBannerCarousel()
         loadNewestMenuFromJson()
         setupListeners()
+
+        // 🔥 PANGGIL UNTUK MEMUAT LOKASI YANG TERSIMPAN SAAT FRAGMENT DIBUAT 🔥
+        loadSavedLocation()
     }
+
+    override fun onResume() {
+        super.onResume()
+        // 🔥 PANGGIL SAAT FRAGMENT KEMBALI AKTIF (misal, dari PilihCabangActivity) 🔥
+        loadSavedLocation()
+    }
+
+    // 🔥 FUNGSI BARU: MEMUAT LOKASI TERSIMPAN 🔥
+    private fun loadSavedLocation() {
+        val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
+        val savedBranchName = prefs.getString("selectedBranchName", "Pilih Cabang")
+        binding.tvCurrentLocation.text = savedBranchName
+    }
+
+    // ... (Fungsi displayUserGreeting, setupListeners, showRedeemDialog, dll. tetap sama) ...
 
     /**
      * Mengambil nama pengguna dari SharedPreferences dan menampilkannya di header.
@@ -108,12 +120,8 @@ class HomeFragment : Fragment() {
             showRedeemDialog()
         }
 
-        // ### PERBAIKAN UTAMA DI SINI ###
-        // Aksi untuk mengganti tab di Bottom Navigation Bar
         val changeTabToMenu = {
             if (activity is MainActivity) {
-                // Mengubah item yang aktif di BottomNavigationView ke tab Menu (nav_cart)
-                // Pastikan R.id.nav_cart adalah ID menu yang benar di BottomNavigationView Anda
                 (activity as MainActivity).bottomNavigationView.selectedItemId = R.id.nav_cart
             }
         }

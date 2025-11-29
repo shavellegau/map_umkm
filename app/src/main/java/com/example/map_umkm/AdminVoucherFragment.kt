@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar // Import Toolbar
 import androidx.fragment.app.Fragment
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -18,6 +19,7 @@ class AdminVoucherFragment : Fragment() {
     private lateinit var etMin: EditText
     private lateinit var etExpiry: EditText
     private lateinit var btnSave: Button
+    private lateinit var toolbar: Toolbar // Tambahan untuk Toolbar
 
     // Service Notifikasi
     private lateinit var fcmService: FCMService
@@ -26,18 +28,25 @@ class AdminVoucherFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Pastikan nama layout sesuai dengan file XML kamu
         val view = inflater.inflate(R.layout.fragment_admin_voucher, container, false)
 
-        // Inisialisasi FCM Service
         fcmService = FCMService(requireContext())
 
-        // Binding Views
+        // Binding Views (Sesuai ID di XML kamu)
         etCode = view.findViewById(R.id.et_voucher_code)
         etTitle = view.findViewById(R.id.et_voucher_title)
         etDisc = view.findViewById(R.id.et_voucher_disc)
         etMin = view.findViewById(R.id.et_voucher_min)
         etExpiry = view.findViewById(R.id.et_voucher_expiry)
         btnSave = view.findViewById(R.id.btn_save_voucher)
+
+        // Binding Toolbar (Agar tombol back di atas berfungsi)
+        toolbar = view.findViewById(R.id.toolbar_add_voucher)
+        toolbar.setNavigationOnClickListener {
+            // Perintah untuk menutup fragment ini dan kembali ke dashboard
+            parentFragmentManager.popBackStack()
+        }
 
         btnSave.setOnClickListener {
             validateAndSave()
@@ -67,7 +76,6 @@ class AdminVoucherFragment : Fragment() {
     private fun saveToFirestore(code: String, title: String, disc: Double, min: Double, expiry: String) {
         val db = FirebaseFirestore.getInstance()
 
-        // Data Voucher
         val voucherData = hashMapOf(
             "code" to code,
             "title" to title,
@@ -78,7 +86,6 @@ class AdminVoucherFragment : Fragment() {
             "createdAt" to System.currentTimeMillis()
         )
 
-        // Simpan ke collection "vouchers" dengan ID = Kode Voucher
         db.collection("vouchers").document(code)
             .set(voucherData)
             .addOnSuccessListener {
@@ -91,8 +98,11 @@ class AdminVoucherFragment : Fragment() {
                 etMin.setText("")
                 etExpiry.setText("")
 
-                // KIRIM NOTIFIKASI BROADCAST KE USER
+                // Kirim Notif
                 sendPromoNotification(code, title, disc)
+
+                // Opsional: Langsung tutup halaman setelah simpan
+                // parentFragmentManager.popBackStack()
             }
             .addOnFailureListener { e ->
                 Toast.makeText(context, "Gagal menyimpan: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -100,7 +110,6 @@ class AdminVoucherFragment : Fragment() {
     }
 
     private fun sendPromoNotification(code: String, title: String, disc: Double) {
-        // Kirim ke topik "promo" agar semua user dapat
         fcmService.sendNotification(
             "promo",
             "Voucher Baru: $title",

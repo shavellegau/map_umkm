@@ -1,42 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/tuku_bg"
     tools:context=".AdminMenuFragment">
 
-    <!-- RecyclerView untuk daftar produk -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_admin_products"
+    <!-- Content Container -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:padding="8dp"
-        android:scrollbars="vertical"
-        tools:listitem="@layout/item_admin_product" />
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="16dp">
 
-    <!-- Tampilan kosong -->
-    <TextView
-        android:id="@+id/tv_empty_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Belum ada produk. Tekan tombol + untuk menambah."
-        android:textSize="16sp"
-        android:textColor="@color/text_primary"
-        android:gravity="center"
-        android:paddingHorizontal="24dp"
-        android:visibility="gone"
-        tools:visibility="visible" />
+        <!-- Page Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Menu Toko"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/tuku_dark"
+            android:paddingBottom="4dp"/>
 
-    <!-- ProgressBar -->
+        <!-- Subtitle -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Kelola produk makanan &amp; minuman yang dijual"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:paddingBottom="18dp"/>
+
+        <!-- Search bar (Future-proof UI) -->
+        <EditText
+            android:id="@+id/et_search_admin"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_search"
+            android:paddingHorizontal="16dp"
+            android:hint="Cari menu…"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
+            android:drawableStart="@drawable/ic_search"
+            android:drawablePadding="10dp"
+            android:layout_marginBottom="18dp"/>
+
+        <!-- RecyclerView Card Style -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_admin_products"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingBottom="8dp"
+            android:clipToPadding="false"
+            tools:listitem="@layout/item_admin_product"/>
+
+        <!-- EMPTY STATE -->
+        <LinearLayout
+            android:id="@+id/empty_state_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageView
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:src="@drawable/ic_empty_box"
+                android:alpha="0.8"
+                android:layout_marginBottom="12dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Menu masih kosong ☕"
+                android:textColor="@color/tuku_dark"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:paddingBottom="6dp"/>
+
+            <TextView
+                android:id="@+id/tv_empty_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Klik tombol + di kanan bawah untuk menambahkan menu baru."
+                android:textSize="14sp"
+                android:gravity="center"
+                android:textColor="@color/text_secondary"
+                android:paddingHorizontal="32dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Loading Overlay -->
     <ProgressBar
         android:id="@+id/progress_bar_admin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_gravity="center"
         android:indeterminateTint="@color/tuku_primary"
-        android:visibility="gone" />
-
-</FrameLayout>
+        android:visibility="gone"/>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

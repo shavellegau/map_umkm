@@ -24,14 +24,16 @@ import com.example.map_umkm.adapter.CartItemAdapter
 import com.example.map_umkm.data.JsonHelper
 import com.example.map_umkm.model.Order
 import com.example.map_umkm.viewmodel.CartViewModel
-import com.google.firebase.firestore.FirebaseFirestore // <-- WAJIB IMPORT INI
+import com.google.firebase.firestore.FirebaseFirestore
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
 class PaymentFragment : Fragment() {
 
+    // Menggunakan activityViewModels untuk CartViewModel
     private val cartViewModel: CartViewModel by activityViewModels()
+    // jsonHelper tetap dipertahankan untuk kebutuhan lain (jika ada), tapi tidak untuk order
     private lateinit var jsonHelper: JsonHelper
 
     // UI Components
@@ -57,6 +59,7 @@ class PaymentFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_payment, container, false)
+        // jsonHelper masih di-init jika digunakan di tempat lain (contoh: load menu)
         jsonHelper = JsonHelper(requireContext())
 
         // Inisialisasi View
@@ -169,6 +172,7 @@ class PaymentFragment : Fragment() {
     private fun calculateSubtotal(): Double {
         val currentCart = cartViewModel.cartList.value ?: emptyList()
         return currentCart.sumOf {
+            // Asumsi CartItem memiliki selectedType dan harga
             val price = (if (it.selectedType == "iced") it.price_iced else it.price_hot) ?: 0
             price * it.quantity
         }.toDouble()
@@ -176,11 +180,12 @@ class PaymentFragment : Fragment() {
 
     private fun calculateAndDisplayTotals() {
         val subtotal = calculateSubtotal()
+        // Asumsi pajak 11%
         val tax = subtotal * 0.11
 
         // Rumus: (Subtotal + Pajak) - Diskon
         var total = (subtotal + tax) - discountAmount
-        if (total < 0) total = 0.0 // Jangan sampai minus
+        if (total < 0) total = 0.0
 
         finalTotalAmount = total // Simpan ke variabel global untuk Create Order
 
@@ -190,7 +195,7 @@ class PaymentFragment : Fragment() {
         tvTotalPayment.text = currencyFormat.format(total)
     }
 
-    // --- PROSES ORDER ---
+    // --- PROSES ORDER: DIALOG PILIHAN PEMBAYARAN ---
     private fun showPaymentChoiceDialog() {
         val dialog = Dialog(requireContext())
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -202,18 +207,20 @@ class PaymentFragment : Fragment() {
 
         btnQris.setOnClickListener {
             dialog.dismiss()
-            createOrder(isCashPayment = false)
+            createOrder(isCashPayment = false) // QRIS
         }
         btnCash.setOnClickListener {
             dialog.dismiss()
-            createOrder(isCashPayment = true)
+            createOrder(isCashPayment = true) // Tunai
         }
         dialog.show()
     }
 
+    // 🔥 FUNGSI createOrder DENGAN LOGIKA PENYIMPANAN KE FIRESTORE 🔥
     private fun createOrder(isCashPayment: Boolean) {
         val currentCart = cartViewModel.cartList.value ?: return
 
+        // 1. Ambil Data Sesi User & Token
         val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
         val userName = prefs.getString("userName", "User") ?: "User"
         val userEmail = prefs.getString("userEmail", "unknown@email.com") ?: "unknown@email.com"
@@ -221,38 +228,51 @@ class PaymentFragment : Fragment() {
         val tokenPrefs = requireActivity().getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE)
         val userTokenFCM = tokenPrefs.getString("fcm_token", "") ?: ""
 
-        // PENTING: Gunakan finalTotalAmount yang sudah didiskon!
         val newOrder = Order(
-            orderId = "TUKU-${System.currentTimeMillis()}",
+            orderId = "TUKU-${System.currentTimeMillis()}", // ID unik
             userEmail = userEmail,
             userName = userName,
             items = currentCart.toList(),
-            totalAmount = finalTotalAmount, // <-- HARGA SETELAH DISKON
+            totalAmount = finalTotalAmount, // Total harga yang sudah dihitung (termasuk diskon)
             orderDate = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("id", "ID")).format(Date()),
             status = if (isCashPayment) "Menunggu Pembayaran" else "Menunggu Konfirmasi",
-            userToken = userTokenFCM
+            userToken = userTokenFCM // FCM Token untuk notifikasi ke Admin/User
         )
 
-        if (jsonHelper.addOrder(newOrder)) {
-            cartViewModel.clearCart()
-            if (isCashPayment) {
-                val action = PaymentFragmentDirections.actionPaymentFragmentToPaymentSuccessFragment(
-                    paymentMethod = "CASH"
-                )
-                findNavController().navigate(action)
-            } else {
-                findNavController().navigate(R.id.action_paymentFragment_to_qrisFragment)
+        // 2. SIMPAN KE FIREBASE FIRESTORE
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("orders")
+            .document(newOrder.orderId)
+            .set(newOrder)
+            .addOnSuccessListener {
+                // 3. Sukses: Hapus keranjang
+                cartViewModel.clearCart()
+
+                // 4. Sukses: Arahkan navigasi
+                if (isCashPayment) {
+                    // Jika tunai, langsung ke Success Fragment
+                    val action = PaymentFragmentDirections.actionPaymentFragmentToPaymentSuccessFragment(
+                        paymentMethod = "CASH"
+                    )
+                    findNavController().navigate(action)
+                } else {
+                    // Jika QRIS, arahkan ke QRIS Fragment
+                    findNavController().navigate(R.id.action_paymentFragment_to_qrisFragment)
+                }
+
+                Toast.makeText(context, "Pesanan berhasil dibuat!", Toast.LENGTH_SHORT).show()
             }
-        } else {
-            Toast.makeText(context, "Gagal membuat pesanan.", Toast.LENGTH_SHORT).show()
-        }
+            .addOnFailureListener { e ->
+                // 5. Gagal: Tampilkan pesan error
+                Toast.makeText(context, "Gagal menyimpan pesanan: ${e.message}", Toast.LENGTH_LONG).show()
+            }
     }
 
     private fun setupRecyclerView() {
         cartAdapter = CartItemAdapter(
             mutableListOf(),
             onQuantityChanged = {
-                // Jika user ubah qty barang, reset voucher agar dicek lagi min belanjanya
                 resetVoucher()
                 calculateAndDisplayTotals()
             },

@@ -249,4 +249,36 @@
         android:label="Riwayat Poin"
         tools:layout="@layout/fragment_riwayat_poin" />
 
+
+    <!-- ============================= -->
+    <!--        ADMIN DASHBOARD        -->
+    <!-- ============================= -->
+    <fragment
+        android:id="@+id/adminDashboardFragment"
+        android:name="com.example.map_umkm.admin.AdminDashboardFragment"
+        android:label="Admin Dashboard"
+        tools:layout="@layout/fragment_admin_dashboard">
+
+        <action
+            android:id="@+id/action_adminDashboard_to_adminMenuFragment"
+            app:destination="@id/adminMenuFragment" />
+
+        <action
+            android:id="@+id/action_adminDashboard_to_adminOrderFragment"
+            app:destination="@id/adminOrderFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/adminMenuFragment"
+        android:name="com.example.map_umkm.AdminMenuFragment"
+        android:label="Kelola Menu"
+        tools:layout="@layout/fragment_admin_menu" />
+
+    <fragment
+        android:id="@+id/adminOrderFragment"
+        android:name="com.example.map_umkm.AdminOrdersFragment"
+        android:label="Kelola Pesanan"
+        tools:layout="@layout/fragment_admin_orders" />
+
 </navigation>
