@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_cabang_nama"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kopi Tuku — Outlet Senayan"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#2E1F17" />
+
+        <TextView
+            android:id="@+id/tv_cabang_alamat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Jl. Asia Afrika No.8, Gelora, Jakarta Pusat"
+            android:layout_marginTop="4dp"
+            android:textColor="#555" />
+
+        <TextView
+            android:id="@+id/tv_detail_cabang_admin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Detail: WiFi, AC, Meja kerja."
+            android:layout_marginTop="4dp"
+            android:textColor="#777"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tv_cabang_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Buka (07:30–22:30)"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:background="@drawable/status_bg_default"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:gravity="end"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/btn_edit_cabang"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:text="EDIT"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:textColor="#6D4C41"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btn_delete_cabang"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:text="HAPUS"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:backgroundTint="@android:color/holo_red_dark"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

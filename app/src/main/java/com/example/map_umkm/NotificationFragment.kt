@@ -5,16 +5,36 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels // <-- PENTING: Tambah impor ini
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.map_umkm.adapter.NotificationAdapter
 import com.example.map_umkm.databinding.FragmentNotificationBinding
-import com.example.map_umkm.model.Notification
+// Import komponen Room
+import com.example.map_umkm.AppDatabase
+import com.example.map_umkm.repository.NotificationRepository
+import com.example.map_umkm.viewmodel.NotificationViewModel
+import com.example.map_umkm.viewmodel.NotificationViewModelFactory
+import com.example.map_umkm.model.Notification // Import model Room
+
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class NotificationFragment : Fragment() {
 
     private var _binding: FragmentNotificationBinding? = null
     private val binding get() = _binding!!
+
+    // 1. Deklarasi ViewModel
+    private val notificationViewModel: NotificationViewModel by viewModels {
+        // Inisialisasi Database dan Repository
+        val database = AppDatabase.getDatabase(requireContext())
+        val repository = NotificationRepository(database.notificationDao())
+        NotificationViewModelFactory(repository)
+    }
+
+    private lateinit var notificationAdapter: NotificationAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,39 +47,50 @@ class NotificationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Tombol kembali
         binding.btnBack.setOnClickListener {
             findNavController().popBackStack()
         }
 
-        // ===== Dummy data =====
-        val dummyNotifications = listOf(
-            Notification(
-                title = "Pesanan Selesai!",
-                body = "Pesanan Anda dengan ID #12345 telah selesai.",
-                timestamp = "14 Okt 2025, 12:00"
-            ),
-            Notification(
-                title = "Pesanan Dikirim",
-                body = "Pesanan Anda sedang dalam perjalanan.",
-                timestamp = "13 Okt 2025, 18:32"
-            ),
-            Notification(
-                title = "Pembayaran Berhasil",
-                body = "Pembayaran untuk pesanan #12345 telah dikonfirmasi.",
-                timestamp = "13 Okt 2025, 17:15"
-            ),
-            Notification(
-                title = "Promo Baru!",
-                body = "Nikmati diskon 20% untuk produk UMKM pilihan minggu ini!",
-                timestamp = "12 Okt 2025, 10:05"
-            )
-        )
+        // 2. Setup Adapter dengan list kosong
+        notificationAdapter = NotificationAdapter(emptyList())
 
-        // Setup RecyclerView
         binding.recyclerNotifications.apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = NotificationAdapter(dummyNotifications)
+            adapter = notificationAdapter
+        }
+
+        // 3. HAPUS DUMMY DATA dan GANTI DENGAN OBSERVASI LIVE DATA
+        observeNotifications()
+    }
+
+    private fun observeNotifications() {
+        notificationViewModel.allNotifications.observe(viewLifecycleOwner) { notifications ->
+
+            if (notifications.isNotEmpty()) {
+                binding.tvEmptyNotification.visibility = View.GONE
+                binding.recyclerNotifications.visibility = View.VISIBLE
+
+                // Konversi Room Entity ke Model yang digunakan Adapter (Notification)
+                val displayList = notifications.map { entity ->
+                    // Format timestamp (Long) menjadi String tanggal yang bagus
+                    val formatter = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
+                    val timestampString = formatter.format(Date(entity.timestamp))
+
+                    // Asumsi Model Notification Anda menerima title, body, dan timestamp String
+                    Notification(
+                        title = entity.title,
+                        body = entity.body,
+                        timestamp = timestampString
+                    )
+                }
+
+                // Panggil fungsi update pada Adapter
+                notificationAdapter.updateList(displayList)
+            } else {
+                // Tampilkan pesan kosong jika tidak ada notifikasi
+                binding.recyclerNotifications.visibility = View.GONE
+                binding.tvEmptyNotification.visibility = View.VISIBLE
+            }
         }
     }
 

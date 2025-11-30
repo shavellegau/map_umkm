@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/tuku_bg">
+
+    <!-- Toolbar dengan tombol back -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar_add_voucher"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/tuku_primary"
+        app:title="Buat Voucher Baru"
+        app:titleTextColor="@android:color/white"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="@android:color/white"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- CODE -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kode Voucher (Unik)"
+                android:textColor="@color/tuku_dark"
+                android:textStyle="bold"/>
+            <EditText
+                android:id="@+id/et_voucher_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Contoh: TUKU50"
+                android:background="@android:color/white"
+                android:padding="12dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:textAllCaps="true"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- TITLE -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Judul Promo"
+                android:textColor="@color/tuku_dark"
+                android:textStyle="bold"/>
+            <EditText
+                android:id="@+id/et_voucher_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Contoh: Diskon Spesial Akhir Tahun"
+                android:background="@android:color/white"
+                android:padding="12dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- DISC AMOUNT -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nominal Potongan (Rp)"
+                android:textColor="@color/tuku_dark"
+                android:textStyle="bold"/>
+            <EditText
+                android:id="@+id/et_voucher_disc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Contoh: 5000"
+                android:inputType="number"
+                android:background="@android:color/white"
+                android:padding="12dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- MINIMUM -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Minimal Belanja (Rp)"
+                android:textColor="@color/tuku_dark"
+                android:textStyle="bold"/>
+            <EditText
+                android:id="@+id/et_voucher_min"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Contoh: 20000"
+                android:inputType="number"
+                android:background="@android:color/white"
+                android:padding="12dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:layout_marginBottom="24dp"/>
+
+            <!-- EXPIRY -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tanggal Berakhir"
+                android:textColor="@color/tuku_dark"
+                android:textStyle="bold"/>
+            <EditText
+                android:id="@+id/et_voucher_expiry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Contoh: 31 Des 2025"
+                android:background="@android:color/white"
+                android:padding="12dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:layout_marginBottom="24dp"/>
+
+            <!-- SAVE BUTTON -->
+            <Button
+                android:id="@+id/btn_save_voucher"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Simpan dan Sebar Notifikasi"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@color/tuku_primary"
+                android:padding="14dp"
+                android:textStyle="bold"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
