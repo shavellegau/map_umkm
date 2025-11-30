@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseAuth
 class ReferralFragment : Fragment() {
 
     private var _binding: FragmentReferralBinding? = null
-    private val binding get() = _binding!! // Menggunakan View Binding
+    private val binding get() = _binding!! // MSenggunakan View Binding
 
     private lateinit var auth: FirebaseAuth
 
