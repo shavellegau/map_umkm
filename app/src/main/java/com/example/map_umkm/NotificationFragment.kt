@@ -5,17 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels // <-- PENTING: Tambah impor ini
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.map_umkm.adapter.NotificationAdapter
 import com.example.map_umkm.databinding.FragmentNotificationBinding
-// Import komponen Room
 import com.example.map_umkm.AppDatabase
 import com.example.map_umkm.repository.NotificationRepository
 import com.example.map_umkm.viewmodel.NotificationViewModel
 import com.example.map_umkm.viewmodel.NotificationViewModelFactory
-import com.example.map_umkm.model.Notification // Import model Room
+import com.example.map_umkm.model.Notification // Import model yang digunakan Adapter
 
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -26,7 +25,7 @@ class NotificationFragment : Fragment() {
     private var _binding: FragmentNotificationBinding? = null
     private val binding get() = _binding!!
 
-    // 1. Deklarasi ViewModel
+    // Deklarasi ViewModel
     private val notificationViewModel: NotificationViewModel by viewModels {
         // Inisialisasi Database dan Repository
         val database = AppDatabase.getDatabase(requireContext())
@@ -51,7 +50,7 @@ class NotificationFragment : Fragment() {
             findNavController().popBackStack()
         }
 
-        // 2. Setup Adapter dengan list kosong
+        // Setup Adapter
         notificationAdapter = NotificationAdapter(emptyList())
 
         binding.recyclerNotifications.apply {
@@ -59,7 +58,7 @@ class NotificationFragment : Fragment() {
             adapter = notificationAdapter
         }
 
-        // 3. HAPUS DUMMY DATA dan GANTI DENGAN OBSERVASI LIVE DATA
+        // Mulai observasi LiveData
         observeNotifications()
     }
 
@@ -70,13 +69,13 @@ class NotificationFragment : Fragment() {
                 binding.tvEmptyNotification.visibility = View.GONE
                 binding.recyclerNotifications.visibility = View.VISIBLE
 
-                // Konversi Room Entity ke Model yang digunakan Adapter (Notification)
+                // Konversi Room Entity ke Model yang digunakan Adapter
                 val displayList = notifications.map { entity ->
                     // Format timestamp (Long) menjadi String tanggal yang bagus
                     val formatter = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
                     val timestampString = formatter.format(Date(entity.timestamp))
 
-                    // Asumsi Model Notification Anda menerima title, body, dan timestamp String
+                    // Membuat objek Model Notification untuk Adapter
                     Notification(
                         title = entity.title,
                         body = entity.body,

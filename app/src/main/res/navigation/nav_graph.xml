@@ -29,7 +29,21 @@
         <action
             android:id="@+id/action_nav_home_to_voucherSayaFragment"
             app:destination="@id/voucherSayaFragment" />
+        <action
+            android:id="@+id/action_nav_home_to_referralFragment"
+            app:destination="@id/referralFragment" />
+        <!-- HANYA SATU TAG PENUTUP UNTUK FRAGMENT -->
     </fragment>
+
+    <!-- ************************************ -->
+    <!-- TAMBAHAN: DEFINISI REFERRAL FRAGMENT -->
+    <!-- ************************************ -->
+    <fragment
+        android:id="@+id/referralFragment"
+        android:name="com.example.map_umkm.ReferralFragment"
+        android:label="Kode Referral"
+        tools:layout="@layout/fragment_referral" />
+
 
     <fragment
         android:id="@+id/ongoingOrdersFragment"

@@ -10,8 +10,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
-import com.google.firebase.messaging.FirebaseMessaging // DITAMBAH UNTUK FCM
+import com.google.firebase.firestore.SetOptions // Import untuk SetOptions.merge()
+import com.google.firebase.messaging.FirebaseMessaging // Import untuk FCM
+import com.example.map_umkm.RegisterActivity // Import untuk merujuk kelas RegisterActivity
 
 class LoginActivity : AppCompatActivity() {
 
@@ -21,7 +22,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var btnRegister: Button
 
     // Tambahkan DatabaseHelper (untuk login lokal)
-    private lateinit var dbHelper: DatabaseHelper
+    private lateinit var dbHelper: DatabaseHelper // Pastikan kelas ini tersedia
 
     // Firebase
     private lateinit var auth: FirebaseAuth
@@ -37,7 +38,6 @@ class LoginActivity : AppCompatActivity() {
         btnRegister = findViewById(R.id.btnRegister)
 
         // Inisialisasi DatabaseHelper dan Firebase
-        // Pastikan class DatabaseHelper sudah Anda buat (misalnya untuk SQLite)
         dbHelper = DatabaseHelper(this)
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
@@ -47,7 +47,9 @@ class LoginActivity : AppCompatActivity() {
         }
 
         btnRegister.setOnClickListener {
-            startActivity(Intent(this, RegisterActivity::class.java))
+            // Penggunaan 'this@LoginActivity' membantu kompiler Kotlin
+            val intent = Intent(this@LoginActivity, RegisterActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -118,7 +120,7 @@ class LoginActivity : AppCompatActivity() {
                         db.collection("users").document(userId)
                             .set(
                                 tokenData as Map<String, Any>,
-                                com.google.firebase.firestore.SetOptions.merge()
+                                SetOptions.merge() // <-- PERBAIKAN: Menggunakan SetOptions yang di-import
                             )
                             .addOnFailureListener { e ->
                                 Log.e(

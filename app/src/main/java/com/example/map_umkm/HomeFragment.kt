@@ -38,11 +38,13 @@ class HomeFragment : Fragment() {
     private var timer: Timer? = null
     private var updateRunnable: Runnable? = null
 
-    // Launcher ini tetap ada, tapi logika update TextView dipindahkan ke onResume/loadSavedLocation
     private val pilihCabangLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        // Anda tetap bisa memproses hasil di sini jika diperlukan
+        // Muat lokasi jika PilihCabangActivity sukses (RESULT_OK)
+        if (result.resultCode == Activity.RESULT_OK) {
+            loadSavedLocation()
+        }
     }
 
     override fun onCreateView(
@@ -61,36 +63,31 @@ class HomeFragment : Fragment() {
         loadNewestMenuFromJson()
         setupListeners()
 
-        // 🔥 PANGGIL UNTUK MEMUAT LOKASI YANG TERSIMPAN SAAT FRAGMENT DIBUAT 🔥
+        // MUAT LOKASI TERSIMPAN SAAT FRAGMENT DIBUAT
         loadSavedLocation()
     }
 
     override fun onResume() {
         super.onResume()
-        // 🔥 PANGGIL SAAT FRAGMENT KEMBALI AKTIF (misal, dari PilihCabangActivity) 🔥
+        // MUAT LOKASI TERSIMPAN SAAT FRAGMENT KEMBALI AKTIF
         loadSavedLocation()
     }
 
-    // 🔥 FUNGSI BARU: MEMUAT LOKASI TERSIMPAN 🔥
+    /**
+     * Memuat lokasi cabang yang tersimpan dari SharedPreferences dan menampilkannya.
+     */
     private fun loadSavedLocation() {
         val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
         val savedBranchName = prefs.getString("selectedBranchName", "Pilih Cabang")
         binding.tvCurrentLocation.text = savedBranchName
     }
 
-    // ... (Fungsi displayUserGreeting, setupListeners, showRedeemDialog, dll. tetap sama) ...
-
     /**
      * Mengambil nama pengguna dari SharedPreferences dan menampilkannya di header.
      */
     private fun displayUserGreeting() {
-        // Mengakses SharedPreferences dengan nama file "USER_SESSION"
         val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
-
-        // Mengambil nama pengguna. Default-nya adalah "Pengguna" jika tidak ditemukan.
         val userName = prefs.getString("userName", "Pengguna")
-
-        // Mengatur teks sapaan. Pastikan ID TextView di layout Anda adalah tvUserGreeting.
         binding.tvUserGreeting.text = "Hi, ${userName} !"
     }
 
@@ -104,8 +101,14 @@ class HomeFragment : Fragment() {
             findNavController().navigate(R.id.action_nav_home_to_notificationFragment)
         }
 
+        // ✅ DIKEMBALIKAN: ivTukuPoint kembali ke halaman Poin (Tujuannya adalah TukuPointFragment)
         binding.ivTukuPoint.setOnClickListener {
             findNavController().navigate(R.id.action_nav_home_to_tukuPointFragment)
+        }
+
+        // ⭐ BARU: Listener untuk Referral (Menggunakan ID referral_card dari XML)
+        binding.referralCard.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_home_to_referralFragment)
         }
 
         binding.voucherCard.setOnClickListener {
