@@ -236,6 +236,7 @@ class PaymentFragment : Fragment() {
             totalAmount = finalTotalAmount, // Total harga yang sudah dihitung (termasuk diskon)
             orderDate = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("id", "ID")).format(Date()),
             status = if (isCashPayment) "Menunggu Pembayaran" else "Menunggu Konfirmasi",
+            discountAmount = discountAmount.toLong(),
             userToken = userTokenFCM // FCM Token untuk notifikasi ke Admin/User
         )
 

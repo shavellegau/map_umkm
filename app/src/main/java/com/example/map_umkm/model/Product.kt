@@ -9,14 +9,17 @@ data class Product(
     val name: String = "",
     val category: String = "",
     val description: String = "",
-    // [FIXED] Ubah menjadi String? agar bisa menerima null dan URL internet
     val image: String? = null,
-    // [FIXED] Ubah menjadi Int? agar bisa menerima null
+
+    // Harga original menu
     val price_hot: Int? = 0,
     val price_iced: Int? = 0,
-    var isFavorite: Boolean = false,
+
+    // Data saat user checkout (disimpan)
+    var finalPrice: Int = 0,      // <— INI YANG DIPAKAI DI ORDER
     var quantity: Int = 0,
     var selectedType: String = "hot",
-    var notes: String? = null
+    var notes: String? = null,
 
+    var isFavorite: Boolean = false
 ) : Parcelable

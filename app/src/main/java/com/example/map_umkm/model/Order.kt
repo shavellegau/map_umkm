@@ -6,6 +6,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Order(
+
     @SerializedName("orderId")
     val orderId: String = "",
 
@@ -15,7 +16,6 @@ data class Order(
     @SerializedName("userName")
     val userName: String = "",
 
-    // Tetap gunakan List<Product> sesuai kode aslimu agar Adapter tidak error
     @SerializedName("items")
     val items: List<Product> = emptyList(),
 
@@ -28,8 +28,11 @@ data class Order(
     @SerializedName("status")
     var status: String = "Menunggu Pembayaran",
 
+    @SerializedName("discount")
+    // GANTI TIPE DATA DARI Int ke Long? agar kompatibel dengan data server dan null safety
+    val discountAmount: Long? = 0L,
+
     // === UPDATE BARU: Token FCM User ===
-    // Field ini wajib ada agar Admin tahu ke mana harus mengirim notifikasi
     @SerializedName("userToken")
-    val userToken: String? = ""
+    val userToken: String = ""
 ) : Parcelable
