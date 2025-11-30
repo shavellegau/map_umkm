@@ -1,19 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#F7F5F2">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_admin_orders"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="8dp"/>
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/tv_admin_no_orders"
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="Dashboard Admin"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#2E1F17"
+                android:layout_marginBottom="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:weightSum="3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:padding="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/card_bg"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:src="@drawable/cart"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"/>
+
+                    <TextView
+                        android:id="@+id/tvTotalOrders"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="8dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:text="Pesanan Baru"
+                        android:textSize="14sp"
+                        android:textColor="#777"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:padding="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/card_bg"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:src="@drawable/food_menu"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"/>
+
+                    <TextView
+                        android:id="@+id/tvTotalProducts"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="8dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:text="Diproses"
+                        android:textSize="14sp"
+                        android:textColor="#777"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:padding="16dp"
+                    android:background="@drawable/card_bg"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:src="@drawable/ic_person"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"/>
+
+                    <TextView
+                        android:id="@+id/tvTotalUsers"
+                        android:text="0"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="8dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:text="Pesanan Selesai"
+                        android:textSize="14sp"
+                        android:textColor="#777"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:text="Pesanan Terbaru"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvRecentOrders"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/tv_admin_no_orders"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Belum ada pesanan terbaru."
+                android:gravity="center"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_promo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Tidak ada pesanan masuk."
-        android:visibility="gone"/>
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="Kirim Info Promo"
+        android:src="@drawable/ic_notification"
+        app:tint="@android:color/white"/>
+
 </FrameLayout>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/tv_dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tambah Cabang Baru"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/et_branch_nama"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nama Cabang"
+        android:inputType="textCapWords"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/et_branch_alamat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Alamat Lengkap"
+        android:inputType="textPostalAddress"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/et_branch_jam_buka"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Jam Buka (contoh: 08:00 - 21:00)"
+        android:inputType="text"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/et_branch_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Status (contoh: Buka, Tutup)"
+        android:inputType="textCapWords"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/et_branch_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Detail / Keterangan Tambahan"
+        android:inputType="textMultiLine"
+        android:maxLines="3"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btn_save_branch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Simpan Cabang"
+        android:layout_marginTop="8dp"/>
+
+</LinearLayout>

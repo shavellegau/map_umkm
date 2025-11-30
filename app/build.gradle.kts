@@ -43,14 +43,28 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
+    packaging {
+        resources {
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/LICENSE"
+            excludes += "META-INF/LICENSE.txt"
+            excludes += "META-INF/license.txt"
+            excludes += "META-INF/NOTICE"
+            excludes += "META-INF/NOTICE.txt"
+            excludes += "META-INF/notice.txt"
+            excludes += "META-INF/ASL2.0"
+            excludes += "META-INF/*.kotlin_module"
+        }
+    }
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.activity)
-    implementation(libs.androidx.constraintlayout)
+    implementation("androidx.core:core-ktx:1.9.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.11.0") // Versi material yang sangat stabil
+    implementation("androidx.activity:activity-ktx:1.8.0") // Gunakan activity-ktx
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     testImplementation(libs.junit)
@@ -58,7 +72,6 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     // UI Components
-    implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.3.0")
     implementation("com.github.bumptech.glide:glide:4.12.0")
@@ -77,6 +90,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+    implementation("com.android.volley:volley:1.2.1")
 
     // Room Database (untuk fitur Favorite)
     implementation("androidx.room:room-runtime:2.6.1")
@@ -89,4 +103,8 @@ dependencies {
 
     // Coroutines (opsional tapi disarankan)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.19.0") {
+        exclude(group = "org.apache.httpcomponents", module = "httpclient")
+    }
 }

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/tuku_bg"
+    tools:context=".AddEditAddressFragment">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:titleTextColor="@color/tuku_dark"
+        tools:title="Tambah Alamat Baru" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Label Alamat"
+                android:textStyle="bold"
+                android:textColor="@color/tuku_dark"/>
+
+            <EditText
+                android:id="@+id/etAddressLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Contoh: Rumah, Kantor"
+                android:inputType="textCapWords"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Nama Penerima"
+                android:textStyle="bold"
+                android:textColor="@color/tuku_dark"/>
+
+            <EditText
+                android:id="@+id/etRecipientName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nama lengkap penerima"
+                android:inputType="textPersonName"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Nomor Telepon"
+                android:textStyle="bold"
+                android:textColor="@color/tuku_dark"/>
+
+            <EditText
+                android:id="@+id/etPhoneNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nomor HP aktif"
+                android:inputType="phone"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Alamat Lengkap"
+                android:textStyle="bold"
+                android:textColor="@color/tuku_dark"/>
+
+            <EditText
+                android:id="@+id/etFullAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Jalan, nomor rumah, kelurahan, kecamatan, kota, dan kode pos"
+                android:gravity="top"
+                android:minLines="3"
+                android:inputType="textMultiLine"/>
+
+            <CheckBox
+                android:id="@+id/cbSetAsPrimary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Jadikan alamat utama"/>
+
+            <Button
+                android:id="@+id/btnSaveAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Simpan Alamat"
+                android:backgroundTint="@color/tuku_primary"
+                android:textColor="@color/white"
+                android:padding="12dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

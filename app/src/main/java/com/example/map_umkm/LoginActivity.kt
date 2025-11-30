@@ -1,4 +1,3 @@
-// [FIXED] Kesalahan ketik pada package dan import sudah diperbaiki
 package com.example.map_umkm
 
 import android.content.Context
@@ -18,10 +17,6 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var btnLogin: Button
     private lateinit var btnRegister: Button
 
-    // Tambahkan DatabaseHelper
-    private lateinit var dbHelper: DatabaseHelper
-
-    // Firebase tetap ada
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
@@ -34,13 +29,11 @@ class LoginActivity : AppCompatActivity() {
         btnLogin = findViewById(R.id.btnLogin)
         btnRegister = findViewById(R.id.btnRegister)
 
-        // Inisialisasi DatabaseHelper dan Firebase
-        dbHelper = DatabaseHelper(this)
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
         btnLogin.setOnClickListener {
-            handleLogin()
+            handleFirebaseLogin() // [FIXED] Panggil fungsi login Firebase
         }
 
         btnRegister.setOnClickListener {
@@ -48,8 +41,8 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // Logika login digabung
-    private fun handleLogin() {
+    // [FIXED TOTAL] Logika login sekarang hanya ke Firebase
+    private fun handleFirebaseLogin() {
         val email = etEmail.text.toString().trim()
         val password = etPassword.text.toString().trim()
 
@@ -58,58 +51,53 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
-        // 1. Coba login ke database LOKAL terlebih dahulu
-        val localUserData = dbHelper.checkUser(email, password)
-        if (localUserData != null) {
-            val name = localUserData["name"] ?: ""
-            val role = localUserData["role"] ?: "user"
-            // Jika berhasil, langsung masuk tanpa perlu Firebase
-            onLoginSuccess(name, email, role, null) // uid null karena dari lokal
-            return
-        }
-
-        // 2. Jika di lokal tidak ada, baru coba login ke FIREBASE
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener { result ->
                 val uid = result.user?.uid
                 if (uid != null) {
+                    // Ambil data user dari Firestore untuk mendapatkan role & nama
                     db.collection("users").document(uid).get()
                         .addOnSuccessListener { document ->
-                            val role = document.getString("role") ?: "user"
-                            val name = document.getString("name") ?: ""
-                            // Login via Firebase berhasil
-                            onLoginSuccess(name, email, role, uid)
+                            if (document.exists()) {
+                                val role = document.getString("role") ?: "user"
+                                val name = document.getString("name") ?: email
+                                // [FIXED] Panggil onLoginSuccess dengan UID yang valid
+                                onLoginSuccess(name, email, role, uid)
+                            } else {
+                                Toast.makeText(this, "Data user tidak ditemukan di database.", Toast.LENGTH_SHORT).show()
+                            }
                         }
                         .addOnFailureListener {
-                            Toast.makeText(this, "Gagal mengambil data user dari Firestore.", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Gagal mengambil data user.", Toast.LENGTH_SHORT).show()
                         }
+                } else {
+                    Toast.makeText(this, "Terjadi kesalahan saat otentikasi.", Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener {
-                // Jika di lokal dan Firebase gagal, tampilkan error
-                Toast.makeText(this, "Email atau Password salah.", Toast.LENGTH_SHORT).show()
+                // Jika login Firebase gagal
+                Toast.makeText(this, "Login gagal: ${it.message}", Toast.LENGTH_LONG).show()
             }
     }
 
-    // Fungsi ini sekarang menerima uid yang bisa null
-    private fun onLoginSuccess(name: String, email: String, role: String, uid: String?) {
-        // Simpan sesi login ke SharedPreferences
+    // [FIXED] Fungsi ini sekarang PASTI menerima UID
+    private fun onLoginSuccess(name: String, email: String, role: String, uid: String) {
         val prefs = getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
         prefs.edit()
             .putString("userName", name)
             .putString("userEmail", email)
             .putString("userRole", role)
-            .putString("userUid", uid) // Simpan UID jika ada (dari Firebase)
+            .putString("userUid", uid) // UID PASTI ADA
             .apply()
 
-        // Arahkan ke activity yang sesuai berdasarkan role
+        val intent = Intent(this, MainActivity::class.java)
         if (role == "admin") {
             Toast.makeText(this, "Selamat datang, Admin!", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, AdminActivity::class.java))
+            intent.putExtra("openAdmin", true)
         } else {
             Toast.makeText(this, "Login berhasil!", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, MainActivity::class.java))
         }
-        finish() // Tutup LoginActivity agar tidak bisa kembali
+        startActivity(intent)
+        finish()
     }
 }

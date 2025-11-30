@@ -7,9 +7,8 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-// HAPUS IMPORT FIREBASE
-// import com.google.firebase.auth.FirebaseAuth
-// import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -18,16 +17,15 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var etPassword: EditText
     private lateinit var btnRegister: Button
     private lateinit var tvLogin: TextView
-
-    // [DIUBAH] Gunakan DatabaseHelper, bukan Firebase
-    private lateinit var dbHelper: DatabaseHelper
+    private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        // Inisialisasi DatabaseHelper
-        dbHelper = DatabaseHelper(this)
+        auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
 
         etName = findViewById(R.id.etName)
         etEmail = findViewById(R.id.etEmail)
@@ -35,17 +33,10 @@ class RegisterActivity : AppCompatActivity() {
         btnRegister = findViewById(R.id.btnRegister)
         tvLogin = findViewById(R.id.tvLogin)
 
-        tvLogin.setOnClickListener {
-            // Kembali ke halaman login
-            finish()
-        }
-
-        btnRegister.setOnClickListener {
-            handleRegister()
-        }
+        tvLogin.setOnClickListener { finish() }
+        btnRegister.setOnClickListener { handleRegister() }
     }
 
-    // [DIUBAH] Fungsi untuk mendaftar ke database lokal
     private fun handleRegister() {
         val name = etName.text.toString().trim()
         val email = etEmail.text.toString().trim()
@@ -64,14 +55,33 @@ class RegisterActivity : AppCompatActivity() {
             return
         }
 
-        // Panggil fungsi register dari DatabaseHelper
-        val isSuccess = dbHelper.registerUser(name, email, password)
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    val uid = user?.uid
 
-        if (isSuccess) {
-            Toast.makeText(this, "Registrasi berhasil! Silakan login.", Toast.LENGTH_LONG).show()
-            finish() // Tutup halaman register dan kembali ke login
-        } else {
-            Toast.makeText(this, "Email sudah terdaftar secara lokal.", Toast.LENGTH_SHORT).show()
-        }
+                    if (uid != null) {
+                        val userMap = hashMapOf(
+                            "name" to name,
+                            "email" to email,
+                            "role" to "user"
+                        )
+
+                        db.collection("users").document(uid).set(userMap)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Registrasi berhasil! Silakan login.", Toast.LENGTH_LONG).show()
+                                finish() // Kembali ke halaman login
+                            }
+                            .addOnFailureListener { e ->
+                                user.delete()
+                                Toast.makeText(this, "Gagal menyimpan data user: ${e.message}", Toast.LENGTH_LONG).show()
+                            }
+                    }
+                } else {
+                    val errorMessage = task.exception?.message ?: "Registrasi gagal, coba lagi."
+                    Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+                }
+            }
     }
 }

@@ -4,12 +4,26 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/nav_home">
+    <fragment
+        android:id="@+id/addEditAddressFragment"
+        android:name="com.example.map_umkm.AddEditAddressFragment"
+        android:label="AddEditAddressFragment"
+        tools:layout="@layout/fragment_add_edit_address"><argument
+        android:name="addressId"
+        app:argType="string"
+        app:nullable="true"
+        android:defaultValue="@null" />
+    </fragment>
+
 
     <fragment
         android:id="@+id/nav_home"
         android:name="com.example.map_umkm.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_alamatFragment_to_addEditAddressFragment"
+            app:destination="@id/addEditAddressFragment" />
 
         <action
             android:id="@+id/action_nav_home_to_nav_orders"
@@ -122,12 +136,14 @@
 
     <fragment
         android:id="@+id/alamatFragment"
-        android:name="com.example.map_umkm.AlamatFragment"
-        android:label="Alamat Pengiriman"
+        android:name="com.example.map_umkm.AlamatFragment"        android:label="Alamat Pengiriman"
         tools:layout="@layout/fragment_alamat">
+
+        <!-- [FIXED] Menambahkan action yang hilang untuk navigasi ke halaman tambah/edit -->
         <action
-            android:id="@+id/action_nav_profile_to_alamatFragment"
-            app:destination="@id/alamatFragment" />
+            android:id="@+id/action_alamatFragment_to_addEditAddressFragment"
+            app:destination="@id/addEditAddressFragment" />
+
     </fragment>
 
 
@@ -248,5 +264,37 @@
         android:name="com.example.map_umkm.RiwayatPoinFragment"
         android:label="Riwayat Poin"
         tools:layout="@layout/fragment_riwayat_poin" />
+
+
+    <!-- ============================= -->
+    <!--        ADMIN DASHBOARD        -->
+    <!-- ============================= -->
+    <fragment
+        android:id="@+id/adminDashboardFragment"
+        android:name="com.example.map_umkm.admin.AdminDashboardFragment"
+        android:label="Admin Dashboard"
+        tools:layout="@layout/fragment_admin_dashboard">
+
+        <action
+            android:id="@+id/action_adminDashboard_to_adminMenuFragment"
+            app:destination="@id/adminMenuFragment" />
+
+        <action
+            android:id="@+id/action_adminDashboard_to_adminOrderFragment"
+            app:destination="@id/adminOrderFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/adminMenuFragment"
+        android:name="com.example.map_umkm.AdminMenuFragment"
+        android:label="Kelola Menu"
+        tools:layout="@layout/fragment_admin_menu" />
+
+    <fragment
+        android:id="@+id/adminOrderFragment"
+        android:name="com.example.map_umkm.AdminOrdersFragment"
+        android:label="Kelola Pesanan"
+        tools:layout="@layout/fragment_admin_orders" />
 
 </navigation>
