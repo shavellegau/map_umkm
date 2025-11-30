@@ -71,7 +71,7 @@ class OngoingOrdersFragment : Fragment(), UserOrdersAdapter.OnItemClickListener 
             return
         }
 
-        // Kriteria Status Ongoing: Tambahkan semua status yang mungkin terjadi setelah checkout
+        // s Kriteria Status Ongoing: Tambahkan semua status yang mungkin terjadi setelah checkout
         // Misalnya: "Dibuat" atau "Baru"
         val ongoingStatuses = listOf("Menunggu Pembayaran", "Menunggu Konfirmasi", "Diproses", "Dibuat")
 
