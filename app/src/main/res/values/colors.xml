@@ -17,6 +17,7 @@
         <color name="divider">#E0E0E0</color>              <!-- Abu-abu muda untuk garis pemisah -->
         <color name="text_bantuan">#795548</color>          <!-- Warna teks bantuan yang sudah ada -->
         <color name="tuku_brown">#B68C5A</color>            <!-- Nama ini sudah ada, pastikan tetap ada -->
+        <color name="tuku_dark_grey">#70605A</color>
         <color name="tuku_green">#4CAF50</color>
         <color name="tuku_red">#D32F2F</color>
         <color name="tuku_gray">#9E9E9E</color>

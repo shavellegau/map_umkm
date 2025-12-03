@@ -15,6 +15,7 @@ data class Order(
     @SerializedName("userName")
     val userName: String = "",
 
+    // Tetap gunakan List<Product> sesuai kode aslimu agar Adapter tidak error
     @SerializedName("items")
     val items: List<Product> = emptyList(),
 
@@ -27,20 +28,8 @@ data class Order(
     @SerializedName("status")
     var status: String = "Menunggu Pembayaran",
 
+    // === UPDATE BARU: Token FCM User ===
+    // Field ini wajib ada agar Admin tahu ke mana harus mengirim notifikasi
     @SerializedName("userToken")
-    val userToken: String? = "",
-
-    // ===================================
-    //  PENAMBAHAN UNTUK FITUR DELIVERY
-    // ===================================
-    @SerializedName("isDelivery")
-    val isDelivery: Boolean = false, // Tandai apakah ini pesanan delivery
-
-    @SerializedName("deliveryAddress")
-    val deliveryAddress: String? = null, // Alamat pengiriman
-
-    @SerializedName("shippingCost")
-    val shippingCost: Double = 0.0 // Ongkos kirim
-    // ===================================
-
+    val userToken: String? = ""
 ) : Parcelable

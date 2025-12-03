@@ -6,16 +6,13 @@
     android:orientation="vertical"
     android:background="@color/tuku_bg">
 
-    <!-- Toolbar dengan tombol back -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar_add_voucher"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/tuku_primary"
         app:title="Buat Voucher Baru"
-        app:titleTextColor="@android:color/white"
-        app:navigationIcon="@drawable/ic_arrow_back"
-        app:navigationIconTint="@android:color/white"/>
+        app:titleTextColor="@android:color/white" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -27,101 +24,154 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <!-- CODE -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Kode Voucher (Unik)"
+                android:text="Informasi Dasar Voucher"
+                android:textSize="16sp"
                 android:textColor="@color/tuku_dark"
-                android:textStyle="bold"/>
-            <EditText
-                android:id="@+id/et_voucher_code"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:hint="Contoh: TUKU50"
-                android:background="@android:color/white"
-                android:padding="12dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:textAllCaps="true"
-                android:layout_marginBottom="16dp"/>
+                app:boxStrokeColor="@color/tuku_primary"
+                app:shapeAppearanceOverlay="@style/CustomCorners"
+                android:layout_marginBottom="4dp">
 
-            <!-- TITLE -->
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_voucher_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapCharacters"
+                    android:padding="16dp"
+                    android:textColor="@color/text_primary"
+                    android:background="@android:color/white"
+                    android:textStyle="bold" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Kode Voucher harus unik dan menggunakan huruf kapital."
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:layout_marginBottom="16dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:hint="Judul Promo (Contoh: Diskon Akhir Tahun)"
+                app:boxStrokeColor="@color/tuku_primary"
+                app:shapeAppearanceOverlay="@style/CustomCorners"
+                android:layout_marginBottom="24dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_voucher_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:textColor="@color/text_primary"
+                    android:background="@android:color/white" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider"
+                android:layout_marginBottom="24dp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Judul Promo"
+                android:text="Pengaturan Potongan &amp; Syarat"
+                android:textSize="16sp"
                 android:textColor="@color/tuku_dark"
-                android:textStyle="bold"/>
-            <EditText
-                android:id="@+id/et_voucher_title"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Contoh: Diskon Spesial Akhir Tahun"
-                android:background="@android:color/white"
-                android:padding="12dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:layout_marginBottom="16dp"/>
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:hint="Potongan Nominal (Contoh: 5000)"
+                app:prefixText="Rp"
+                app:prefixTextColor="@color/tuku_dark"
+                app:boxStrokeColor="@color/tuku_primary"
+                app:shapeAppearanceOverlay="@style/CustomCorners"
+                android:layout_marginBottom="16dp">
 
-            <!-- DISC AMOUNT -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nominal Potongan (Rp)"
-                android:textColor="@color/tuku_dark"
-                android:textStyle="bold"/>
-            <EditText
-                android:id="@+id/et_voucher_disc"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_voucher_disc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:padding="16dp"
+                    android:textColor="@color/text_primary"
+                    android:background="@android:color/white" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Contoh: 5000"
-                android:inputType="number"
-                android:background="@android:color/white"
-                android:padding="12dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:layout_marginBottom="16dp"/>
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:hint="Minimal Belanja (Contoh: 20000)"
+                app:prefixText="Rp"
+                app:prefixTextColor="@color/tuku_dark"
+                app:boxStrokeColor="@color/tuku_primary"
+                app:shapeAppearanceOverlay="@style/CustomCorners"
+                android:layout_marginBottom="24dp">
 
-            <!-- MINIMUM -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Minimal Belanja (Rp)"
-                android:textColor="@color/tuku_dark"
-                android:textStyle="bold"/>
-            <EditText
-                android:id="@+id/et_voucher_min"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Contoh: 20000"
-                android:inputType="number"
-                android:background="@android:color/white"
-                android:padding="12dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:layout_marginBottom="24dp"/>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_voucher_min"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:padding="16dp"
+                    android:textColor="@color/text_primary"
+                    android:background="@android:color/white" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- EXPIRY -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Tanggal Berakhir"
+                android:textSize="14sp"
                 android:textColor="@color/tuku_dark"
-                android:textStyle="bold"/>
-            <EditText
-                android:id="@+id/et_voucher_expiry"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_voucher_expiry"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Contoh: 31 Des 2025"
-                android:background="@android:color/white"
-                android:padding="12dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
-                android:layout_marginBottom="24dp"/>
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:boxStrokeColor="@color/tuku_primary"
+                app:shapeAppearanceOverlay="@style/CustomCorners"
+                android:layout_marginBottom="32dp"
+                app:endIconMode="custom"
+                app:endIconDrawable="@drawable/ic_calendar"
+                app:endIconTint="@color/tuku_brown">
 
-            <!-- SAVE BUTTON -->
-            <Button
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_voucher_expiry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Pilih tanggal berakhir"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:cursorVisible="false"
+                    android:padding="16dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:background="@android:color/white" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_save_voucher"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -129,9 +179,10 @@
                 android:textColor="@android:color/white"
                 android:backgroundTint="@color/tuku_primary"
                 android:padding="14dp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                app:cornerRadius="10dp"
+                android:elevation="2dp" />
 
         </LinearLayout>
     </ScrollView>
-
 </LinearLayout>
