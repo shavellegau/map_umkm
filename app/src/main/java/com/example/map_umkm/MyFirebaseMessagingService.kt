@@ -18,93 +18,110 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
-    // Gunakan Dispatchers.IO untuk operasi database
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
-    // Lazy init database
     private val database by lazy { AppDatabase.getDatabase(applicationContext) }
 
     private val CHANNEL_ID = "fcm_default_channel"
     private val CHANNEL_NAME = "Notifikasi Tuku"
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        Log.d("FCM_SERVICE", "Pesan diterima: ${remoteMessage.from}")
+        Log.d("FCM_SERVICE", "Pesan diterima dari: ${remoteMessage.from}")
 
-        // PRIORITAS 1: Cek Payload DATA (Yang berisi detail Order/Promo)
-        // Kita memprioritaskan ini karena mengandung info lengkap untuk Database
-        if (remoteMessage.data.isNotEmpty()) {
-            handleDataMessage(remoteMessage.data)
-        }
-        // PRIORITAS 2: Jika tidak ada Data, baru cek Payload Notification standar
-        else if (remoteMessage.notification != null) {
-            val title = remoteMessage.notification?.title ?: "Info"
-            val body = remoteMessage.notification?.body ?: ""
-            showNotification(title, body)
-        }
+        var title = remoteMessage.data["title"] ?: "Info Tuku"
+        var body = remoteMessage.data["body"] ?: "Ada pesan baru untukmu."
+        var status = remoteMessage.data["status"] ?: "INFO"
+        var orderId = remoteMessage.data["orderId"]
+        var timestamp = remoteMessage.data["timestamp"]?.toLongOrNull() ?: System.currentTimeMillis()
+
+        saveNotificationToDatabase(title, body, timestamp, status, orderId)
+        showNotification(title, body)
     }
 
-    private fun handleDataMessage(data: Map<String, String>) {
-        val title = data["title"] ?: "Pembaruan Aplikasi"
-        val body = data["body"] ?: "Informasi baru tersedia."
-        val status = data["status"] ?: "INFO"
+    private fun saveNotificationToDatabase(
+        title: String,
+        body: String,
+        timestamp: Long,
+        status: String,
+        orderId: String?
+    ) {
+        val id = UUID.randomUUID().toString()
+        val userEmail = getUserEmail()
 
-        // Handle OrderID: Jika Promo, orderId mungkin null atau string kosong
-        // Kita pastikan aman agar tidak error di Database
-        val orderId = data["orderId"] // Bisa null
+        if (userEmail == null) {
+            Log.e("FCM_ERROR", "Email user NULL → notifikasi tidak bisa disimpan ke Firestore")
+            return
+        }
 
-        val timestamp = data["timestamp"]?.toLongOrNull() ?: System.currentTimeMillis()
+        Log.d("FCM_DEBUG", "Simpan notifikasi untuk user: $userEmail")
 
-        // 1. Simpan ke Room Database
-        val notifEntity = NotificationEntity(
+        // SAVE ROOM
+        val notif = NotificationEntity(
+            id = id,
             title = title,
             body = body,
             timestamp = timestamp,
             status = status,
-            orderId = orderId, // Room Entity harus mengizinkan ini Nullable (String?)
+            orderId = orderId,
             isRead = false
         )
 
         scope.launch {
             try {
-                database.notificationDao().insert(notifEntity)
-                Log.d("FCM_ROOM", "Notif berhasil disimpan ke DB Lokal")
+                database.notificationDao().insert(notif)
+                Log.d("FCM_ROOM", "Room ✔ Berhasil simpan")
             } catch (e: Exception) {
-                Log.e("FCM_ROOM", "Gagal simpan ke DB: ${e.message}")
+                Log.e("FCM_ROOM", "Room ✖ Error: ${e.message}")
             }
         }
 
-        // 2. Tampilkan Notifikasi Bunyi Ting!
-        showNotification(title, body)
+        // SAVE FIRESTORE
+        val data = mapOf(
+            "id" to id,
+            "title" to title,
+            "body" to body,
+            "timestamp" to timestamp,
+            "status" to status,
+            "orderId" to (orderId ?: ""),
+            "isRead" to false,
+            "userEmail" to userEmail           // <= FIX UTAMA
+        )
+
+        scope.launch {
+            try {
+                FirebaseFirestore.getInstance()
+                    .collection("notifications")
+                    .document(id)
+                    .set(data, SetOptions.merge())
+
+                Log.d("FCM_FIRESTORE", "Firestore ✔ Berhasil simpan untuk $userEmail")
+            } catch (e: Exception) {
+                Log.e("FCM_FIRESTORE", "Firestore ✖ Error: ${e.message}")
+            }
+        }
+    }
+
+    private fun getUserEmail(): String? {
+        val firebase = FirebaseAuth.getInstance().currentUser
+        if (firebase?.email != null) return firebase.email
+
+        val prefs = applicationContext.getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
+        return prefs.getString("userEmail", null)
     }
 
     override fun onNewToken(token: String) {
-        Log.d("FCM_SERVICE", "Token Refresh: $token")
-        // Simpan ke SharedPrefs agar MainActivity bisa ambil nanti
         getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE)
             .edit()
             .putString("fcm_token", token)
             .apply()
-
-        // Opsional: Simpan ke Firestore (jika pakai)
-        sendRegistrationToServer(token)
-    }
-
-    private fun sendRegistrationToServer(token: String) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId != null) {
-            FirebaseFirestore.getInstance().collection("users").document(userId)
-                .set(mapOf("fcmToken" to token), SetOptions.merge())
-        }
     }
 
     private fun showNotification(title: String, message: String) {
-        // Intent agar saat diklik membuka MainActivity
-        val intent = Intent(this, MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        }
+        val intent = Intent(this, MainActivity::class.java)
+            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent,
@@ -112,11 +129,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         )
 
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground) // Pastikan ganti dengan icon transparan jika punya
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
             .setContentText(message)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(message)) // Agar teks panjang terbaca
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
 
@@ -124,13 +139,11 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                CHANNEL_ID, CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_HIGH
+                CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH
             )
             manager.createNotificationChannel(channel)
         }
 
-        // Gunakan Timestamp unik sebagai ID agar notifikasi menumpuk (tidak saling timpa)
         manager.notify(System.currentTimeMillis().toInt(), builder.build())
     }
 }

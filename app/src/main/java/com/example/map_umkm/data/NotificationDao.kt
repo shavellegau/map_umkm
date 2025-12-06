@@ -1,3 +1,4 @@
+// File: com/example/map_umkm/data/NotificationDao.kt
 package com.example.map_umkm.data
 
 import androidx.room.Dao
@@ -10,21 +11,23 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface NotificationDao {
 
-    /**
-     * Menyisipkan notifikasi baru ke database.
-     * Menggunakan OnConflictStrategy.REPLACE jika ID notifikasi sudah ada.
-     */
+    // Simpan satu notifikasi (dipakai MyFirebaseMessagingService)
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(notification: NotificationEntity)
 
-    /**
-     * Mengambil semua notifikasi dari tabel, diurutkan dari yang terbaru (DESCENDING).
-     */
+    // 🔥 FIX ERROR: insertAll (dipakai Repository saat sync)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(notifications: List<NotificationEntity>)
+
+    // 🔥 FIX ERROR: getAllNotifications (dipakai Repository)
     @Query("SELECT * FROM notifications ORDER BY timestamp DESC")
     fun getAllNotifications(): Flow<List<NotificationEntity>>
 
-    // Anda dapat menambahkan fungsi lain seperti:
+    // 🔥 FIX ERROR: deleteAll (dipakai Repository saat reset data)
+    @Query("DELETE FROM notifications")
+    suspend fun deleteAll()
 
-    // @Query("UPDATE notifications SET isRead = 1 WHERE id = :notificationId")
-    // suspend fun markAsRead(notificationId: Int)
+    // Update status baca
+    @Query("UPDATE notifications SET isRead = :isRead WHERE id = :notificationId")
+    suspend fun updateIsRead(notificationId: String, isRead: Boolean)
 }

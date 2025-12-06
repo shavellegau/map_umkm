@@ -70,53 +70,61 @@ class FCMService(private val context: Context) {
     ) {
         withContext(Dispatchers.IO) {
             try {
-                val url =
-                    URL("https://fcm.googleapis.com/v1/projects/$PROJECT_ID/messages:send")
+                val url = URL("https://fcm.googleapis.com/v1/projects/$PROJECT_ID/messages:send")
                 val conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "POST"
                 conn.setRequestProperty("Authorization", "Bearer $accessToken")
                 conn.setRequestProperty("Content-Type", "application/json; UTF-8")
                 conn.doOutput = true
 
+                // ... (Bagian pembuatan JSON Anda tetap sama) ...
                 val messageJson = JSONObject()
                 val messageContent = JSONObject()
 
-                // -------------------------------------------------------------------
-                //   LOGIKA PALING PENTING:
-                //   Jika target == "promo" → broadcast ke Topik
-                //   Jika target berupa token panjang → kirim ke user tertentu
-                // -------------------------------------------------------------------
                 if (target == "promo") {
                     messageContent.put("topic", "promo")
                 } else {
                     messageContent.put("token", target)
                 }
 
-                // NOTIFICATION PAYLOAD
                 val notification = JSONObject()
                 notification.put("title", title)
                 notification.put("body", bodyText)
 
-                // DATA PAYLOAD
                 val data = JSONObject()
                 data.put("title", title)
                 data.put("body", bodyText)
                 data.put("status", "UPDATE")
+                // Tambahkan orderId jika ada, atau string kosong jika broadcast
+                data.put("orderId", "")
                 data.put("timestamp", System.currentTimeMillis().toString())
 
                 messageContent.put("notification", notification)
                 messageContent.put("data", data)
-
                 messageJson.put("message", messageContent)
 
+                // Tulis Output
                 val os = OutputStreamWriter(conn.outputStream)
                 os.write(messageJson.toString())
                 os.flush()
                 os.close()
 
-                Log.d("FCM_SERVICE", "Status Kirim: ${conn.responseCode}")
+                val responseCode = conn.responseCode
+                Log.d("FCM_SERVICE", "Status Kirim: $responseCode")
+
+                // 🔥 TAMBAHAN PENTING: BACA ERROR JIKA GAGAL 🔥
+                if (responseCode >= 400) {
+                    val errorStream = conn.errorStream
+                    if (errorStream != null) {
+                        val errorResponse = errorStream.bufferedReader().use { it.readText() }
+                        Log.e("FCM_SERVICE", "GAGAL KIRIM! Detail Error: $errorResponse")
+                    }
+                } else {
+                    Log.d("FCM_SERVICE", "Berhasil terkirim ke: $target")
+                }
 
             } catch (e: Exception) {
+                Log.e("FCM_SERVICE", "Exception saat kirim: ${e.message}")
                 e.printStackTrace()
             }
         }
