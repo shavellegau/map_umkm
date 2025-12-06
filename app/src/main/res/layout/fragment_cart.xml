@@ -7,7 +7,6 @@
     android:background="@color/tuku_bg"
     tools:context=".CartFragment">
 
-    <!-- penting: supaya di atas navbar -->
     <LinearLayout
         android:id="@+id/layout_bottom"
         android:layout_width="match_parent"
@@ -19,7 +18,6 @@
         android:layout_marginBottom="?attr/actionBarSize"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <!-- Bagian Subtotal, Pajak, dan Total Bayar -->
         <LinearLayout
             android:id="@+id/layout_total_detail"
             android:layout_width="match_parent"
@@ -57,14 +55,12 @@
 
         </LinearLayout>
 
-        <!-- Baris bawah: Total Harga dan Tombol Lihat Pesanan -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-            <!-- Kontainer Total Harga -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -86,7 +82,6 @@
                     android:textColor="@android:color/white" />
             </LinearLayout>
 
-            <!-- Tombol Lihat Pesanan -->
             <Button
                 android:id="@+id/btn_view_order"
                 android:layout_width="wrap_content"
@@ -100,8 +95,6 @@
         </LinearLayout>
 
     </LinearLayout>
-
-    <!-- Konten Scrollable: Berhenti tepat di atas layout_bottom -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
         android:layout_width="0dp"
@@ -118,7 +111,6 @@
             android:orientation="vertical"
             android:paddingBottom="100dp">
 
-            <!-- Judul -->
             <TextView
                 android:id="@+id/tv_header"
                 android:layout_width="match_parent"
@@ -130,7 +122,87 @@
                 android:padding="12dp"
                 android:textColor="@color/tuku_primary" />
 
-            <!-- Search Bar -->
+                <LinearLayout
+                    android:id="@+id/layout_mode_selection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_mode_selection"
+                    android:padding="4dp">
+
+                    <Button
+                        android:id="@+id/btn_take_away"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Take Away"
+                        android:textColor="@color/black"
+                        android:backgroundTint="@color/tuku_accent"
+                        android:paddingVertical="12dp"
+                        android:stateListAnimator="@null"
+                        android:drawableStart="@drawable/ic_walk"
+                        android:drawablePadding="8dp"
+                        style="@style/Widget.AppCompat.Button.Borderless"/>
+
+                    <Button
+                        android:id="@+id/btn_delivery"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Delivery"
+                        android:textColor="@color/tuku_accent"
+                        android:backgroundTint="@android:color/transparent"
+                        android:paddingVertical="12dp"
+                        android:stateListAnimator="@null"
+                        android:drawableStart="@drawable/ic_takeaway"
+                        android:drawablePadding="8dp"
+                        style="@style/Widget.AppCompat.Button.Borderless"/>
+                </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/layout_branch_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_branch_info"
+                android:padding="12dp">
+
+                <ImageView
+                    android:id="@+id/iv_store_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_location"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="8dp"
+                    app:tint="@color/tuku_primary" />
+
+                <TextView
+                    android:id="@+id/tv_selected_branch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/iv_store_icon"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/tuku_primary"
+                    tools:text="RUKO GREEN LAKE CITY" />
+
+                <TextView
+                    android:id="@+id/btn_change_branch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:text="Ubah"
+                    android:textColor="@color/tuku_accent"
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </RelativeLayout>
+
             <EditText
                 android:id="@+id/et_search"
                 android:layout_width="match_parent"
@@ -145,7 +217,6 @@
                 android:maxLines="1"
                 android:padding="10dp" />
 
-            <!-- RecyclerViews -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_category"
                 android:layout_width="match_parent"
