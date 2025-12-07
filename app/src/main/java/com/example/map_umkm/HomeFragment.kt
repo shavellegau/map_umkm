@@ -24,16 +24,22 @@ import com.bumptech.glide.Glide
 import com.example.map_umkm.adapter.BannerAdapter
 import com.example.map_umkm.databinding.FragmentHomeBinding
 import com.example.map_umkm.model.MenuData
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.InputStreamReader
 import java.util.*
 
+//private val .uid: Any
+
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+    private var userListener: ListenerRegistration? = null
+
 
     private val handler = Handler(Looper.getMainLooper())
     private var timer: Timer? = null
@@ -83,6 +89,10 @@ class HomeFragment : Fragment() {
         loadSavedLocation()
         getVoucherCount()
         getUnreadNotificationCount()
+
+        val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
+        binding.tvUserGreeting.text = "Hi, ${prefs.getString("userName", "User")}!"
+        // ================================
     }
 
     // =================================================================
@@ -102,10 +112,23 @@ class HomeFragment : Fragment() {
      * Mengambil nama pengguna dari SharedPreferences dan menampilkannya di header.
      */
     private fun displayUserGreeting() {
-        val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
-        val userName = prefs.getString("userName", "Pengguna")
-        binding.tvUserGreeting.text = "Hi, ${userName} !"
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+        userListener = db.collection("users")
+            .document(uid)
+            .addSnapshotListener { doc, error ->
+                if (error != null) {
+                    Log.e("HomeFragment", "listener error: ${error.message}")
+                    return@addSnapshotListener
+                }
+                val newName = doc?.getString("name") ?: "Pengguna"
+                if (_binding != null) {
+                    binding.tvUserGreeting.text = "Hi, $newName!"
+                }
+            }
     }
+
+
 
     /**
      * Menghitung jumlah voucher publik aktif dari Firestore.
@@ -329,12 +352,16 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        userListener?.remove()
+        userListener = null
+
         timer?.cancel()
         timer = null
         updateRunnable?.let { handler.removeCallbacks(it) }
         updateRunnable = null
         _binding = null
     }
+
 
     // =================================================================
     // END: SETUP UI & LISTENER

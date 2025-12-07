@@ -1,6 +1,7 @@
 package com.example.map_umkm
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,9 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.userProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 
 class EditProfileFragment : Fragment() {
@@ -19,10 +23,8 @@ class EditProfileFragment : Fragment() {
 
         val view = inflater.inflate(R.layout.fragment_edit_profile, container, false)
 
-        // SharedPreferences
-        val prefs = requireActivity().getSharedPreferences("USER_SESSION", android.content.Context.MODE_PRIVATE)
+        val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
 
-        // UI Components
         val btnBack = view.findViewById<ImageView>(R.id.btnBack)
         val menuBirthday = view.findViewById<LinearLayout>(R.id.menuBirthday)
         val tvBirthday = view.findViewById<TextView>(R.id.tvBirthday)
@@ -31,24 +33,19 @@ class EditProfileFragment : Fragment() {
         val btnSave = view.findViewById<Button>(R.id.btnSave)
         val btnCloseReward = view.findViewById<ImageView>(R.id.btnCloseReward)
 
-        // Important fields (Nama & Email)
         val etNickname = view.findViewById<EditText>(R.id.etNickname)
         val tvEmail = view.findViewById<TextView>(R.id.tvEmail)
 
-        // LOAD DATA from SharedPreferences
         etNickname.setText(prefs.getString("userName", ""))
         tvEmail.text = prefs.getString("userEmail", "")
 
         tvBirthday.text = prefs.getString("userBirthday", "Select your birthday")
         tvGender.text = prefs.getString("userGender", "Select gender")
 
-
-        // Tombol back
         btnBack.setOnClickListener {
             findNavController().navigateUp()
         }
 
-        // Pilih tanggal lahir
         menuBirthday.setOnClickListener {
             val c = Calendar.getInstance()
             val year = c.get(Calendar.YEAR)
@@ -63,7 +60,6 @@ class EditProfileFragment : Fragment() {
             dpd.show()
         }
 
-        // Pilih gender
         menuGender.setOnClickListener {
             val options = arrayOf("Male", "Female", "Other")
             val builder = android.app.AlertDialog.Builder(requireContext())
@@ -77,29 +73,43 @@ class EditProfileFragment : Fragment() {
             builder.show()
         }
 
-        // Tutup reward info
         btnCloseReward.setOnClickListener {
             it.visibility = View.GONE
             Toast.makeText(requireContext(), "Reward dismissed", Toast.LENGTH_SHORT).show()
         }
 
-        // Tombol save
+
+        // ==========================================================
+        // ===============  MODIF BAGIAN SAVE =======================
+        // ==========================================================
+
         btnSave.setOnClickListener {
+            val newName = etNickname.text.toString().trim()
 
-            // SIMPAN ke SharedPreferences
             val editor = prefs.edit()
-
-            editor.putString("userName", etNickname.text.toString())   // update nama
+            editor.putString("userName", newName)
             editor.putString("userBirthday", tvBirthday.text.toString())
             editor.putString("userGender", tvGender.text.toString())
-
-            // Email TIDAK diubah karena XML kamu menetapkan email sebagai TextView
-
             editor.apply()
 
-            Toast.makeText(requireContext(), "Profile saved!", Toast.LENGTH_SHORT).show()
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
+            val db = FirebaseFirestore.getInstance()
 
-            findNavController().navigateUp()
+            db.collection("users").document(uid)
+                .update("name", newName)
+                .addOnSuccessListener {
+
+                    val user = FirebaseAuth.getInstance().currentUser
+                    val profileUpdates = userProfileChangeRequest {
+                        displayName = newName
+                    }
+
+                    user?.updateProfile(profileUpdates)
+                    user?.reload()
+
+                    Toast.makeText(requireContext(), "Profile saved!", Toast.LENGTH_SHORT).show()
+                    findNavController().navigateUp()
+                }
         }
 
         return view
