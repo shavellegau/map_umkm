@@ -86,6 +86,11 @@ class EditProfileFragment : Fragment() {
         btnSave.setOnClickListener {
             val newName = etNickname.text.toString().trim()
 
+            if (newName.isEmpty()) {
+                Toast.makeText(requireContext(), "Nama tidak boleh kosong!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             val editor = prefs.edit()
             editor.putString("userName", newName)
             editor.putString("userBirthday", tvBirthday.text.toString())
