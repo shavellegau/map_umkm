@@ -42,38 +42,125 @@ class AdminNotificationFragment : Fragment() {
         rvHistory = view.findViewById(R.id.rvBroadcastHistory)
 
         setupRecyclerView()
-
-        // Memuat riwayat broadcast yang pernah dikirim admin
         loadHistory()
 
         btnBuatBroadcast.setOnClickListener {
-            showPromoDialog()
+            showPromoDialog() // Dialog Buat Baru
         }
 
         return view
     }
 
     private fun setupRecyclerView() {
-        adapter = BroadcastAdapter(emptyList())
+        // 🔥 Tambahkan aksi saat item diklik -> Tampilkan Opsi Edit/Hapus
+        adapter = BroadcastAdapter(emptyList()) { historyItem ->
+            showOptionsDialog(historyItem)
+        }
         rvHistory.layoutManager = LinearLayoutManager(requireContext())
         rvHistory.adapter = adapter
     }
 
     private fun loadHistory() {
+        // Mengambil data secara Realtime
         db.collection("broadcast_history")
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshots, e ->
                 if (e != null) {
-                    Log.e("AdminNotif", "Listen failed.", e)
+                    Log.e("AdminNotif", "Error load history", e)
                     return@addSnapshotListener
                 }
 
                 if (snapshots != null) {
+                    // Karena kita pakai @DocumentId di model, ID otomatis terisi
                     val historyList = snapshots.toObjects(BroadcastHistory::class.java)
                     adapter.updateList(historyList)
                 }
             }
     }
+
+    // ==========================================================
+    // 🛠️ FITUR EDIT & HAPUS
+    // ==========================================================
+
+    private fun showOptionsDialog(item: BroadcastHistory) {
+        val options = arrayOf("Edit", "Hapus")
+        AlertDialog.Builder(requireContext())
+            .setTitle("Kelola Broadcast")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> showEditDialog(item) // Edit
+                    1 -> showDeleteConfirmation(item) // Hapus
+                }
+            }
+            .show()
+    }
+
+    // 🔥 Fungsi Hapus Data di Firestore 🔥
+    private fun showDeleteConfirmation(item: BroadcastHistory) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Hapus Riwayat?")
+            .setMessage("Data '${item.title}' akan dihapus dari riwayat admin.")
+            .setPositiveButton("Hapus") { _, _ ->
+                db.collection("broadcast_history").document(item.id)
+                    .delete()
+                    .addOnSuccessListener {
+                        Toast.makeText(context, "Berhasil dihapus", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(context, "Gagal hapus: ${it.message}", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .setNegativeButton("Batal", null)
+            .show()
+    }
+
+    // 🔥 Fungsi Edit Data di Firestore 🔥
+    private fun showEditDialog(item: BroadcastHistory) {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Edit Riwayat Broadcast")
+
+        val layout = LinearLayout(requireContext())
+        layout.orientation = LinearLayout.VERTICAL
+        layout.setPadding(50, 20, 50, 20)
+
+        val inputTitle = EditText(requireContext())
+        inputTitle.setText(item.title) // Isi data lama
+        layout.addView(inputTitle)
+
+        val inputBody = EditText(requireContext())
+        inputBody.setText(item.body) // Isi data lama
+        layout.addView(inputBody)
+
+        builder.setView(layout)
+
+        builder.setPositiveButton("Update") { _, _ ->
+            val newTitle = inputTitle.text.toString().trim()
+            val newBody = inputBody.text.toString().trim()
+
+            if (newTitle.isNotEmpty()) {
+                // Update Firestore
+                db.collection("broadcast_history").document(item.id)
+                    .update(
+                        mapOf(
+                            "title" to newTitle,
+                            "body" to newBody
+                        )
+                    )
+                    .addOnSuccessListener {
+                        Toast.makeText(context, "Data diperbarui", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(context, "Gagal update: ${it.message}", Toast.LENGTH_SHORT).show()
+                    }
+            }
+        }
+        builder.setNegativeButton("Batal", null)
+        builder.show()
+    }
+
+    // ==========================================================
+    // 📢 FITUR BUAT BARU (KIRIM NOTIFIKASI)
+    // ==========================================================
 
     private fun showPromoDialog() {
         val builder = AlertDialog.Builder(requireContext())
@@ -103,18 +190,16 @@ class AdminNotificationFragment : Fragment() {
                 return@setPositiveButton
             }
 
-            // 1. Simpan ke Riwayat Admin (Hanya untuk catatan Admin)
+            // 1. Simpan ke Riwayat Admin
             saveToHistory(title, body)
 
-            // 2. Kirim FCM Broadcast (Target "promo")
-            // Note: FCMService akan otomatis set status = "PROMO"
-            // Dan HP User akan otomatis menyimpannya ke Firestore User saat diterima.
+            // 2. Kirim FCM Broadcast
             fcmService.sendNotification("promo", title, body)
 
             Toast.makeText(context, "Broadcast dikirim!", Toast.LENGTH_SHORT).show()
         }
 
-        builder.setNegativeButton("Batal") { dialog, _ -> dialog.dismiss() }
+        builder.setNegativeButton("Batal", null)
         builder.show()
     }
 

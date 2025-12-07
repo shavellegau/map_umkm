@@ -11,140 +11,194 @@
         android:padding="16dp">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <TextView
-                android:text="Dashboard Admin"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:textColor="#2E1F17"
-                android:layout_marginBottom="16dp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Dashboard Admin"
+                android:textColor="#2E1F17"
+                android:textSize="22sp"
+                android:textStyle="bold" />
 
             <LinearLayout
-                android:orientation="horizontal"
-                android:weightSum="3"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="3">
 
                 <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_weight="1"
-                    android:padding="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/card_bg"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/card_bg"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <ImageView
-                        android:src="@drawable/cart"
                         android:layout_width="32dp"
-                        android:layout_height="32dp"/>
+                        android:layout_height="32dp"
+                        android:src="@drawable/cart" />
 
                     <TextView
                         android:id="@+id/tvTotalOrders"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:text="0"
                         android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="8dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:textStyle="bold" />
 
                     <TextView
-                        android:text="Pesanan Baru"
-                        android:textSize="14sp"
-                        android:textColor="#777"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:text="Pesanan Baru"
+                        android:textColor="#777"
+                        android:textSize="12sp" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_weight="1"
-                    android:padding="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/card_bg"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/card_bg"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <ImageView
-                        android:src="@drawable/food_menu"
                         android:layout_width="32dp"
-                        android:layout_height="32dp"/>
+                        android:layout_height="32dp"
+                        android:src="@drawable/food_menu" />
 
                     <TextView
                         android:id="@+id/tvTotalProducts"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:text="0"
                         android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="8dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:textStyle="bold" />
 
                     <TextView
-                        android:text="Diproses"
-                        android:textSize="14sp"
-                        android:textColor="#777"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:text="Diproses"
+                        android:textColor="#777"
+                        android:textSize="12sp" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_weight="1"
-                    android:padding="16dp"
-                    android:background="@drawable/card_bg"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/card_bg"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <ImageView
-                        android:src="@drawable/ic_person"
                         android:layout_width="32dp"
-                        android:layout_height="32dp"/>
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_person" />
 
                     <TextView
                         android:id="@+id/tvTotalUsers"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:text="0"
                         android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="8dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:textStyle="bold" />
 
                     <TextView
-                        android:text="Pesanan Selesai"
-                        android:textSize="14sp"
-                        android:textColor="#777"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:text="Selesai"
+                        android:textColor="#777"
+                        android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
 
             <TextView
-                android:text="Pesanan Terbaru"
-                android:textSize="18sp"
-                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:text="Pesanan Terbaru"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:scrollbars="none">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupFilter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:selectionRequired="true"
+                    app:singleLine="true"
+                    app:singleSelection="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipAll"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="Semua"
+                        android:textColor="@color/tuku_dark"
+                        app:chipBackgroundColor="@color/white" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipToday"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hari Ini"
+                        android:textColor="@color/tuku_dark"
+                        app:chipBackgroundColor="@color/white" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipYesterday"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Kemarin"
+                        android:textColor="@color/tuku_dark"
+                        app:chipBackgroundColor="@color/white" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipWeek"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="7 Hari Terakhir"
+                        android:textColor="@color/tuku_dark"
+                        app:chipBackgroundColor="@color/white" />
+
+                </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvRecentOrders"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false" />
 
             <TextView
                 android:id="@+id/tv_admin_no_orders"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Belum ada pesanan terbaru."
+                android:layout_marginTop="32dp"
                 android:gravity="center"
-                android:layout_marginTop="16dp"
-                android:visibility="gone"/>
+                android:text="Belum ada pesanan."
+                android:visibility="gone" />
 
         </LinearLayout>
     </ScrollView>

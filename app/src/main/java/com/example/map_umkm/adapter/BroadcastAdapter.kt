@@ -10,8 +10,11 @@ import com.example.map_umkm.model.BroadcastHistory
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class BroadcastAdapter(private var list: List<BroadcastHistory>) :
-    RecyclerView.Adapter<BroadcastAdapter.ViewHolder>() {
+// Tambahkan parameter onItemClick di constructor
+class BroadcastAdapter(
+    private var list: List<BroadcastHistory>,
+    private val onItemClick: (BroadcastHistory) -> Unit // Callback klik
+) : RecyclerView.Adapter<BroadcastAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvTitle: TextView = view.findViewById(R.id.tv_notification_title)
@@ -20,7 +23,6 @@ class BroadcastAdapter(private var list: List<BroadcastHistory>) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        // Menggunakan layout item_notification yang sudah Anda punya
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_notification, parent, false)
         return ViewHolder(view)
@@ -31,10 +33,14 @@ class BroadcastAdapter(private var list: List<BroadcastHistory>) :
         holder.tvTitle.text = item.title
         holder.tvBody.text = item.body
 
-        // Format Tanggal dari Firestore Timestamp
         val date = item.timestamp?.toDate()
         val format = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale("id", "ID"))
         holder.tvDate.text = if (date != null) format.format(date) else "-"
+
+        // 🔥 Pasang Listener Klik 🔥
+        holder.itemView.setOnClickListener {
+            onItemClick(item)
+        }
     }
 
     override fun getItemCount() = list.size
