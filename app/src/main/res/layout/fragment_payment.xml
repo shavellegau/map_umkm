@@ -7,6 +7,7 @@
     android:background="@color/tuku_bg"
     tools:context=".PaymentFragment">
 
+    <!-- APP BAR -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="0dp"
@@ -22,6 +23,7 @@
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back"
             app:title=" ">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -33,6 +35,142 @@
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- TOTAL DETAIL -->
+    <LinearLayout
+        android:id="@+id/layout_total_detail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:elevation="8dp"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnPay"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <!-- SUBTOTAL -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Subtotal"
+                android:textColor="@color/text_bantuan"
+                android:textSize="14sp" />
+            <TextView
+                android:id="@+id/tvSubtotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:textColor="@color/tuku_dark"
+                android:textSize="14sp"
+                tools:text="Rp55.000" />
+        </RelativeLayout>
+
+        <!-- TAX -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pajak (11%)"
+                android:textColor="@color/text_bantuan"
+                android:textSize="14sp" />
+            <TextView
+                android:id="@+id/tvTax"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:textColor="@color/tuku_dark"
+                android:textSize="14sp"
+                tools:text="Rp6.050" />
+        </RelativeLayout>
+
+        <!-- SHIPPING COST -->
+        <RelativeLayout
+            android:id="@+id/layout_shipping_cost"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ongkos Kirim"
+                android:textColor="@color/text_bantuan"
+                android:textSize="14sp" />
+            <TextView
+                android:id="@+id/tvShippingCost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:textColor="@color/tuku_dark"
+                android:textSize="14sp"
+                tools:text="Rp10.000" />
+        </RelativeLayout>
+
+        <!-- DISCOUNT -->
+        <RelativeLayout
+            android:id="@+id/layout_discount_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Diskon Voucher"
+                android:textStyle="bold"
+                android:textColor="#4CAF50"
+                android:textSize="14sp" />
+            <TextView
+                android:id="@+id/tvDiscountInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:textColor="#4CAF50"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                tools:text="-Rp5.000" />
+        </RelativeLayout>
+
+        <!-- DIVIDER -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#EEEEEE"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- TOTAL PAYMENT -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total Pembayaran"
+                android:textColor="@color/tuku_dark"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/tvTotalPayment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:textColor="@color/tuku_dark"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="Rp61.050" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <!-- BUTTON PAY -->
     <Button
         android:id="@+id/btnPay"
         android:layout_width="0dp"
@@ -51,142 +189,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/layout_total_detail"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        android:elevation="8dp"
-        android:orientation="vertical"
-        android:padding="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnPay"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:text="Subtotal"
-                android:textColor="@color/text_bantuan"
-                android:textSize="14sp" />
-            <TextView
-                android:id="@+id/tvSubtotal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:textColor="@color/tuku_dark"
-                android:textSize="14sp"
-                tools:text="Rp55.000" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:text="Pajak (11%)"
-                android:textColor="@color/text_bantuan"
-                android:textSize="14sp" />
-            <TextView
-                android:id="@+id/tvTax"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:textColor="@color/tuku_dark"
-                android:textSize="14sp"
-                tools:text="Rp6.050" />
-        </RelativeLayout>
-
-        <!-- =================================== -->
-        <!--        ONGKOS KIRIM (BARU)          -->
-        <!-- =================================== -->
-        <RelativeLayout
-            android:id="@+id/layout_shipping_cost"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:visibility="gone"
-            tools:visibility="visible">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:text="Ongkos Kirim"
-                android:textColor="@color/text_bantuan"
-                android:textSize="14sp" />
-            <TextView
-                android:id="@+id/tvShippingCost"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:textColor="@color/tuku_dark"
-                android:textSize="14sp"
-                tools:text="Rp10.000" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/layout_discount_info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone"
-            tools:visibility="visible">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:text="Diskon Voucher"
-                android:textStyle="bold"
-                android:textColor="#4CAF50"
-                android:textSize="14sp" />
-            <TextView
-                android:id="@+id/tvDiscountInfo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:textColor="#4CAF50"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                tools:text="-Rp5.000" />
-        </RelativeLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#EEEEEE"
-            android:layout_marginBottom="8dp"/>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:text="Total Pembayaran"
-                android:textColor="@color/tuku_dark"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-            <TextView
-                android:id="@+id/tvTotalPayment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:textColor="@color/tuku_dark"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                tools:text="Rp61.050" />
-        </RelativeLayout>
-    </LinearLayout>
-
+    <!-- DIVIDER ABOVE TOTAL -->
     <View
         android:id="@+id/divider"
         android:layout_width="0dp"
@@ -196,6 +199,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- SCROLL VIEW -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="0dp"
@@ -211,9 +215,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- =================================== -->
-            <!--   PILIHAN TAKE AWAY/DELIVERY (BARU)   -->
-            <!-- =================================== -->
+            <!-- ORDER TYPE -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -233,21 +235,19 @@
                 <RadioButton
                     android:id="@+id/rb_take_away"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Ambil di Tempat"/>
+                    android:layout_weight="1"
+                    android:text="Ambil di Tempat" />
 
                 <RadioButton
                     android:id="@+id/rb_delivery"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Pesan Antar"/>
+                    android:layout_weight="1"
+                    android:text="Pesan Antar" />
             </RadioGroup>
 
-            <!-- =================================== -->
-            <!--     INFO PENGIRIMAN (BARU)        -->
-            <!-- =================================== -->
+            <!-- DELIVERY INFO -->
             <LinearLayout
                 android:id="@+id/layout_delivery_info"
                 android:layout_width="match_parent"
@@ -259,29 +259,73 @@
                 android:visibility="gone"
                 tools:visibility="visible">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Alamat Pengiriman"
-                    android:textStyle="bold"/>
-
-                <TextView
-                    android:id="@+id/tv_delivery_address"
+                <LinearLayout
+                    android:id="@+id/layout_address_selected"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    tools:text="Jl. Kebahagiaan No. 123, Jakarta Selatan, 12345"/>
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
-                <Button
-                    android:id="@+id/btn_change_address"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Alamat Pengiriman"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_delivery_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:maxLines="3"
+                        android:ellipsize="end"
+                        tools:text="Budi (08123) - Jl. Kebahagiaan No. 123, Cilandak, Jakarta Selatan, 12430" />
+
+                    <Button
+                        android:id="@+id/btn_change_address"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:text="Ubah Alamat"
+                        android:textAllCaps="false" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_order_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        tools:itemCount="3"
+                        tools:listitem="@layout/item_cart_product" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_address_empty"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Ubah Alamat"
-                    android:textAllCaps="false"/>
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:visibility="gone"
+                    tools:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Anda belum memilih alamat pengiriman."
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginBottom="8dp" />
+
+                    <Button
+                        android:id="@+id/btn_add_new_address"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tambah Alamat Baru"
+                        android:textAllCaps="false" />
+                </LinearLayout>
             </LinearLayout>
 
-            <!-- Item Pesanan (Sudah Ada) -->
+            <!-- ITEM PESANAN -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -291,15 +335,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_order_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                tools:itemCount="3"
-                tools:listitem="@layout/item_cart_product" />
-
-            <!-- Voucher (Sudah Ada) -->
+            <!-- VOUCHER -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -307,12 +343,13 @@
                 android:layout_marginTop="24dp"
                 android:background="@drawable/bg_rounded_border"
                 android:padding="12dp">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Punya Kode Voucher?"
                     android:textStyle="bold"
-                    android:layout_marginBottom="8dp"/>
+                    android:layout_marginBottom="8dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -328,7 +365,7 @@
                         android:textAllCaps="true"
                         android:textSize="14sp"
                         android:padding="10dp"
-                        android:background="@android:color/white"/>
+                        android:background="@android:color/white" />
 
                     <Button
                         android:id="@+id/btn_apply_voucher"
@@ -337,7 +374,7 @@
                         android:text="PAKAI"
                         android:backgroundTint="@color/tuku_dark"
                         android:textColor="@android:color/white"
-                        android:layout_marginStart="8dp"/>
+                        android:layout_marginStart="8dp" />
                 </LinearLayout>
             </LinearLayout>
 

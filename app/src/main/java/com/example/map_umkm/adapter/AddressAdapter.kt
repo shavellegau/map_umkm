@@ -11,6 +11,8 @@ import com.example.map_umkm.model.Address
 
 class AddressAdapter(
     private var addresses: List<Address>,
+    // [DIUBAH] Tambahkan listener baru untuk klik pada item
+    private val onItemClick: (Address) -> Unit,
     private val onEdit: (Address) -> Unit,
     private val onDelete: (Address) -> Unit,
     private val onSetPrimary: (Address) -> Unit
@@ -47,6 +49,13 @@ class AddressAdapter(
             holder.tvIsPrimary.visibility = View.GONE
             holder.btnSetPrimary.visibility = View.VISIBLE
         }
+
+        // --- [BAGIAN YANG PALING PENTING] ---
+        // Tambahkan listener pada seluruh item view
+        holder.itemView.setOnClickListener {
+            onItemClick(address)
+        }
+        // ------------------------------------
 
         holder.btnEdit.setOnClickListener { onEdit(address) }
         holder.btnDelete.setOnClickListener { onDelete(address) }

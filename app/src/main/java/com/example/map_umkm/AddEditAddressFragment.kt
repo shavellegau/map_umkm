@@ -37,18 +37,20 @@ class AddEditAddressFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         currentAddressId = args.addressId
-        setupListeners() // Pemasangan listener lebih awal
+        setupListeners()
 
         if (currentAddressId == null) {
             binding.toolbar.title = "Tambah Alamat Baru"
         } else {
             binding.toolbar.title = "Ubah Alamat"
-            loadAddressData(currentAddressId!!)
+            // [FIXED] Panggil fungsi load dengan UID
+            auth.currentUser?.uid?.let { uid ->
+                loadAddressData(uid, currentAddressId!!)
+            }
         }
     }
 
     private fun setupListeners() {
-        // [FIXED] Listener ini akan berfungsi setelah masalah login & dependensi diselesaikan
         binding.toolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
@@ -57,9 +59,12 @@ class AddEditAddressFragment : Fragment() {
         }
     }
 
-    private fun loadAddressData(id: String) {
+    /**
+     * [FIXED] Memuat data dari subcollection users/{uid}/addresses/{addressId}
+     */
+    private fun loadAddressData(uid: String, addressId: String) {
         setLoading(true)
-        db.collection("addresses").document(id).get()
+        db.collection("users").document(uid).collection("addresses").document(addressId).get()
             .addOnSuccessListener { document ->
                 if (!isAdded) return@addOnSuccessListener
                 if (document != null && document.exists()) {
@@ -83,7 +88,6 @@ class AddEditAddressFragment : Fragment() {
     }
 
     private fun handleSave() {
-        // [FIXED] Ambil UID dari instance auth. Setelah login via Firebase, ini PASTI ada.
         val uid = auth.currentUser?.uid
         if (uid.isNullOrEmpty()) {
             Log.e("AddEditAddress", "Gagal menyimpan: UID pengguna null. Sesi login Firebase tidak ada.")
@@ -106,15 +110,22 @@ class AddEditAddressFragment : Fragment() {
         saveAddressToFirestore(uid, label, recipientName, phone, fullAddress, binding.cbSetAsPrimary.isChecked)
     }
 
+    /**
+     * [FIXED] Menyimpan data ke subcollection users/{uid}/addresses/{addressId}
+     */
     private fun saveAddressToFirestore(
         uid: String, label: String, recipientName: String, phone: String, fullAddress: String, isPrimary: Boolean
     ) {
+        // [PERBAIKAN UTAMA] Path sekarang menunjuk ke subcollection di bawah user
+        val collectionRef = db.collection("users").document(uid).collection("addresses")
+
         val docRef = if (currentAddressId == null) {
-            db.collection("addresses").document()
+            collectionRef.document() // Buat dokumen baru di dalam subcollection
         } else {
-            db.collection("addresses").document(currentAddressId!!)
+            collectionRef.document(currentAddressId!!) // Tunjuk ke dokumen yang ada
         }
 
+        // `uid` di dalam objek Address sebenarnya redundan jika sudah di subcollection, tapi tidak apa-apa untuk disimpan
         val address = Address(docRef.id, uid, label, recipientName, phone, fullAddress, null, isPrimary)
 
         if (isPrimary) {
@@ -126,11 +137,15 @@ class AddEditAddressFragment : Fragment() {
         }
     }
 
+    /**
+     * [FIXED] Mengubah status primary pada alamat lain di subcollection yang sama
+     */
     private fun unsetOtherPrimaryAndSave(addressToSave: Address, docRef: DocumentReference) {
         val uid = auth.currentUser?.uid ?: run { onSaveComplete(false); return }
         val batch = db.batch()
 
-        db.collection("addresses").whereEqualTo("uid", uid).whereEqualTo("isPrimary", true).get()
+        // [PERBAIKAN UTAMA] Query ke subcollection yang benar
+        db.collection("users").document(uid).collection("addresses").whereEqualTo("isPrimary", true).get()
             .addOnSuccessListener { snapshot ->
                 snapshot.documents.forEach { doc ->
                     if (doc.id != addressToSave.id) {
@@ -160,9 +175,10 @@ class AddEditAddressFragment : Fragment() {
     }
 
     private fun setLoading(isLoading: Boolean) {
-        if (!isAdded) return
-        binding.btnSaveAddress.isEnabled = !isLoading
-        binding.btnSaveAddress.text = if (isLoading) "Menyimpan..." else "Simpan Alamat"
+        if (isAdded && _binding != null) {
+            binding.btnSaveAddress.isEnabled = !isLoading
+            binding.btnSaveAddress.text = if (isLoading) "Menyimpan..." else "Simpan Alamat"
+        }
     }
 
     override fun onDestroyView() {

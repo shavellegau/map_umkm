@@ -1,10 +1,11 @@
 package com.example.map_umkm
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
-import android.widget.Toast
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,6 +15,7 @@ import com.example.map_umkm.model.Address
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 
 class AlamatFragment : Fragment() {
 
@@ -35,22 +37,24 @@ class AlamatFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupRecyclerView()
         setupListeners()
+    }
+
+    override fun onStart() {
+        super.onStart()
         loadAddresses()
     }
 
     override fun onStop() {
         super.onStop()
-        addressListener?.remove() // Hentikan listener untuk hemat resource
+        addressListener?.remove()
     }
 
     private fun setupListeners() {
         binding.btnBack.setOnClickListener {
             findNavController().popBackStack()
         }
-
         binding.btnTambahAlamat.setOnClickListener {
             val action = AlamatFragmentDirections.actionAlamatFragmentToAddEditAddressFragment(null)
             findNavController().navigate(action)
@@ -60,21 +64,17 @@ class AlamatFragment : Fragment() {
     private fun setupRecyclerView() {
         addressAdapter = AddressAdapter(
             emptyList(),
+            onItemClick = { selectedAddress ->
+                findNavController().previousBackStackEntry?.savedStateHandle?.set("selectedAddress", selectedAddress)
+                Toast.makeText(context, "Menggunakan alamat '${selectedAddress.label}'", Toast.LENGTH_SHORT).show()
+                findNavController().popBackStack()
+            },
             onEdit = { address ->
-                // Kirim ID alamat ke halaman edit
                 val action = AlamatFragmentDirections.actionAlamatFragmentToAddEditAddressFragment(address.id)
                 findNavController().navigate(action)
             },
-            onDelete = { address ->
-                // Hapus alamat dari Firestore
-                db.collection("addresses").document(address.id).delete()
-                    .addOnSuccessListener {
-                        Toast.makeText(context, "Alamat berhasil dihapus", Toast.LENGTH_SHORT).show()
-                    }
-            },
-            onSetPrimary = { address ->
-                setPrimaryAddress(address)
-            }
+            onDelete = { address -> showDeleteConfirmation(address) },
+            onSetPrimary = { address -> setPrimaryAddress(address) }
         )
         binding.rvAddresses.apply {
             layoutManager = LinearLayoutManager(context)
@@ -83,24 +83,37 @@ class AlamatFragment : Fragment() {
     }
 
     private fun loadAddresses() {
-        val uid = auth.currentUser?.uid ?: return
+        setLoading(true)
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            Toast.makeText(context, "Sesi tidak valid, silakan login ulang.", Toast.LENGTH_SHORT).show()
+            setLoading(false)
+            return
+        }
+
         addressListener?.remove()
 
-        addressListener = db.collection("addresses")
-            .whereEqualTo("uid", uid)
+        addressListener = db.collection("users").document(uid).collection("addresses")
+            .orderBy("isPrimary", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
-                if (error != null || !isAdded) {
+                setLoading(false)
+                if (error != null) {
+                    Log.w("AlamatFragment", "Gagal memuat alamat", error)
+                    Toast.makeText(context, "Gagal memuat alamat.", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
 
-                val addresses = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(Address::class.java)?.apply { id = doc.id }
-                }?.sortedByDescending { it.isPrimary } ?: emptyList()
+                if (!isAdded || _binding == null) return@addSnapshotListener
 
-                // Logika visibilitas yang benar
-                val isEmpty = addresses.isEmpty()
-                binding.tvEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
-                binding.rvAddresses.visibility = if (isEmpty) View.GONE else View.VISIBLE
+                val addresses = snapshot?.toObjects(Address::class.java) ?: emptyList()
+
+                if (addresses.isEmpty()) {
+                    binding.tvEmpty.visibility = View.VISIBLE
+                    binding.rvAddresses.visibility = View.GONE
+                } else {
+                    binding.tvEmpty.visibility = View.GONE
+                    binding.rvAddresses.visibility = View.VISIBLE
+                }
 
                 addressAdapter.updateData(addresses)
             }
@@ -108,19 +121,52 @@ class AlamatFragment : Fragment() {
 
     private fun setPrimaryAddress(newPrimaryAddress: Address) {
         val uid = auth.currentUser?.uid ?: return
+        setLoading(true)
         val batch = db.batch()
 
-        db.collection("addresses").whereEqualTo("uid", uid).get()
+        db.collection("users").document(uid).collection("addresses").get()
             .addOnSuccessListener { snapshot ->
                 snapshot.documents.forEach { doc ->
-                    // Gunakan logika boolean: true jika ID-nya cocok, false jika tidak
                     batch.update(doc.reference, "isPrimary", (doc.id == newPrimaryAddress.id))
                 }
-
-                batch.commit().addOnSuccessListener {
-                    Toast.makeText(context, "${newPrimaryAddress.label} dijadikan alamat utama", Toast.LENGTH_SHORT).show()
+                batch.commit().addOnCompleteListener { task ->
+                    setLoading(false)
+                    if(task.isSuccessful){
+                        Toast.makeText(context, "'${newPrimaryAddress.label}' dijadikan alamat utama", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "Gagal mengubah alamat utama", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
+            .addOnFailureListener { e ->
+                setLoading(false)
+                Log.e("AlamatFragment", "Gagal set primary", e)
+                Toast.makeText(context, "Gagal mengambil data alamat", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun showDeleteConfirmation(address: Address) {
+        val uid = auth.currentUser?.uid ?: return
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle("Hapus Alamat")
+            .setMessage("Anda yakin ingin menghapus alamat '${address.label}'?")
+            .setPositiveButton("Hapus") { _, _ ->
+                db.collection("users").document(uid).collection("addresses").document(address.id).delete()
+                    .addOnFailureListener { e ->
+                        Log.e("AlamatFragment", "Gagal hapus", e)
+                        Toast.makeText(context, "Gagal menghapus alamat", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .setNegativeButton("Batal", null)
+            .show()
+    }
+
+    private fun setLoading(isLoading: Boolean) {
+        if (isAdded && _binding != null) {
+            binding.btnTambahAlamat.isEnabled = !isLoading
+            // Jika Anda punya ProgressBar, atur visibilitasnya di sini
+            // binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
     }
 
     override fun onDestroyView() {

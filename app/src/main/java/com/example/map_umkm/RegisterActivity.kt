@@ -1,6 +1,5 @@
 package com.example.map_umkm
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
 import android.widget.Button
@@ -8,8 +7,8 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth // <-- Import Firebase Auth
-import com.google.firebase.firestore.FirebaseFirestore // <-- Import Firebase Firestore
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -18,9 +17,6 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var etPassword: EditText
     private lateinit var btnRegister: Button
     private lateinit var tvLogin: TextView
-
-    // [DIHAPUS] DatabaseHelper tidak digunakan lagi untuk registrasi.
-    // private lateinit var dbHelper: DatabaseHelper
 
     // [DITAMBAH] Inisialisasi Firebase Authentication dan Firestore
     private lateinit var auth: FirebaseAuth
@@ -93,7 +89,7 @@ class RegisterActivity : AppCompatActivity() {
                                 finish() // Kembali ke halaman login
                             }
                             .addOnFailureListener { e ->
-                                // Gagal menyimpan data ke Firestore. Hapus akun Auth yang sudah dibuat.
+                                // Gagal menyimpan data ke Firestore. Hapus akun Auth yang sudah dibuat agar tidak jadi akun "hantu".
                                 user.delete()
                                 Toast.makeText(this, "Gagal menyimpan data user: ${e.message}", Toast.LENGTH_LONG).show()
                             }
