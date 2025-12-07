@@ -1,14 +1,11 @@
 package com.example.map_umkm
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log // Tambahkan Log untuk debugging
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -16,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.adapter.AdminOrdersAdapter
 import com.example.map_umkm.model.Order
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ListenerRegistration
@@ -27,18 +23,19 @@ class AdminOrdersFragment : Fragment() {
     private lateinit var rvRecentOrders: RecyclerView
     private lateinit var tvEmpty: TextView
     private lateinit var adapter: AdminOrdersAdapter
-    private lateinit var fabAction: FloatingActionButton
+    // HAPUS: fabAction (FloatingActionButton) sudah dihapus
 
-    // 🔥 VARIABEL UI STATISTIK BARU (sesuai ID di XML Anda) 🔥
+    // UI Statistik
     private lateinit var tvTotalOrders: TextView
-    private lateinit var tvTotalProducts: TextView // Akan digunakan untuk 'Diproses'
-    private lateinit var tvTotalUsers: TextView   // Akan digunakan untuk 'Selesai'
+    private lateinit var tvTotalProducts: TextView
+    private lateinit var tvTotalUsers: TextView
 
     // Firebase & Listener
     private lateinit var fcmService: FCMService
     private val db = FirebaseFirestore.getInstance()
     private var orderListener: ListenerRegistration? = null
-    // Anda mungkin perlu listener terpisah untuk statistik jika ingin menghentikannya secara terpisah
+
+    // Listener Statistik
     private var statsListener1: ListenerRegistration? = null
     private var statsListener2: ListenerRegistration? = null
     private var statsListener3: ListenerRegistration? = null
@@ -55,24 +52,23 @@ class AdminOrdersFragment : Fragment() {
         // 1. Inisialisasi Daftar Pesanan
         rvRecentOrders = view.findViewById(R.id.rvRecentOrders)
         tvEmpty = view.findViewById(R.id.tv_admin_no_orders)
-        fabAction = view.findViewById(R.id.fab_add_promo)
+        // HAPUS: Inisialisasi fabAction dihapus
 
-        // 2. 🔥 Inisialisasi Statistik 🔥
+        // 2. Inisialisasi Statistik
         tvTotalOrders = view.findViewById(R.id.tvTotalOrders)
         tvTotalProducts = view.findViewById(R.id.tvTotalProducts)
         tvTotalUsers = view.findViewById(R.id.tvTotalUsers)
 
         setupRecyclerView()
-        fabAction.setOnClickListener { showPromoDialog() }
+        // HAPUS: Listener fabAction.setOnClickListener dihapus
 
         return view
     }
 
     override fun onResume() {
         super.onResume()
-        // Mulai mendengarkan daftar pesanan
+        // Mulai mendengarkan data
         startListeningForOrders()
-        // 🔥 Mulai mendengarkan statistik 🔥
         startListeningForStats()
     }
 
@@ -94,7 +90,8 @@ class AdminOrdersFragment : Fragment() {
             .addSnapshotListener { snapshots, e ->
                 if (e != null) {
                     Log.e("Firestore", "Order list listen failed.", e)
-                    Toast.makeText(context, "Gagal memuat daftar pesanan.", Toast.LENGTH_LONG).show()
+                    // Cek if context null sebelum toast untuk menghindari crash saat fragment detach
+                    context?.let { Toast.makeText(it, "Gagal memuat daftar pesanan.", Toast.LENGTH_LONG).show() }
                     tvEmpty.visibility = View.VISIBLE
                     return@addSnapshotListener
                 }
@@ -112,14 +109,13 @@ class AdminOrdersFragment : Fragment() {
             }
     }
 
-    // ---------------- 🔥 FUNGSI LOAD STATISTIK BARU 🔥 ------------------
+    // ---------------- FUNGSI LOAD STATISTIK ------------------
     private fun startListeningForStats() {
         // 1. Pesanan Baru (Menunggu Konfirmasi / Menunggu Pembayaran)
         statsListener1?.remove()
         statsListener1 = db.collection("orders")
             .whereIn("status", listOf("Menunggu Konfirmasi", "Menunggu Pembayaran"))
-            .addSnapshotListener { snapshots, e ->
-                if (e != null) { Log.e("Firestore", "Stats 1 failed.", e); return@addSnapshotListener }
+            .addSnapshotListener { snapshots, _ ->
                 val count = snapshots?.size() ?: 0
                 tvTotalOrders.text = count.toString()
             }
@@ -128,8 +124,7 @@ class AdminOrdersFragment : Fragment() {
         statsListener2?.remove()
         statsListener2 = db.collection("orders")
             .whereEqualTo("status", "Diproses")
-            .addSnapshotListener { snapshots, e ->
-                if (e != null) { Log.e("Firestore", "Stats 2 failed.", e); return@addSnapshotListener }
+            .addSnapshotListener { snapshots, _ ->
                 val count = snapshots?.size() ?: 0
                 tvTotalProducts.text = count.toString()
             }
@@ -138,8 +133,7 @@ class AdminOrdersFragment : Fragment() {
         statsListener3?.remove()
         statsListener3 = db.collection("orders")
             .whereEqualTo("status", "Selesai")
-            .addSnapshotListener { snapshots, e ->
-                if (e != null) { Log.e("Firestore", "Stats 3 failed.", e); return@addSnapshotListener }
+            .addSnapshotListener { snapshots, _ ->
                 val count = snapshots?.size() ?: 0
                 tvTotalUsers.text = count.toString()
             }
@@ -157,8 +151,8 @@ class AdminOrdersFragment : Fragment() {
             .document(orderId)
             .update("status", newStatus)
             .addOnSuccessListener {
-                Toast.makeText(context, "Status diubah menjadi $newStatus", Toast.LENGTH_SHORT).show()
-                // Angka statistik dan daftar pesanan akan otomatis terupdate oleh listener
+                Toast.makeText(context, "Status: $newStatus", Toast.LENGTH_SHORT).show()
+                // Kirim notifikasi personal ke user terkait pesanan ini
                 if (!token.isNullOrEmpty()) {
                     fcmService.sendNotification(token, title, body)
                 }
@@ -192,39 +186,5 @@ class AdminOrdersFragment : Fragment() {
         rvRecentOrders.adapter = adapter
     }
 
-    // ---------------- BROADCAST PROMO ------------------
-    private fun showPromoDialog() {
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Kirim Info Broadcast")
-        builder.setMessage("Pesan ini dikirim ke semua user (topic: promo).")
-
-        val layout = LinearLayout(requireContext())
-        layout.orientation = LinearLayout.VERTICAL
-        layout.setPadding(50, 20, 50, 20)
-
-        val inputTitle = EditText(requireContext())
-        inputTitle.hint = "Judul"
-        layout.addView(inputTitle)
-
-        val inputBody = EditText(requireContext())
-        inputBody.hint = "Isi pesan"
-        layout.addView(inputBody)
-
-        builder.setView(layout)
-
-        builder.setPositiveButton("Kirim") { _, _ ->
-            val title = inputTitle.text.toString()
-            val body = inputBody.text.toString()
-
-            if (title.isEmpty()) {
-                Toast.makeText(context, "Judul tidak boleh kosong", Toast.LENGTH_SHORT).show()
-                return@setPositiveButton
-            }
-
-            fcmService.sendNotification("promo", title, body)
-            Toast.makeText(context, "Broadcast terkirim!", Toast.LENGTH_SHORT).show()
-        }
-
-        builder.show()
-    }
+    // HAPUS: Fungsi showPromoDialog() telah dihapus sepenuhnya dari sini.
 }

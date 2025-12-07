@@ -4,61 +4,65 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F7F5F2"> <LinearLayout
-    android:orientation="horizontal"
-    android:padding="16dp"
-    android:gravity="center_vertical"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:background="#F7F5F2">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:text="TUKU Admin"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#2E1F17"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <TextView
-            android:text="Admin"
-            android:textSize="14sp"
-            android:textColor="#8A7E74"
-            android:layout_marginTop="2dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/btnLogout"
         android:orientation="horizontal"
-        android:gravity="center"
-        android:padding="10dp"
-        android:background="@drawable/logout_bg"
-        android:layout_width="wrap_content"
+        android:padding="16dp"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
-            android:src="@drawable/ic_logout"
-            app:tint="#C44A4A"
-            android:layout_width="18dp"
-            android:layout_height="18dp"/>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:text="Logout"
-            android:textColor="#C44A4A"
-            android:textSize="14sp"
-            android:layout_marginStart="6dp"
+            <TextView
+                android:text="TUKU Admin"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#2E1F17"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:text="Admin Dashboard"
+                android:textSize="14sp"
+                android:textColor="#8A7E74"
+                android:layout_marginTop="2dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btnLogout"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="10dp"
+            android:background="@drawable/logout_bg"
+            android:clickable="true"
+            android:focusable="true"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
-</LinearLayout>
+            android:layout_height="wrap_content">
 
+            <ImageView
+                android:src="@drawable/ic_logout"
+                app:tint="#C44A4A"
+                android:layout_width="18dp"
+                android:layout_height="18dp"/>
+
+            <TextView
+                android:text="Logout"
+                android:textColor="#C44A4A"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginStart="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+    </LinearLayout>
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/adminTabLayout"
@@ -68,7 +72,9 @@
         app:tabIndicatorColor="#6D4C41"
         app:tabSelectedTextColor="#6D4C41"
         app:tabTextColor="#9C8F86"
-        app:tabIndicatorHeight="3dp"/>
+        app:tabIndicatorHeight="3dp"
+        app:tabMode="scrollable"
+        app:tabGravity="fill"/>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/adminViewPager"

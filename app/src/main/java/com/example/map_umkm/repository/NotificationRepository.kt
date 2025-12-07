@@ -1,3 +1,4 @@
+// File: com/example/map_umkm/repository/NotificationRepository.kt
 package com.example.map_umkm.repository
 
 import android.util.Log
@@ -5,7 +6,7 @@ import com.example.map_umkm.data.NotificationDao
 import com.example.map_umkm.model.NotificationEntity
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.google.firebase.Timestamp // 🔥 Wajib Import ini
+import com.google.firebase.Timestamp // ✅ Import yang benar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -13,10 +14,14 @@ import kotlinx.coroutines.launch
 
 class NotificationRepository(private val notificationDao: NotificationDao) {
 
-    // 1. Mengambil data dari Room secara Real-time (Flow)
+    // 🔥 1. Sumber Data Terpisah untuk ViewModel 🔥
+    val infoNotifications: Flow<List<NotificationEntity>> = notificationDao.getInfoNotifications()
+    val promoNotifications: Flow<List<NotificationEntity>> = notificationDao.getPromoNotifications()
+
+    // (Opsional) Jika masih butuh list gabungan
     val allNotifications: Flow<List<NotificationEntity>> = notificationDao.getAllNotifications()
 
-    // 2. 🔥 FUNGSI SINKRONISASI (Cloud -> Local) 🔥
+    // 2. Fungsi Sinkronisasi (Tetap ambil SEMUA dari Firestore)
     fun syncCloudToLocal(userEmail: String) {
         val db = FirebaseFirestore.getInstance()
 
@@ -32,27 +37,25 @@ class NotificationRepository(private val notificationDao: NotificationDao) {
                     return@addOnSuccessListener
                 }
 
-                // Konversi Dokumen Firestore ke Entity Room
                 val entities = documents.mapNotNull { doc ->
                     val fsTimestamp = doc.get("timestamp") as? Timestamp
 
                     if (fsTimestamp != null) {
                         NotificationEntity(
-                            id = doc.id, // Gunakan ID Firestore agar tidak duplikat
+                            id = doc.id,
                             title = doc.getString("title") ?: "Info",
                             body = doc.getString("body") ?: "",
-                            timestamp = fsTimestamp.toDate().time, // Konversi ke Long
-                            status = doc.getString("status") ?: "INFO",
+                            timestamp = fsTimestamp.toDate().time,
+                            // Pastikan status di Firestore benar ('PROMO' atau 'INFO'/'UPDATE')
+                            type = doc.getString("type") ?: doc.getString("status") ?: "INFO",
                             orderId = doc.getString("orderId"),
                             isRead = doc.getBoolean("isRead") ?: false
                         )
                     } else null
                 }
 
-                // Simpan ke Room di Background Thread
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-                        // Hapus cache lama (opsional, agar bersih) atau langsung insert/replace
                         notificationDao.deleteAll()
                         notificationDao.insertAll(entities)
                         Log.d("REPO", "Berhasil sync ${entities.size} notifikasi ke Room")
@@ -66,7 +69,7 @@ class NotificationRepository(private val notificationDao: NotificationDao) {
             }
     }
 
-    // 3. Update status 'Dibaca'
+    // 3. Update Status Baca
     fun updateNotificationReadStatus(notificationId: String, isRead: Boolean) {
         FirebaseFirestore.getInstance()
             .collection("notifications")

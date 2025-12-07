@@ -31,119 +31,141 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         Log.d("FCM_SERVICE", "Pesan diterima dari: ${remoteMessage.from}")
 
-        var title = remoteMessage.data["title"] ?: "Info Tuku"
-        var body = remoteMessage.data["body"] ?: "Ada pesan baru untukmu."
-        var status = remoteMessage.data["status"] ?: "INFO"
-        var orderId = remoteMessage.data["orderId"]
-        var timestamp = remoteMessage.data["timestamp"]?.toLongOrNull() ?: System.currentTimeMillis()
+        val data = remoteMessage.data
 
-        saveNotificationToDatabase(title, body, timestamp, status, orderId)
+        // 1. Ambil Data Utama
+        val title = data["title"] ?: remoteMessage.notification?.title ?: "Info Tuku"
+        val body = data["body"] ?: remoteMessage.notification?.body ?: "Pesan baru."
+
+        // 2. 🔥 KUNCI PERBAIKAN: Gunakan 'type' sebagai penentu Tab 🔥
+        // Kita cek 'type' dulu. Jika kosong, cek 'status'. Jika kosong, default "INFO".
+        val type = data["type"] ?: data["status"] ?: "INFO"
+
+        val orderId = data["orderId"] // Bisa null
+
+        // 3. Timestamp & ID
+        val timestampStr = data["timestamp"]
+        val timestamp = timestampStr?.toLongOrNull() ?: System.currentTimeMillis()
+        val uniqueId = UUID.randomUUID().toString()
+
+        // 4. Cek User Email
+        val email = getUserEmail()
+        Log.d("FCM_DEBUG", "Email user yg login: $email")
+
+        if (email != null) {
+            // Simpan tanpa parameter 'status' yang lama
+            saveToFirestore(uniqueId, email, title, body, timestamp, orderId, type)
+            saveToRoom(uniqueId, title, body, timestamp, orderId, type)
+        }
+
         showNotification(title, body)
     }
 
-    private fun saveNotificationToDatabase(
+    private fun saveToFirestore(
+        id: String,
+        email: String,
         title: String,
         body: String,
         timestamp: Long,
-        status: String,
-        orderId: String?
+        orderId: String?,
+        type: String // 🔥 Hanya terima type
     ) {
-        val id = UUID.randomUUID().toString()
-        val userEmail = getUserEmail()
+        val db = FirebaseFirestore.getInstance()
 
-        if (userEmail == null) {
-            Log.e("FCM_ERROR", "Email user NULL → notifikasi tidak bisa disimpan ke Firestore")
-            return
-        }
+        val notifData = hashMapOf(
+            "userEmail" to email,
+            "title" to title,
+            "body" to body,
+            "timestamp" to timestamp,
+            "type" to type, // Simpan sebagai type
+            "orderId" to (orderId ?: ""),
+            "isRead" to false
+        )
 
-        Log.d("FCM_DEBUG", "Simpan notifikasi untuk user: $userEmail")
+        db.collection("notifications")
+            .document(id)
+            .set(notifData)
+            .addOnSuccessListener {
+                Log.d("FCM_FIRESTORE", "Berhasil simpan ke Firestore ID: $id")
+            }
+            .addOnFailureListener {
+                Log.e("FCM_FIRESTORE", "Gagal simpan Firestore: ${it.message}")
+            }
+    }
 
-        // SAVE ROOM
+    private fun saveToRoom(
+        id: String,
+        title: String,
+        body: String,
+        timestamp: Long,
+        orderId: String?,
+        type: String // 🔥 Hanya terima type
+    ) {
+        val dao = database.notificationDao()
+
+        // Sesuaikan dengan Entity baru yang sudah menghapus 'status' dan pakai 'type'
         val notif = NotificationEntity(
             id = id,
             title = title,
             body = body,
             timestamp = timestamp,
-            status = status,
+            type = type,       // Masukkan ke kolom type
             orderId = orderId,
             isRead = false
         )
 
         scope.launch {
             try {
-                database.notificationDao().insert(notif)
-                Log.d("FCM_ROOM", "Room ✔ Berhasil simpan")
+                dao.insert(notif)
+                Log.d("FCM_ROOM", "Berhasil simpan ke Room")
             } catch (e: Exception) {
-                Log.e("FCM_ROOM", "Room ✖ Error: ${e.message}")
-            }
-        }
-
-        // SAVE FIRESTORE
-        val data = mapOf(
-            "id" to id,
-            "title" to title,
-            "body" to body,
-            "timestamp" to timestamp,
-            "status" to status,
-            "orderId" to (orderId ?: ""),
-            "isRead" to false,
-            "userEmail" to userEmail           // <= FIX UTAMA
-        )
-
-        scope.launch {
-            try {
-                FirebaseFirestore.getInstance()
-                    .collection("notifications")
-                    .document(id)
-                    .set(data, SetOptions.merge())
-
-                Log.d("FCM_FIRESTORE", "Firestore ✔ Berhasil simpan untuk $userEmail")
-            } catch (e: Exception) {
-                Log.e("FCM_FIRESTORE", "Firestore ✖ Error: ${e.message}")
+                Log.e("FCM_ROOM", "Gagal simpan Room: ${e.message}")
             }
         }
     }
 
     private fun getUserEmail(): String? {
-        val firebase = FirebaseAuth.getInstance().currentUser
-        if (firebase?.email != null) return firebase.email
-
-        val prefs = applicationContext.getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
-        return prefs.getString("userEmail", null)
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
+        if (firebaseUser != null && !firebaseUser.email.isNullOrEmpty()) {
+            return firebaseUser.email
+        }
+        return getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
+            .getString("userEmail", null)
     }
 
-    override fun onNewToken(token: String) {
-        getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE)
-            .edit()
-            .putString("fcm_token", token)
-            .apply()
-    }
-
-    private fun showNotification(title: String, message: String) {
+    private fun showNotification(title: String, body: String) {
         val intent = Intent(this, MainActivity::class.java)
-            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            PendingIntent.FLAG_IMMUTABLE else PendingIntent.FLAG_ONE_SHOT
+
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, flags)
 
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
-            .setContentText(message)
+            .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
 
-        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val manager = getSystemService(NotificationManager::class.java)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH
-            )
+            val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH)
             manager.createNotificationChannel(channel)
         }
 
         manager.notify(System.currentTimeMillis().toInt(), builder.build())
+    }
+
+    override fun onNewToken(token: String) {
+        super.onNewToken(token)
+        getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE)
+            .edit().putString("fcm_token", token).apply()
+
+        // Opsional: update ke user database jika perlu
     }
 }

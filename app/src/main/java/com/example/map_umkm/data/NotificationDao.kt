@@ -1,4 +1,3 @@
-// File: com/example/map_umkm/data/NotificationDao.kt
 package com.example.map_umkm.data
 
 import androidx.room.Dao
@@ -11,23 +10,29 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface NotificationDao {
 
-    // Simpan satu notifikasi (dipakai MyFirebaseMessagingService)
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(notification: NotificationEntity)
 
-    // 🔥 FIX ERROR: insertAll (dipakai Repository saat sync)
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(notifications: List<NotificationEntity>)
 
-    // 🔥 FIX ERROR: getAllNotifications (dipakai Repository)
-    @Query("SELECT * FROM notifications ORDER BY timestamp DESC")
-    fun getAllNotifications(): Flow<List<NotificationEntity>>
-
-    // 🔥 FIX ERROR: deleteAll (dipakai Repository saat reset data)
     @Query("DELETE FROM notifications")
     suspend fun deleteAll()
 
-    // Update status baca
     @Query("UPDATE notifications SET isRead = :isRead WHERE id = :notificationId")
     suspend fun updateIsRead(notificationId: String, isRead: Boolean)
+
+    // 🔥 PERHATIKAN: Ganti 'status' menjadi 'type' di Query SQL ini 🔥
+
+    // 1. Tab Info Pesanan (Ambil yang BUKAN PROMO)
+    @Query("SELECT * FROM notifications WHERE type != 'PROMO' ORDER BY timestamp DESC")
+    fun getInfoNotifications(): Flow<List<NotificationEntity>>
+
+    // 2. Tab Promo (Ambil KHUSUS PROMO)
+    @Query("SELECT * FROM notifications WHERE type = 'PROMO' ORDER BY timestamp DESC")
+    fun getPromoNotifications(): Flow<List<NotificationEntity>>
+
+    // 3. Ambil Semua
+    @Query("SELECT * FROM notifications ORDER BY timestamp DESC")
+    fun getAllNotifications(): Flow<List<NotificationEntity>>
 }

@@ -1,4 +1,4 @@
-package com.example.map_umkm   // <--- pastikan sama seperti project kamu
+package com.example.map_umkm
 
 import android.content.Context
 import android.util.Log
@@ -14,59 +14,43 @@ import java.net.URL
 
 class FCMService(private val context: Context) {
 
-    private val PROJECT_ID = "map-umkm"   // Pastikan sama dengan Firebase Project ID
+    // Pastikan ID ini sesuai dengan Project ID di firebase console
+    private val PROJECT_ID = "map-umkm"
 
-    // ===============================
-    //  PUBLIC → ADMIN memanggil ini
-    // ===============================
-    fun sendNotification(target: String, title: String, body: String) {
-
+    fun sendNotification(target: String, title: String, body: String, orderId: String? = null) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val accessToken = getAccessToken()
-
                 if (accessToken != null) {
-                    // target bisa token ATAU "promo"
-                    sendV1Request(accessToken, target, title, body)
+                    sendV1Request(accessToken, target, title, body, orderId)
                 } else {
-                    Log.e("FCM_SERVICE", "Gagal baca service_account.json")
+                    Log.e("FCM_SERVICE", "Gagal mendapatkan Access Token")
                 }
-
             } catch (e: Exception) {
-                Log.e("FCM_SERVICE", "Error: ${e.message}")
+                Log.e("FCM_SERVICE", "Error Init: ${e.message}")
             }
         }
     }
 
-
-    // ===============================
-    //  MENGAMBIL ACCESS TOKEN GOOGLE
-    // ===============================
     private fun getAccessToken(): String? {
         return try {
-
             val inputStream = context.resources.openRawResource(R.raw.service_account)
             val googleCredentials = GoogleCredentials.fromStream(inputStream)
                 .createScoped(listOf("https://www.googleapis.com/auth/firebase.messaging"))
-
             googleCredentials.refreshIfExpired()
             googleCredentials.accessToken.tokenValue
-
         } catch (e: Exception) {
             e.printStackTrace()
             null
         }
     }
 
-
-    // ======================================================
-    //  FCM HTTP v1 — SUDAH ADA LOGIKA TOPIK VS PERSONAL TOKEN
-    // ======================================================
     private suspend fun sendV1Request(
         accessToken: String,
         target: String,
         title: String,
-        bodyText: String
+        bodyText: String,
+        orderId: String?
     ) {
         withContext(Dispatchers.IO) {
             try {
@@ -77,33 +61,43 @@ class FCMService(private val context: Context) {
                 conn.setRequestProperty("Content-Type", "application/json; UTF-8")
                 conn.doOutput = true
 
-                // ... (Bagian pembuatan JSON Anda tetap sama) ...
                 val messageJson = JSONObject()
                 val messageContent = JSONObject()
 
+                // 1. Tentukan Target (Topik Promo vs Token User)
                 if (target == "promo") {
                     messageContent.put("topic", "promo")
                 } else {
                     messageContent.put("token", target)
                 }
 
+                // 2. Notification Payload (Untuk Pop-up System)
                 val notification = JSONObject()
                 notification.put("title", title)
                 notification.put("body", bodyText)
 
+                // 3. Data Payload (Untuk Logika Aplikasi)
                 val data = JSONObject()
                 data.put("title", title)
                 data.put("body", bodyText)
-                data.put("status", "UPDATE")
-                // Tambahkan orderId jika ada, atau string kosong jika broadcast
-                data.put("orderId", "")
+
+                // 🔥 PERBAIKAN: Menggunakan key "type" bukan "status" 🔥
+                if (target == "promo") {
+                    data.put("type", "PROMO") // Masuk Tab PROMO
+                } else {
+                    data.put("type", "INFO")  // Masuk Tab INFO PESANAN
+                }
+
+                // Kirim orderId (kosong jika promo)
+                data.put("orderId", orderId ?: "")
                 data.put("timestamp", System.currentTimeMillis().toString())
 
                 messageContent.put("notification", notification)
                 messageContent.put("data", data)
+
                 messageJson.put("message", messageContent)
 
-                // Tulis Output
+                // Kirim ke Google FCM
                 val os = OutputStreamWriter(conn.outputStream)
                 os.write(messageJson.toString())
                 os.flush()
@@ -112,20 +106,17 @@ class FCMService(private val context: Context) {
                 val responseCode = conn.responseCode
                 Log.d("FCM_SERVICE", "Status Kirim: $responseCode")
 
-                // 🔥 TAMBAHAN PENTING: BACA ERROR JIKA GAGAL 🔥
+                // Cek Error Log
                 if (responseCode >= 400) {
                     val errorStream = conn.errorStream
                     if (errorStream != null) {
                         val errorResponse = errorStream.bufferedReader().use { it.readText() }
-                        Log.e("FCM_SERVICE", "GAGAL KIRIM! Detail Error: $errorResponse")
+                        Log.e("FCM_SERVICE", "GAGAL KIRIM! Detail: $errorResponse")
                     }
-                } else {
-                    Log.d("FCM_SERVICE", "Berhasil terkirim ke: $target")
                 }
 
             } catch (e: Exception) {
                 Log.e("FCM_SERVICE", "Exception saat kirim: ${e.message}")
-                e.printStackTrace()
             }
         }
     }

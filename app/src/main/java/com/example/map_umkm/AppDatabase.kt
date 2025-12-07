@@ -8,7 +8,7 @@ import com.example.map_umkm.data.NotificationDao
 import com.example.map_umkm.model.NotificationEntity
 
 // 🔥 PERBAIKAN 1: Naikkan version dari 1 ke 2 (atau angka lebih tinggi jika error berlanjut)
-@Database(entities = [NotificationEntity::class], version = 2, exportSchema = false)
+@Database(entities = [NotificationEntity::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     // Abstract method untuk mengakses DAO

@@ -1,46 +1,37 @@
 package com.example.map_umkm
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.viewModels // Ganti ke activityViewModels di child
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.map_umkm.adapter.NotificationAdapter
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.map_umkm.databinding.FragmentNotificationBinding
-import com.example.map_umkm.AppDatabase
-import com.example.map_umkm.repository.NotificationRepository
 import com.example.map_umkm.viewmodel.NotificationViewModel
 import com.example.map_umkm.viewmodel.NotificationViewModelFactory
-import com.example.map_umkm.model.Notification // Model Tampilan
-import com.example.map_umkm.model.NotificationEntity // Model Database
-
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.example.map_umkm.repository.NotificationRepository
+import com.example.map_umkm.AppDatabase
+import com.google.android.material.tabs.TabLayoutMediator
 
 class NotificationFragment : Fragment() {
 
     private var _binding: FragmentNotificationBinding? = null
     private val binding get() = _binding!!
 
-    // Inisialisasi ViewModel
+    // ViewModel tetap di sini untuk trigger sync
     private val notificationViewModel: NotificationViewModel by viewModels {
         val database = AppDatabase.getDatabase(requireContext())
         val repository = NotificationRepository(database.notificationDao())
         NotificationViewModelFactory(repository)
     }
 
-    private lateinit var notificationAdapter: NotificationAdapter
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        // XML ini isinya TabLayout + ViewPager2 (bukan RecyclerView)
         _binding = FragmentNotificationBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -48,62 +39,44 @@ class NotificationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btnBack.setOnClickListener {
-            findNavController().popBackStack()
-        }
+        // Setup Tombol Back (Menggunakan findViewById jika binding error, atau pastikan ID benar di XML)
+        // Jika di XML namanya btnBack, gunakan binding.btnBack
+        // Jika Anda menggunakan include header, akses via binding.header.btnBack
+        try {
+            binding.root.findViewById<View>(R.id.btnBack).setOnClickListener {
+                findNavController().popBackStack()
+            }
+        } catch (e: Exception) { /* Handle if view not found */ }
 
-        // Setup Adapter
-        notificationAdapter = NotificationAdapter(emptyList())
-        binding.recyclerNotifications.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = notificationAdapter
-        }
+        // 1. Setup ViewPager
+        val pagerAdapter = NotifPagerAdapter(this)
+        binding.viewPager.adapter = pagerAdapter
 
-        // 🔥 LANGKAH KRUSIAL: PANGGIL SYNC DARI CLOUD SAAT FRAGMENT DIBUKA 🔥
+        // 2. Setup Tab Layout
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = if (position == 0) "Info Pesanan" else "Promo"
+        }.attach()
+
+        // 3. Trigger Sync Data
         triggerCloudSync()
-
-        // Observasi Data (Otomatis update jika Room berubah setelah sync)
-        observeNotifications()
     }
 
     private fun triggerCloudSync() {
-        val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
+        val prefs = requireActivity().getSharedPreferences("USER_SESSION", android.content.Context.MODE_PRIVATE)
         val userEmail = prefs.getString("userEmail", null)
-
         if (userEmail != null) {
-            // Panggil fungsi sync di ViewModel
             notificationViewModel.syncCloud(userEmail)
-        } else {
-            // Opsional: Handle jika belum login
-            // Toast.makeText(context, "User belum login", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun observeNotifications() {
-        // 🔥 Tambahkan tipe data eksplisit (List<NotificationEntity>) agar compiler tidak bingung
-        notificationViewModel.allNotifications.observe(viewLifecycleOwner) { notifications: List<NotificationEntity> ->
+    // Adapter untuk Tab
+    inner class NotifPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
+        override fun getItemCount(): Int = 2
 
-            if (notifications.isNotEmpty()) {
-                binding.tvEmptyNotification.visibility = View.GONE
-                binding.recyclerNotifications.visibility = View.VISIBLE
-
-                // Mapping data Entity ke Model Tampilan Adapter
-                val displayList = notifications.map { entity ->
-                    val formatter = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
-                    val timestampString = formatter.format(Date(entity.timestamp))
-
-                    Notification(
-                        title = entity.title,
-                        body = entity.body,
-                        timestamp = timestampString
-                    )
-                }
-
-                notificationAdapter.updateList(displayList)
-            } else {
-                binding.recyclerNotifications.visibility = View.GONE
-                binding.tvEmptyNotification.visibility = View.VISIBLE
-            }
+        override fun createFragment(position: Int): Fragment {
+            // Mengirim Tipe ke Child Fragment
+            val type = if (position == 0) "INFO" else "PROMO"
+            return NotificationListFragment.newInstance(type)
         }
     }
 
