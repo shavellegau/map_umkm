@@ -20,7 +20,8 @@ class ProfileFragment : Fragment() {
     private val binding get() = _binding!!
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
@@ -41,6 +42,10 @@ class ProfileFragment : Fragment() {
         FirebaseFirestore.getInstance().collection("users")
             .document(uid)
             .addSnapshotListener { doc, _ ->
+
+                // kalau fragment sudah tidak aktif → stop
+                if (_binding == null || !isAdded) return@addSnapshotListener
+
 
                 val name = doc?.getString("name")
                 if (name != null) {
