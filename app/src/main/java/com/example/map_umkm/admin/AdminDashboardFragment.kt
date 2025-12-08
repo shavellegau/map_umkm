@@ -9,22 +9,21 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController // Diperlukan untuk Navigasi
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.map_umkm.AdminMenuFragment
 import com.example.map_umkm.AdminOrdersFragment
 import com.example.map_umkm.AdminVoucherFragment
+import com.example.map_umkm.admin.AdminNotificationFragment // TAMBAHAN: Import Fragment Notifikasi
 import com.example.map_umkm.admin.AdminCabangFragment
-import com.example.map_umkm.LoginActivity // Asumsi class LoginActivity ada
-import com.example.map_umkm.R // Diperlukan untuk ID resource
+import com.example.map_umkm.LoginActivity
+import com.example.map_umkm.R
 import com.example.map_umkm.databinding.FragmentAdminDashboardBinding
 import com.google.android.material.tabs.TabLayoutMediator
-
 
 class AdminDashboardFragment : Fragment() {
 
     private var _binding: FragmentAdminDashboardBinding? = null
-    // Menggunakan properti backing untuk menghindari NullPointerException setelah onDestroyView
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -39,22 +38,26 @@ class AdminDashboardFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupTabs()
-        setupLogout() // Memanggil fungsi setupLogout
+        setupLogout()
     }
 
     private fun setupTabs() {
+        // TAMBAHAN: Masukkan AdminNotificationFragment ke dalam list fragments
         val fragments = listOf(
             AdminOrdersFragment(),
             AdminMenuFragment(),
             AdminVoucherFragment(),
-            AdminCabangFragment()
+            AdminCabangFragment(),
+            AdminNotificationFragment() // Tab ke-5: Notifikasi Broadcast
         )
 
+        // TAMBAHAN: Masukkan Judul Tab "Broadcast" atau "Notifikasi"
         val titles = listOf(
             "Konfirmasi Pesanan",
             "Manajemen Menu",
             "Tambah Voucher",
-            "Tambah Cabang"
+            "Tambah Cabang",
+            "Broadcast Promo" // Judul untuk Tab ke-5
         )
 
         val adapter = object : FragmentStateAdapter(this) {
@@ -64,20 +67,19 @@ class AdminDashboardFragment : Fragment() {
 
         binding.adminViewPager.adapter = adapter
 
+        // Menghubungkan Tab Layout dengan ViewPager
         TabLayoutMediator(binding.adminTabLayout, binding.adminViewPager) { tab, position ->
             tab.text = titles[position]
         }.attach()
     }
 
     private fun setupLogout() {
-        // Asumsi tombol logout berada di dalam FragmentAdminDashboardBinding dan memiliki ID btnLogout
         binding.btnLogout.setOnClickListener {
             showCustomLogoutDialog()
         }
     }
 
     private fun showCustomLogoutDialog() {
-        // Inflate layout kustom dialog_logout_confirm.xml
         val customView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_logout_confirm, null)
 
@@ -85,7 +87,6 @@ class AdminDashboardFragment : Fragment() {
             .setView(customView)
             .create()
 
-        // Asumsi di dialog_logout_confirm.xml terdapat tombol dengan ID btnConfirmLogout dan btnCancelLogout
         val btnConfirm = customView.findViewById<Button>(R.id.btnLogout)
         val btnCancel = customView.findViewById<Button>(R.id.btnCancel)
 
@@ -102,27 +103,17 @@ class AdminDashboardFragment : Fragment() {
     }
 
     private fun logoutAdminSession() {
-        // 1. Hapus Session Admin
         val sharedPreferences = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
         sharedPreferences.edit().clear().apply()
 
-        // 2. Navigasi kembali ke LoginActivity dan clear back stack
         val intent = Intent(requireActivity(), LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         requireActivity().finish()
-
-        // Pilihan Alternatif (Hanya jika LoginActivity sudah merupakan Host Navigasi)
-        // try {
-        //     findNavController().navigate(R.id.action_adminDashboard_to_login)
-        // } catch (e: Exception) {
-        //     e.printStackTrace()
-        // }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Hapus referensi binding untuk mencegah memory leak
         _binding = null
     }
 }

@@ -10,21 +10,29 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface NotificationDao {
 
-    /**
-     * Menyisipkan notifikasi baru ke database.
-     * Menggunakan OnConflictStrategy.REPLACE jika ID notifikasi sudah ada.
-     */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(notification: NotificationEntity)
 
-    /**
-     * Mengambil semua notifikasi dari tabel, diurutkan dari yang terbaru (DESCENDING).
-     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(notifications: List<NotificationEntity>)
+
+    @Query("DELETE FROM notifications")
+    suspend fun deleteAll()
+
+    @Query("UPDATE notifications SET isRead = :isRead WHERE id = :notificationId")
+    suspend fun updateIsRead(notificationId: String, isRead: Boolean)
+
+    // 🔥 PERHATIKAN: Ganti 'status' menjadi 'type' di Query SQL ini 🔥
+
+    // 1. Tab Info Pesanan (Ambil yang BUKAN PROMO)
+    @Query("SELECT * FROM notifications WHERE type != 'PROMO' ORDER BY timestamp DESC")
+    fun getInfoNotifications(): Flow<List<NotificationEntity>>
+
+    // 2. Tab Promo (Ambil KHUSUS PROMO)
+    @Query("SELECT * FROM notifications WHERE type = 'PROMO' ORDER BY timestamp DESC")
+    fun getPromoNotifications(): Flow<List<NotificationEntity>>
+
+    // 3. Ambil Semua
     @Query("SELECT * FROM notifications ORDER BY timestamp DESC")
     fun getAllNotifications(): Flow<List<NotificationEntity>>
-
-    // Anda dapat menambahkan fungsi lain seperti:
-
-    // @Query("UPDATE notifications SET isRead = 1 WHERE id = :notificationId")
-    // suspend fun markAsRead(notificationId: Int)
 }

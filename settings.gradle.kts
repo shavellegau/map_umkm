@@ -1,14 +1,17 @@
+// settings.gradle.kts
+
 pluginManagement {
     repositories {
-        google ()
+        google() // Wajib untuk menemukan Google Services dan Android Plugins
         mavenCentral()
         gradlePluginPortal()
     }
 }
 dependencyResolutionManagement {
+    // Mode ini memaksa dependensi ditemukan di repositori yang dideklarasikan di sini.
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
+        google() // Wajib untuk Places SDK, Maps, dan Firebase
         mavenCentral()
     }
 }

@@ -78,9 +78,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- =================================== -->
-            <!--     BLOK INFO DELIVERY (BARU)       -->
-            <!-- =================================== -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/layout_delivery"
                 android:layout_width="match_parent"
@@ -116,7 +113,6 @@
                         android:textSize="14sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-            <!-- =================================== -->
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -154,7 +150,6 @@
                         android:layout_marginTop="16dp"
                         android:background="@color/divider" />
 
-                    <!-- Rincian Invoice -->
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -244,6 +239,19 @@
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
+
+            <!-- [FIXED] TOMBOL BARU DITAMBAHKAN DI SINI -->
+            <Button
+                android:id="@+id/btn_pesanan_diterima"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:padding="12dp"
+                android:text="Pesanan Sudah Diterima"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/tuku_green"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
         </LinearLayout>
     </ScrollView>

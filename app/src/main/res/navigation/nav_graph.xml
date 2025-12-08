@@ -4,17 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/nav_home">
+
     <fragment
         android:id="@+id/addEditAddressFragment"
         android:name="com.example.map_umkm.AddEditAddressFragment"
         android:label="AddEditAddressFragment"
-        tools:layout="@layout/fragment_add_edit_address"><argument
-        android:name="addressId"
-        app:argType="string"
-        app:nullable="true"
-        android:defaultValue="@null" />
+        tools:layout="@layout/fragment_add_edit_address">
+        <argument
+            android:name="addressId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_addEditAddressFragment_to_pilihLokasiFragment"
+            app:destination="@id/pilihLokasiFragment" />
     </fragment>
-
 
     <fragment
         android:id="@+id/nav_home"
@@ -22,13 +26,8 @@
         android:label="Home"
         tools:layout="@layout/fragment_home">
         <action
-            android:id="@+id/action_alamatFragment_to_addEditAddressFragment"
-            app:destination="@id/addEditAddressFragment" />
-
-        <action
             android:id="@+id/action_nav_home_to_nav_orders"
             app:destination="@id/nav_orders" />
-
         <action
             android:id="@+id/action_nav_home_to_bantuanFragment"
             app:destination="@id/bantuanFragment" />
@@ -36,7 +35,8 @@
             android:id="@+id/action_nav_home_to_productDetailFragment"
             app:destination="@id/productDetailFragment" />
         <action
-            android:id="@+id/action_nav_home_to_notificationFragment" app:destination="@id/notificationFragment" />
+            android:id="@+id/action_nav_home_to_notificationFragment"
+            app:destination="@id/notificationFragment" />
         <action
             android:id="@+id/action_nav_home_to_tukuPointFragment"
             app:destination="@id/tukuPointFragment" />
@@ -46,25 +46,19 @@
         <action
             android:id="@+id/action_nav_home_to_referralFragment"
             app:destination="@id/referralFragment" />
-        <!-- HANYA SATU TAG PENUTUP UNTUK FRAGMENT -->
     </fragment>
 
-    <!-- ************************************ -->
-    <!-- TAMBAHAN: DEFINISI REFERRAL FRAGMENT -->
-    <!-- ************************************ -->
     <fragment
         android:id="@+id/referralFragment"
         android:name="com.example.map_umkm.ReferralFragment"
         android:label="Kode Referral"
         tools:layout="@layout/fragment_referral" />
 
-
     <fragment
         android:id="@+id/ongoingOrdersFragment"
         android:name="com.example.map_umkm.OngoingOrdersFragment"
         android:label="Pesanan Berlangsung"
         tools:layout="@layout/fragment_ongoing_orders" />
-
 
     <fragment
         android:id="@+id/notificationFragment"
@@ -86,17 +80,14 @@
         android:name="com.example.map_umkm.PointDetailFragment"
         android:label="Point Detail" />
 
-
     <fragment
         android:id="@+id/nav_cart"
         android:name="com.example.map_umkm.CartFragment"
         android:label="Keranjang"
         tools:layout="@layout/fragment_cart">
-
         <action
             android:id="@+id/action_nav_cart_to_productDetailFragment"
             app:destination="@id/productDetailFragment" />
-
         <action
             android:id="@+id/action_nav_cart_to_paymentFragment"
             app:destination="@id/paymentFragment" />
@@ -112,13 +103,7 @@
         android:id="@+id/historyOrdersFragment"
         android:name="com.example.map_umkm.HistoryOrdersFragment"
         android:label="Riwayat Pesanan"
-        tools:layout="@layout/fragment_history_orders">
-        <action
-            android:id="@+id/action_nav_profile_to_historyOrdersFragment"
-            app:destination="@id/historyOrdersFragment" />
-
-    </fragment>
-
+        tools:layout="@layout/fragment_history_orders" />
 
     <fragment
         android:id="@+id/nav_profile"
@@ -150,17 +135,13 @@
 
     <fragment
         android:id="@+id/alamatFragment"
-        android:name="com.example.map_umkm.AlamatFragment"        android:label="Alamat Pengiriman"
+        android:name="com.example.map_umkm.AlamatFragment"
+        android:label="Alamat Pengiriman"
         tools:layout="@layout/fragment_alamat">
-
-        <!-- [FIXED] Menambahkan action yang hilang untuk navigasi ke halaman tambah/edit -->
         <action
             android:id="@+id/action_alamatFragment_to_addEditAddressFragment"
             app:destination="@id/addEditAddressFragment" />
-
     </fragment>
-
-
 
     <fragment
         android:id="@+id/pengaturanAkunFragment"
@@ -189,6 +170,9 @@
         <action
             android:id="@+id/action_paymentFragment_to_paymentSuccessFragment"
             app:destination="@id/paymentSuccessFragment" />
+        <action
+            android:id="@+id/action_paymentFragment_to_alamatFragment"
+            app:destination="@id/alamatFragment" />
     </fragment>
 
     <fragment
@@ -217,7 +201,6 @@
             app:popUpToInclusive="true" />
     </fragment>
 
-
     <fragment
         android:id="@+id/productDetailFragment"
         android:name="com.example.map_umkm.ProductDetailFragment"
@@ -232,19 +215,16 @@
             android:defaultValue="" />
     </fragment>
 
-
     <fragment
         android:id="@+id/pesananSayaFragment"
         android:name="com.example.map_umkm.ui.pesanan.PesananSayaFragment"
         android:label="Pesanan Saya"
         tools:layout="@layout/fragment_pesanan_saya" />
 
-
     <fragment
         android:id="@+id/wishlistFragment"
         android:name="com.example.map_umkm.WishlistFragment"
         android:label="Wishlist">
-
         <action
             android:id="@+id/action_wishlistFragment_to_productDetailFragment"
             app:destination="@id/productDetailFragment">
@@ -263,40 +243,36 @@
         android:name="com.example.map_umkm.BantuanFragment"
         android:label="Bantuan"
         tools:layout="@layout/fragment_bantuan" />
+
     <fragment
         android:id="@+id/voucherSayaFragment"
         android:name="com.example.map_umkm.VoucherSayaFragment"
         android:label="Voucher Saya"
         tools:layout="@layout/fragment_voucher_saya" />
+
     <fragment
         android:id="@+id/riwayatPoinFragment"
         android:name="com.example.map_umkm.RiwayatPoinFragment"
         android:label="Riwayat Poin"
         tools:layout="@layout/fragment_riwayat_poin" />
+
     <fragment
         android:id="@+id/menuAlamat"
         android:name="com.example.map_umkm.RiwayatPoinFragment"
         android:label="Riwayat Poin"
         tools:layout="@layout/fragment_riwayat_poin" />
 
-
-    <!-- ============================= -->
-    <!--        ADMIN DASHBOARD        -->
-    <!-- ============================= -->
     <fragment
         android:id="@+id/adminDashboardFragment"
         android:name="com.example.map_umkm.admin.AdminDashboardFragment"
         android:label="Admin Dashboard"
         tools:layout="@layout/fragment_admin_dashboard">
-
         <action
             android:id="@+id/action_adminDashboard_to_adminMenuFragment"
             app:destination="@id/adminMenuFragment" />
-
         <action
             android:id="@+id/action_adminDashboard_to_adminOrderFragment"
             app:destination="@id/adminOrderFragment" />
-
     </fragment>
 
     <fragment
@@ -310,5 +286,11 @@
         android:name="com.example.map_umkm.AdminOrdersFragment"
         android:label="Kelola Pesanan"
         tools:layout="@layout/fragment_admin_orders" />
+    <fragment
+        android:id="@+id/pilihLokasiFragment"
+        android:name="com.example.map_umkm.PilihLokasiFragment"
+        android:label="Pilih Lokasi di Peta"
+        tools:layout="@layout/fragment_pilih_lokasi" />
+
 
 </navigation>

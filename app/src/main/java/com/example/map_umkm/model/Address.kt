@@ -1,31 +1,35 @@
 package com.example.map_umkm.model
 
 import android.os.Parcelable
+import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.firestore.Exclude
+import kotlinx.parcelize.IgnoredOnParcel
+// [FIXED] 'import kotlinx.parcelize.Parcelize' dipindahkan ke baris baru
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Address(
-    // ID dokumen ini di Firestore, akan di-generate otomatis
     var id: String = "",
-
-    // ID pengguna yang memiliki alamat ini
     val uid: String = "",
-
-    // Contoh: "Rumah", "Kantor", "Apartemen"
     val label: String = "",
-
-    // Nama penerima di alamat tsb
     val recipientName: String = "",
-
-    // Nomor HP penerima
     val phoneNumber: String = "",
-
-    // Detail alamat lengkap
     val fullAddress: String = "",
-
-    // Catatan untuk kurir (opsional)
     val notes: String? = null,
+    var isPrimary: Boolean = false,
 
-    // Tandai jika ini adalah alamat utama
-    var isPrimary: Boolean = false
-) : Parcelable
+    // Field untuk menyimpan koordinat
+    val latitude: Double? = null,
+    val longitude: Double? = null
+) : Parcelable {
+
+    // Helper untuk mengubah lat/lng menjadi objek LatLng dengan mudah
+    @IgnoredOnParcel
+    @get:Exclude // Agar tidak disimpan lagi oleh Firestore
+    val latLng: LatLng?
+        get() = if (latitude != null && longitude != null) {
+            LatLng(latitude, longitude)
+        } else {
+            null
+        }
+}

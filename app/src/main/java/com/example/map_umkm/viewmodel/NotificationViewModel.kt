@@ -1,26 +1,31 @@
-// File: NotificationViewModel.kt
+// File: com/example/map_umkm/viewmodel/NotificationViewModel.kt
 package com.example.map_umkm.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.map_umkm.repository.NotificationRepository
-import com.example.map_umkm.model.NotificationEntity
+import kotlinx.coroutines.launch
 
-// ViewModel yang akan diambil oleh Fragment
-class NotificationViewModel(repository: NotificationRepository) : ViewModel() {
+class NotificationViewModel(private val repository: NotificationRepository) : ViewModel() {
 
-    // Mengubah Flow menjadi LiveData agar mudah diobservasi di Fragment
+    // 🔥 LiveData Terpisah untuk Tab UI 🔥
+    val infoList = repository.infoNotifications.asLiveData()
+    val promoList = repository.promoNotifications.asLiveData()
+
+    // (Opsional) Data gabungan
     val allNotifications = repository.allNotifications.asLiveData()
-}
 
-// Factory untuk membuat ViewModel dengan Repository
-class NotificationViewModelFactory(private val repository: NotificationRepository) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(NotificationViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return NotificationViewModel(repository) as T
+    // Fungsi Sync
+    fun syncCloud(userEmail: String) {
+        viewModelScope.launch {
+            repository.syncCloudToLocal(userEmail)
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+
+    // Fungsi Mark as Read
+    fun markAsRead(id: String) {
+        repository.updateNotificationReadStatus(id, true)
     }
 }

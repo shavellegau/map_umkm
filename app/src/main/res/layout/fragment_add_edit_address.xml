@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- [FIXED] Sintaks xmlns:app diperbaiki dengan menambahkan spasi dan menghapus '<' yang salah -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -83,10 +84,21 @@
                 android:id="@+id/etFullAddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Jalan, nomor rumah, kelurahan, kecamatan, kota, dan kode pos"
+                android:hint="Jalan, nomor rumah, kelurahan, dll."
                 android:gravity="top"
                 android:minLines="3"
                 android:inputType="textMultiLine"/>
+
+            <!-- TOMBOL BARU UNTUK GOOGLE MAPS -->
+            <Button
+                android:id="@+id/btn_pilih_di_peta"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Pilih di Peta"
+                app:icon="@drawable/ic_location"
+                android:textAllCaps="false"/>
 
             <CheckBox
                 android:id="@+id/cbSetAsPrimary"

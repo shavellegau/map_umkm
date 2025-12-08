@@ -1,4 +1,4 @@
-package com.example.map_umkm
+package com.example.map_umkm   // <--- pastikan sama seperti project kamu
 
 import android.content.Context
 import android.util.Log
@@ -16,29 +16,36 @@ class FCMService(private val context: Context) {
 
     private val PROJECT_ID = "map-umkm"   // Pastikan sama dengan Firebase Project ID
 
+    // ===============================
+    //  PUBLIC → ADMIN memanggil ini
+    // ===============================
     fun sendNotification(target: String, title: String, body: String) {
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val accessToken = getAccessToken()
 
                 if (accessToken != null) {
+                    // target bisa token ATAU "promo"
                     sendV1Request(accessToken, target, title, body)
                 } else {
-                    Log.e("FCM_SERVICE", "Gagal mendapatkan Access Token. Pastikan service_account.json ada di folder assets.")
+                    Log.e("FCM_SERVICE", "Gagal baca service_account.json")
                 }
 
             } catch (e: Exception) {
-                Log.e("FCM_SERVICE", "Error saat mengirim notifikasi: ${e.message}")
+                Log.e("FCM_SERVICE", "Error: ${e.message}")
             }
         }
     }
 
-    // [FIXED] Mengambil access token dari file JSON di folder 'assets'
+
+    // ===============================
+    //  MENGAMBIL ACCESS TOKEN GOOGLE
+    // ===============================
     private fun getAccessToken(): String? {
         return try {
-            // Buka file dari folder assets, bukan res/raw
-            val inputStream = context.assets.open("service_account.json")
 
+            val inputStream = context.resources.openRawResource(R.raw.service_account)
             val googleCredentials = GoogleCredentials.fromStream(inputStream)
                 .createScoped(listOf("https://www.googleapis.com/auth/firebase.messaging"))
 
@@ -46,12 +53,15 @@ class FCMService(private val context: Context) {
             googleCredentials.accessToken.tokenValue
 
         } catch (e: Exception) {
-            Log.e("FCM_AUTH", "Error membaca service_account.json dari assets: ${e.message}")
             e.printStackTrace()
             null
         }
     }
 
+
+    // ======================================================
+    //  FCM HTTP v1 — SUDAH ADA LOGIKA TOPIK VS PERSONAL TOKEN
+    // ======================================================
     private suspend fun sendV1Request(
         accessToken: String,
         target: String,
@@ -67,6 +77,7 @@ class FCMService(private val context: Context) {
                 conn.setRequestProperty("Content-Type", "application/json; UTF-8")
                 conn.doOutput = true
 
+                // ... (Bagian pembuatan JSON Anda tetap sama) ...
                 val messageJson = JSONObject()
                 val messageContent = JSONObject()
 
@@ -84,27 +95,36 @@ class FCMService(private val context: Context) {
                 data.put("title", title)
                 data.put("body", bodyText)
                 data.put("status", "UPDATE")
+                // Tambahkan orderId jika ada, atau string kosong jika broadcast
+                data.put("orderId", "")
                 data.put("timestamp", System.currentTimeMillis().toString())
 
                 messageContent.put("notification", notification)
                 messageContent.put("data", data)
-
                 messageJson.put("message", messageContent)
 
+                // Tulis Output
                 val os = OutputStreamWriter(conn.outputStream)
                 os.write(messageJson.toString())
                 os.flush()
                 os.close()
 
                 val responseCode = conn.responseCode
-                Log.d("FCM_SERVICE", "Status Kirim Notifikasi: $responseCode")
-                if (responseCode != HttpURLConnection.HTTP_OK) {
-                    val errorStream = conn.errorStream?.bufferedReader().use { it?.readText() }
-                    Log.e("FCM_SERVICE", "Gagal mengirim notifikasi: $errorStream")
+                Log.d("FCM_SERVICE", "Status Kirim: $responseCode")
+
+                // 🔥 TAMBAHAN PENTING: BACA ERROR JIKA GAGAL 🔥
+                if (responseCode >= 400) {
+                    val errorStream = conn.errorStream
+                    if (errorStream != null) {
+                        val errorResponse = errorStream.bufferedReader().use { it.readText() }
+                        Log.e("FCM_SERVICE", "GAGAL KIRIM! Detail Error: $errorResponse")
+                    }
+                } else {
+                    Log.d("FCM_SERVICE", "Berhasil terkirim ke: $target")
                 }
 
             } catch (e: Exception) {
-                Log.e("FCM_SEND", "Error dalam sendV1Request: ${e.message}")
+                Log.e("FCM_SERVICE", "Exception saat kirim: ${e.message}")
                 e.printStackTrace()
             }
         }

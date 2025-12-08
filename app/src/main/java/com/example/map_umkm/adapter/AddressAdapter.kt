@@ -9,23 +9,45 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.R
 import com.example.map_umkm.model.Address
 
+// [PERBAIKAN UTAMA] Konstruktor sekarang menerima semua listener yang dibutuhkan
 class AddressAdapter(
     private var addresses: List<Address>,
-    // [DIUBAH] Tambahkan listener baru untuk klik pada item
     private val onItemClick: (Address) -> Unit,
-    private val onEdit: (Address) -> Unit,
-    private val onDelete: (Address) -> Unit,
-    private val onSetPrimary: (Address) -> Unit
+    private val onEditClick: (Address) -> Unit,
+    private val onDeleteClick: (Address) -> Unit,
+    private val onSetPrimaryClick: (Address) -> Unit
 ) : RecyclerView.Adapter<AddressAdapter.ViewHolder>() {
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        // Hubungkan semua view dari item_address.xml
         val tvLabel: TextView = view.findViewById(R.id.tvLabel)
-        val tvIsPrimary: TextView = view.findViewById(R.id.tvIsPrimary)
         val tvRecipient: TextView = view.findViewById(R.id.tvRecipient)
         val tvAddressDetail: TextView = view.findViewById(R.id.tvAddressDetail)
+        val tvIsPrimary: TextView = view.findViewById(R.id.tvIsPrimary)
+        val btnSetPrimary: TextView = view.findViewById(R.id.btnSetPrimary)
         val btnEdit: ImageView = view.findViewById(R.id.btnEdit)
         val btnDelete: ImageView = view.findViewById(R.id.btnDelete)
-        val btnSetPrimary: TextView = view.findViewById(R.id.btnSetPrimary)
+
+        fun bind(address: Address) {
+            tvLabel.text = address.label
+            tvRecipient.text = "${address.recipientName} (${address.phoneNumber})"
+            tvAddressDetail.text = address.fullAddress
+
+            // Tampilkan/sembunyikan label "Utama" dan tombol "Atur Jadi Utama"
+            if (address.isPrimary) {
+                tvIsPrimary.visibility = View.VISIBLE
+                btnSetPrimary.visibility = View.GONE
+            } else {
+                tvIsPrimary.visibility = View.GONE
+                btnSetPrimary.visibility = View.VISIBLE
+            }
+
+            // Set listener untuk setiap aksi
+            itemView.setOnClickListener { onItemClick(address) }
+            btnEdit.setOnClickListener { onEditClick(address) }
+            btnDelete.setOnClickListener { onDeleteClick(address) }
+            btnSetPrimary.setOnClickListener { onSetPrimaryClick(address) }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -37,33 +59,12 @@ class AddressAdapter(
     override fun getItemCount(): Int = addresses.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val address = addresses[position]
-        holder.tvLabel.text = address.label
-        holder.tvRecipient.text = "${address.recipientName} (${address.phoneNumber})"
-        holder.tvAddressDetail.text = address.fullAddress
-
-        if (address.isPrimary) {
-            holder.tvIsPrimary.visibility = View.VISIBLE
-            holder.btnSetPrimary.visibility = View.GONE
-        } else {
-            holder.tvIsPrimary.visibility = View.GONE
-            holder.btnSetPrimary.visibility = View.VISIBLE
-        }
-
-        // --- [BAGIAN YANG PALING PENTING] ---
-        // Tambahkan listener pada seluruh item view
-        holder.itemView.setOnClickListener {
-            onItemClick(address)
-        }
-        // ------------------------------------
-
-        holder.btnEdit.setOnClickListener { onEdit(address) }
-        holder.btnDelete.setOnClickListener { onDelete(address) }
-        holder.btnSetPrimary.setOnClickListener { onSetPrimary(address) }
+        holder.bind(addresses[position])
     }
 
-    fun updateData(newAddresses: List<Address>) {
-        this.addresses = newAddresses
+    // Fungsi untuk mengupdate data dari fragment
+    fun updateData(newData: List<Address>) {
+        addresses = newData
         notifyDataSetChanged()
     }
 }

@@ -32,6 +32,8 @@ class WishlistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        favoriteViewModel.loadFavorites()   // <---- ini WAJIB
+
         binding.btnBack.setOnClickListener {
             findNavController().popBackStack()
         }
@@ -39,6 +41,7 @@ class WishlistFragment : Fragment() {
         setupRecyclerView()
         observeFavorites()
     }
+
 
     private fun setupRecyclerView() {
         adapter = WishlistAdapter(
