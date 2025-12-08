@@ -12,24 +12,14 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.adapter.AdminOrdersAdapter
 import com.example.map_umkm.model.Order
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ListenerRegistration
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.json.JSONObject
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
 
 class AdminOrdersFragment : Fragment() {
 
@@ -39,21 +29,19 @@ class AdminOrdersFragment : Fragment() {
     private lateinit var adapter: AdminOrdersAdapter
     private lateinit var fabAction: FloatingActionButton
 
-    // UI Statistik
+    // 🔥 VARIABEL UI STATISTIK BARU (sesuai ID di XML Anda) 🔥
     private lateinit var tvTotalOrders: TextView
-    private lateinit var tvTotalProducts: TextView
-    private lateinit var tvTotalUsers: TextView
+    private lateinit var tvTotalProducts: TextView // Akan digunakan untuk 'Diproses'
+    private lateinit var tvTotalUsers: TextView   // Akan digunakan untuk 'Selesai'
 
     // Firebase & Listener
     private lateinit var fcmService: FCMService
     private val db = FirebaseFirestore.getInstance()
     private var orderListener: ListenerRegistration? = null
+    // Anda mungkin perlu listener terpisah untuk statistik jika ingin menghentikannya secara terpisah
     private var statsListener1: ListenerRegistration? = null
     private var statsListener2: ListenerRegistration? = null
     private var statsListener3: ListenerRegistration? = null
-
-    // [FIXED] Tambahkan lokasi toko sebagai properti
-    private val storeLocation = LatLng(-6.2088, 106.8456)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -64,8 +52,15 @@ class AdminOrdersFragment : Fragment() {
 
         fcmService = FCMService(requireContext())
 
-        // Inisialisasi semua view
-        initializeViews(view)
+        // 1. Inisialisasi Daftar Pesanan
+        rvRecentOrders = view.findViewById(R.id.rvRecentOrders)
+        tvEmpty = view.findViewById(R.id.tv_admin_no_orders)
+        fabAction = view.findViewById(R.id.fab_add_promo)
+
+        // 2. 🔥 Inisialisasi Statistik 🔥
+        tvTotalOrders = view.findViewById(R.id.tvTotalOrders)
+        tvTotalProducts = view.findViewById(R.id.tvTotalProducts)
+        tvTotalUsers = view.findViewById(R.id.tvTotalUsers)
 
         setupRecyclerView()
         fabAction.setOnClickListener { showPromoDialog() }
@@ -73,35 +68,27 @@ class AdminOrdersFragment : Fragment() {
         return view
     }
 
-    private fun initializeViews(view: View) {
-        rvRecentOrders = view.findViewById(R.id.rvRecentOrders)
-        tvEmpty = view.findViewById(R.id.tv_admin_no_orders)
-        // [FIXED] ID fabAction tidak ada di layout fragment_admin_orders.xml, jadi kita cari ID yang benar.
-        // Asumsikan FAB ini untuk fungsi broadcast/promo. Jika tidak ada, baris ini bisa dihapus/dikomentari.
-        // fabAction = view.findViewById(R.id.fab_add_promo) // ID ini tidak ada di layout
-
-        tvTotalOrders = view.findViewById(R.id.tvTotalOrders)
-        tvTotalProducts = view.findViewById(R.id.tvTotalProducts)
-        tvTotalUsers = view.findViewById(R.id.tvTotalUsers)
-    }
-
-
     override fun onResume() {
         super.onResume()
+        // Mulai mendengarkan daftar pesanan
         startListeningForOrders()
+        // 🔥 Mulai mendengarkan statistik 🔥
         startListeningForStats()
     }
 
     override fun onPause() {
         super.onPause()
+        // Hentikan listener saat fragment tidak terlihat
         orderListener?.remove()
         statsListener1?.remove()
         statsListener2?.remove()
         statsListener3?.remove()
     }
 
+    // ---------------- FIREBASE LOAD ORDERS (REAL-TIME) ------------------
     private fun startListeningForOrders() {
         orderListener?.remove()
+
         orderListener = db.collection("orders")
             .orderBy("orderDate", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshots, e ->
@@ -125,105 +112,63 @@ class AdminOrdersFragment : Fragment() {
             }
     }
 
+    // ---------------- 🔥 FUNGSI LOAD STATISTIK BARU 🔥 ------------------
     private fun startListeningForStats() {
+        // 1. Pesanan Baru (Menunggu Konfirmasi / Menunggu Pembayaran)
         statsListener1?.remove()
         statsListener1 = db.collection("orders")
             .whereIn("status", listOf("Menunggu Konfirmasi", "Menunggu Pembayaran"))
             .addSnapshotListener { snapshots, e ->
                 if (e != null) { Log.e("Firestore", "Stats 1 failed.", e); return@addSnapshotListener }
                 val count = snapshots?.size() ?: 0
-                if (isAdded) tvTotalOrders.text = count.toString()
+                tvTotalOrders.text = count.toString()
             }
 
+        // 2. Diproses
         statsListener2?.remove()
         statsListener2 = db.collection("orders")
             .whereEqualTo("status", "Diproses")
             .addSnapshotListener { snapshots, e ->
                 if (e != null) { Log.e("Firestore", "Stats 2 failed.", e); return@addSnapshotListener }
                 val count = snapshots?.size() ?: 0
-                if (isAdded) tvTotalProducts.text = count.toString()
+                tvTotalProducts.text = count.toString()
             }
 
+        // 3. Selesai
         statsListener3?.remove()
         statsListener3 = db.collection("orders")
             .whereEqualTo("status", "Selesai")
             .addSnapshotListener { snapshots, e ->
                 if (e != null) { Log.e("Firestore", "Stats 3 failed.", e); return@addSnapshotListener }
                 val count = snapshots?.size() ?: 0
-                if (isAdded) tvTotalUsers.text = count.toString()
+                tvTotalUsers.text = count.toString()
             }
     }
 
-    // [FIXED] Nama fungsi lebih jelas dan hanya untuk update status
-    private fun updateStatus(orderId: String, newStatus: String) {
-        db.collection("orders").document(orderId)
-            .update("status", newStatus)
-            .addOnSuccessListener { Toast.makeText(context, "Status diubah menjadi $newStatus", Toast.LENGTH_SHORT).show() }
-            .addOnFailureListener { e -> Toast.makeText(context, "Gagal update: ${e.message}", Toast.LENGTH_SHORT).show() }
-    }
-
-    // [FIXED] Fungsi ini sekarang hanya untuk update status dan kirim notifikasi
-    private fun updateStatusAndNotify(orderId: String, newStatus: String, token: String?, title: String, body: String) {
-        db.collection("orders").document(orderId)
+    // ---------------- FIREBASE UPDATE STATUS ------------------
+    private fun updateStatusAndNotify(
+        orderId: String,
+        newStatus: String,
+        token: String?,
+        title: String,
+        body: String
+    ) {
+        db.collection("orders")
+            .document(orderId)
             .update("status", newStatus)
             .addOnSuccessListener {
-                Toast.makeText(context, "Status diubah & notifikasi dikirim!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Status diubah menjadi $newStatus", Toast.LENGTH_SHORT).show()
+                // Angka statistik dan daftar pesanan akan otomatis terupdate oleh listener
                 if (!token.isNullOrEmpty()) {
                     fcmService.sendNotification(token, title, body)
                 }
             }
-            .addOnFailureListener { e -> Toast.makeText(context, "Gagal update: ${e.message}", Toast.LENGTH_SHORT).show() }
-    }
-
-    // [NEW] Fungsi untuk antar pesanan delivery
-    private fun antarPesananDanNotifikasi(order: Order) {
-        val userAddress = order.deliveryAddress
-        // Pastikan ini pesanan delivery dan punya koordinat
-        if (order.orderType != "Delivery" || userAddress?.latLng == null) {
-            Toast.makeText(context, "Hanya pesanan 'Delivery' yang bisa diantar. Pesanan ini diselesaikan.", Toast.LENGTH_SHORT).show()
-            updateStatus(order.orderId, "Selesai")
-            return
-        }
-
-        // Jalankan di background thread
-        lifecycleScope.launch(Dispatchers.IO) {
-            val apiKey = "AIzaSyDIrN5Cr4dSpkpWwM4dbyt7DTaPf-2PLrw" // Ganti dengan API Key Anda
-            val url = "https://maps.googleapis.com/maps/api/directions/json?origin=${storeLocation.latitude},${storeLocation.longitude}&destination=${userAddress.latLng!!.latitude},${userAddress.latLng!!.longitude}&key=$apiKey"
-
-            try {
-                val connection = URL(url).openConnection() as HttpURLConnection
-                val reader = BufferedReader(InputStreamReader(connection.inputStream))
-                val response = reader.readText()
-                reader.close()
-                connection.disconnect()
-
-                val jsonResponse = JSONObject(response)
-                val routes = jsonResponse.optJSONArray("routes")
-                var durationText = "sekitar 15-30 menit" // Fallback
-                if (routes != null && routes.length() > 0) {
-                    val leg = routes.getJSONObject(0).getJSONArray("legs").getJSONObject(0)
-                    durationText = leg.getJSONObject("duration").getString("text")
-                }
-
-                // Kembali ke Main thread untuk update UI & kirim notif
-                withContext(Dispatchers.Main) {
-                    val title = "Pesananmu sedang diantar!"
-                    val body = "Estimasi tiba dalam $durationText."
-                    updateStatusAndNotify(order.orderId, "Sedang Diantar", order.userToken, title, body)
-                }
-            } catch (e: Exception) {
-                Log.e("AdminOrders", "Gagal fetch directions: ${e.message}")
-                // Jika API gagal, tetap kirim notifikasi dengan estimasi fallback
-                withContext(Dispatchers.Main) {
-                    val title = "Pesananmu sedang diantar!"
-                    val body = "Estimasi tiba dalam waktu dekat."
-                    updateStatusAndNotify(order.orderId, "Sedang Diantar", order.userToken, title, body)
-                }
+            .addOnFailureListener {
+                Toast.makeText(context, "Gagal update status", Toast.LENGTH_SHORT).show()
             }
-        }
     }
 
-
+    // ---------------- RECYCLERVIEW ------------------
     private fun setupRecyclerView() {
         adapter = AdminOrdersAdapter(
             emptyList(),
@@ -233,14 +178,13 @@ class AdminOrdersFragment : Fragment() {
                 startActivity(intent)
             },
             onConfirmPaymentClick = { order ->
-                updateStatus(order.orderId, "Menunggu Konfirmasi")
+                updateStatusAndNotify(order.orderId, "Menunggu Konfirmasi", order.userToken, "Status Pesanan", "Pembayaran sedang dicek Admin.")
             },
             onProsesClick = { order ->
-                updateStatus(order.orderId, "Diproses")
+                updateStatusAndNotify(order.orderId, "Diproses", order.userToken, "Pesanan Diproses", "Pesananmu sedang dibuat.")
             },
-            // [FIXED] Nama parameter disesuaikan dengan adapter
-            onAntarPesananClick = { order ->
-                antarPesananDanNotifikasi(order)
+            onSelesaikanClick = { order ->
+                updateStatusAndNotify(order.orderId, "Selesai", order.userToken, "Pesanan Selesai", "Silakan ambil pesananmu!")
             }
         )
 
@@ -248,6 +192,7 @@ class AdminOrdersFragment : Fragment() {
         rvRecentOrders.adapter = adapter
     }
 
+    // ---------------- BROADCAST PROMO ------------------
     private fun showPromoDialog() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Kirim Info Broadcast")
