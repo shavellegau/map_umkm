@@ -1,5 +1,6 @@
 package com.example.map_umkm.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,27 +29,27 @@ class OrderDetailAdapter(private val items: List<Product>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
+        val context = holder.itemView.context
 
+        // 1. Set Nama & Jumlah
         holder.tvProductName.text = item.name
-        // [FIXED] Tampilkan quantity dengan format yang lebih jelas
         holder.tvQuantity.text = "Jumlah: x${item.quantity}"
 
-        // Tampilkan catatan jika ada
-        if (item.notes.isNullOrBlank()) {
+        // 2. Set Catatan
+        if (item.notes.isNullOrEmpty()) {
             holder.tvNotes.visibility = View.GONE
         } else {
             holder.tvNotes.visibility = View.VISIBLE
             holder.tvNotes.text = "Catatan: ${item.notes}"
         }
 
-        // Memuat gambar produk dari drawable secara dinamis
-        val context = holder.itemView.context
-        val imageResId = context.resources.getIdentifier(item.image, "drawable", context.packageName)
+        // 🔥 3. LOAD GAMBAR LANGSUNG (SAMA SEPERTI CART ITEM) 🔥
+        Log.d("ORDER_ADAPTER", "Loading Image: ${item.image}") // Cek log ini
 
         Glide.with(context)
-            .load(if (imageResId != 0) imageResId else R.drawable.placeholder_image) // Muat gambar lokal, fallback ke placeholder
-            .placeholder(R.drawable.logo_tuku) // Placeholder saat loading
-            .error(R.drawable.logo_tuku) // Gambar jika terjadi error (misal, nama file di JSON salah)
+            .load(item.image) // Langsung muat path/url dari object
+            .placeholder(R.drawable.placeholder_image)
+            .error(R.drawable.error_image)
             .into(holder.ivProductImage)
     }
 

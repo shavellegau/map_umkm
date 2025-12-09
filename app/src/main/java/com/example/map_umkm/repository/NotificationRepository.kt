@@ -1,79 +1,93 @@
-// File: com/example/map_umkm/repository/NotificationRepository.kt
 package com.example.map_umkm.repository
 
 import android.util.Log
 import com.example.map_umkm.data.NotificationDao
 import com.example.map_umkm.model.NotificationEntity
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.google.firebase.Timestamp // ✅ Import yang benar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class NotificationRepository(private val notificationDao: NotificationDao) {
 
-    // 🔥 1. Sumber Data Terpisah untuk ViewModel 🔥
-    val infoNotifications: Flow<List<NotificationEntity>> = notificationDao.getInfoNotifications()
-    val promoNotifications: Flow<List<NotificationEntity>> = notificationDao.getPromoNotifications()
+    val infoNotifications = notificationDao.getInfoNotifications()
+    val promoNotifications = notificationDao.getPromoNotifications()
+    val allNotifications = notificationDao.getAllNotifications()
 
-    // (Opsional) Jika masih butuh list gabungan
-    val allNotifications: Flow<List<NotificationEntity>> = notificationDao.getAllNotifications()
+    private val db = FirebaseFirestore.getInstance()
 
-    // 2. Fungsi Sinkronisasi (Tetap ambil SEMUA dari Firestore)
-    fun syncCloudToLocal(userEmail: String) {
-        val db = FirebaseFirestore.getInstance()
-
-        Log.d("REPO", "Mulai sync notifikasi untuk: $userEmail")
-
+    // ============================================================
+    // FIXED: SYNC INFO USER (TIDAK MENGAPUS SEMUA SETIAP LOGIN)
+    // ============================================================
+    fun syncPersonalOrders(userEmail: String) {
         db.collection("notifications")
             .whereEqualTo("userEmail", userEmail)
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { documents ->
-                if (documents.isEmpty) {
-                    Log.d("REPO", "Firestore kosong untuk user ini.")
-                    return@addOnSuccessListener
-                }
 
-                val entities = documents.mapNotNull { doc ->
-                    val fsTimestamp = doc.get("timestamp") as? Timestamp
-
-                    if (fsTimestamp != null) {
-                        NotificationEntity(
-                            id = doc.id,
-                            title = doc.getString("title") ?: "Info",
-                            body = doc.getString("body") ?: "",
-                            timestamp = fsTimestamp.toDate().time,
-                            // Pastikan status di Firestore benar ('PROMO' atau 'INFO'/'UPDATE')
-                            type = doc.getString("type") ?: doc.getString("status") ?: "INFO",
-                            orderId = doc.getString("orderId"),
-                            isRead = doc.getBoolean("isRead") ?: false
-                        )
-                    } else null
+                val list = documents.mapNotNull { doc ->
+                    val ts = doc.get("timestamp") as? Timestamp ?: return@mapNotNull null
+                    NotificationEntity(
+                        id = doc.id,
+                        title = doc.getString("title") ?: "Info",
+                        body = doc.getString("body") ?: "",
+                        timestamp = ts.toDate().time,
+                        type = doc.getString("type") ?: "INFO",
+                        orderId = doc.getString("orderId"),
+                        isRead = doc.getBoolean("isRead") ?: false
+                    )
                 }
 
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-                        notificationDao.deleteAll()
-                        notificationDao.insertAll(entities)
-                        Log.d("REPO", "Berhasil sync ${entities.size} notifikasi ke Room")
+                        // ❌ Jangan deleteAllInfo()
+                        // ✔ Update/replace berdasarkan ID
+                        notificationDao.insertAll(list)
                     } catch (e: Exception) {
-                        Log.e("REPO", "Gagal insert ke Room: ${e.message}")
+                        Log.e("REPO", "Error sync info: ${e.message}")
                     }
                 }
             }
-            .addOnFailureListener { e ->
-                Log.e("REPO", "Gagal ambil dari Firestore: ${e.message}")
+    }
+
+    // ============================================================
+    // FIXED: SYNC PROMO ADMIN (HAPUS PROMO LAMA → INSERT BARU)
+    // ============================================================
+    fun syncPromosFromAdmin() {
+        db.collection("broadcast_history")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .get()
+            .addOnSuccessListener { documents ->
+
+                val list = documents.mapNotNull { doc ->
+                    val ts = doc.get("timestamp") as? Timestamp ?: return@mapNotNull null
+                    NotificationEntity(
+                        id = doc.id,
+                        title = doc.getString("title") ?: "Promo",
+                        body = doc.getString("body") ?: "",
+                        timestamp = ts.toDate().time,
+                        type = "PROMO",
+                        orderId = null,
+                        isRead = false
+                    )
+                }
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        // 🔥 FIX: Hapus promo lama untuk menghindari duplikat
+                        notificationDao.deleteAllPromos()
+                        notificationDao.insertAll(list)
+                    } catch (e: Exception) {
+                        Log.e("REPO", "Error sync promo: ${e.message}")
+                    }
+                }
             }
     }
 
-    // 3. Update Status Baca
-    fun updateNotificationReadStatus(notificationId: String, isRead: Boolean) {
-        FirebaseFirestore.getInstance()
-            .collection("notifications")
-            .document(notificationId)
-            .update("isRead", isRead)
+    fun updateNotificationReadStatus(id: String, isRead: Boolean) {
+        db.collection("notifications").document(id).update("isRead", isRead)
     }
 }

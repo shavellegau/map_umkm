@@ -12,13 +12,14 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.map_umkm.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.messaging.FirebaseMessaging
+import com.example.map_umkm.admin.AdminNotificationFragment
+import com.example.map_umkm.AdminOrdersFragment
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
     lateinit var bottomNavigationView: BottomNavigationView
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,13 +53,35 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView.setupWithNavController(navController)
 
         // ======================================================
+        // 🔥 PERBAIKAN: LOGIKA MENYEMBUNYIKAN NAVBAR 🔥
+        // ======================================================
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                // Daftar Halaman yang TIDAK BOLEH ada Navbar
+                R.id.paymentFragment,
+                R.id.paymentSuccessFragment,
+                R.id.qrisFragment,
+                R.id.productDetailFragment,
+                R.id.adminDashboardFragment,
+                R.id.adminOrdersFragment,      // Tambahkan fragment admin lain jika ada
+                R.id.adminNotificationFragment,
+                R.id.adminMenuFragment -> {
+                    bottomNavigationView.visibility = View.GONE
+                }
+                else -> {
+                    // Halaman Utama (Home, Cart, Profile) -> Munculkan Navbar
+                    bottomNavigationView.visibility = View.VISIBLE
+                }
+            }
+        }
+
+        // ======================================================
         // 3. Admin Mode → buka fragment admin dashboard
         // ======================================================
         val openAdmin = intent.getBooleanExtra("openAdmin", false)
         if (openAdmin) {
             navController.navigate(R.id.adminDashboardFragment)
-
-            // Admin tidak butuh bottom nav
+            // Admin tidak butuh bottom nav (sudah dihandle listener di atas, tapi ini untuk safety)
             bottomNavigationView.visibility = View.GONE
         }
 

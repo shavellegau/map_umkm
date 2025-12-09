@@ -38,12 +38,10 @@
                     android:background="@drawable/card_bg"
                     android:orientation="vertical"
                     android:padding="16dp">
-
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:src="@drawable/cart" />
-
                     <TextView
                         android:id="@+id/tvTotalOrders"
                         android:layout_width="wrap_content"
@@ -52,11 +50,10 @@
                         android:text="0"
                         android:textSize="20sp"
                         android:textStyle="bold" />
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Pesanan Baru"
+                        android:text="Baru"
                         android:textColor="#777"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -69,12 +66,10 @@
                     android:background="@drawable/card_bg"
                     android:orientation="vertical"
                     android:padding="16dp">
-
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:src="@drawable/food_menu" />
-
                     <TextView
                         android:id="@+id/tvTotalProducts"
                         android:layout_width="wrap_content"
@@ -83,7 +78,6 @@
                         android:text="0"
                         android:textSize="20sp"
                         android:textStyle="bold" />
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -99,12 +93,10 @@
                     android:background="@drawable/card_bg"
                     android:orientation="vertical"
                     android:padding="16dp">
-
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:src="@drawable/ic_person" />
-
                     <TextView
                         android:id="@+id/tvTotalUsers"
                         android:layout_width="wrap_content"
@@ -113,7 +105,6 @@
                         android:text="0"
                         android:textSize="20sp"
                         android:textStyle="bold" />
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -153,8 +144,8 @@
                         android:layout_height="wrap_content"
                         android:checked="true"
                         android:text="Semua"
-                        android:textColor="@color/tuku_dark"
-                        app:chipBackgroundColor="@color/white" />
+                        android:textColor="@color/state_chip_text"
+                        app:chipBackgroundColor="@color/state_chip_bg" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipToday"
@@ -162,8 +153,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Hari Ini"
-                        android:textColor="@color/tuku_dark"
-                        app:chipBackgroundColor="@color/white" />
+                        android:textColor="@color/state_chip_text"
+                        app:chipBackgroundColor="@color/state_chip_bg" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipYesterday"
@@ -171,20 +162,21 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Kemarin"
-                        android:textColor="@color/tuku_dark"
-                        app:chipBackgroundColor="@color/white" />
+                        android:textColor="@color/state_chip_text"
+                        app:chipBackgroundColor="@color/state_chip_bg" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipWeek"
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="7 Hari Terakhir"
-                        android:textColor="@color/tuku_dark"
-                        app:chipBackgroundColor="@color/white" />
+                        android:text="> 7 Hari Lalu"
+                        android:textColor="@color/state_chip_text"
+                        app:chipBackgroundColor="@color/state_chip_bg" />
 
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvRecentOrders"
                 android:layout_width="match_parent"
@@ -202,5 +194,4 @@
 
         </LinearLayout>
     </ScrollView>
-
 </FrameLayout>

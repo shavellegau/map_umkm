@@ -3,7 +3,7 @@ package com.example.map_umkm
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
-import android.widget.LinearLayout
+import android.widget.LinearLayout // Masih dipakai untuk layout lain jika perlu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -46,13 +46,18 @@ class OrderDetailActivity : AppCompatActivity() {
         val tvOrderDate: TextView = findViewById(R.id.tvOrderDate)
         val tvInvSubtotal: TextView = findViewById(R.id.tvInvSubtotal)
         val tvInvTax: TextView = findViewById(R.id.tvInvTax)
-        val layoutVoucher: LinearLayout = findViewById(R.id.layoutVoucher)
+
+        // 🔥 PERBAIKAN 1: Ganti LinearLayout ke View (atau MaterialCardView)
+        val layoutVoucher: View = findViewById(R.id.layoutVoucher)
+
         val tvInvDiscount: TextView = findViewById(R.id.tvInvDiscount)
         val tvTotalPrice: TextView = findViewById(R.id.tvTotalPrice)
         val rvOrderItems: RecyclerView = findViewById(R.id.rvOrderItems)
-        val layoutDelivery: LinearLayout = findViewById(R.id.layout_delivery)
+
+        // 🔥 PERBAIKAN 2: Ganti LinearLayout ke View (karena di XML ini adalah MaterialCardView)
+        val layoutDelivery: View = findViewById(R.id.layout_delivery)
+
         val tvDeliveryAddress: TextView = findViewById(R.id.tvDeliveryAddress)
-        // [BARU] Inisialisasi tombol selesaikan pesanan
         val btnPesananDiterima: Button = findViewById(R.id.btn_pesanan_diterima)
 
         val currencyFormat = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
@@ -61,6 +66,7 @@ class OrderDetailActivity : AppCompatActivity() {
         tvUserEmail.text = "Pemesan: ${order.userName} (${order.userEmail})"
         tvOrderDate.text = order.orderDate
 
+        // Logika Tampilan Delivery
         if (order.orderType == "Delivery" && order.deliveryAddress != null) {
             layoutDelivery.visibility = View.VISIBLE
             val address = order.deliveryAddress
@@ -69,11 +75,12 @@ class OrderDetailActivity : AppCompatActivity() {
             layoutDelivery.visibility = View.GONE
         }
 
+        // Setup RecyclerView
         val orderItemsAdapter = OrderDetailAdapter(order.items)
         rvOrderItems.layoutManager = LinearLayoutManager(this)
         rvOrderItems.adapter = orderItemsAdapter
 
-        // Perhitungan subtotal dan pajak (tanpa ongkir)
+        // Perhitungan Harga
         val subtotal = order.items.sumOf {
             ((if (it.selectedType == "iced") it.price_iced else it.price_hot) ?: 0) * it.quantity.toDouble()
         }
@@ -83,16 +90,13 @@ class OrderDetailActivity : AppCompatActivity() {
         val subtotalPlusTax = subtotal + tax
         val shippingAndDiscount = order.totalAmount - subtotalPlusTax
 
-        // Logika untuk memisahkan diskon dan ongkir
         val discount = if(shippingAndDiscount < 0) -shippingAndDiscount else 0.0
-        val shippingCost = if(shippingAndDiscount > 0) shippingAndDiscount else 0.0
+        // val shippingCost = if(shippingAndDiscount > 0) shippingAndDiscount else 0.0 // (Opsional jika ingin ditampilkan)
 
         tvInvSubtotal.text = currencyFormat.format(subtotal)
         tvInvTax.text = currencyFormat.format(tax)
 
-        // Anda mungkin perlu menambahkan TextView untuk ongkir di detail invoice jika belum ada
-        // tvInvShipping.text = currencyFormat.format(shippingCost)
-
+        // Logika Tampilan Voucher
         if (discount > 0) {
             layoutVoucher.visibility = View.VISIBLE
             tvInvDiscount.text = "-${currencyFormat.format(discount)}"
@@ -102,16 +106,17 @@ class OrderDetailActivity : AppCompatActivity() {
 
         tvTotalPrice.text = currencyFormat.format(order.totalAmount)
 
-        // [BARU] Logika untuk tombol "Pesanan Diterima"
-        if (order.status == "Sedang Diantar") {
+        // Logika Tombol "Pesanan Diterima"
+        if (order.status == "Sedang Diantar" || order.status == "Dikirim") {
             btnPesananDiterima.visibility = View.VISIBLE
             btnPesananDiterima.setOnClickListener {
                 db.collection("orders").document(order.orderId)
                     .update("status", "Selesai")
                     .addOnSuccessListener {
                         Toast.makeText(this, "Pesanan telah diselesaikan. Terima kasih!", Toast.LENGTH_LONG).show()
-                        // Sembunyikan tombol setelah diklik dan mungkin perbarui UI lain
                         btnPesananDiterima.visibility = View.GONE
+                        // Opsional: Refresh activity atau finish()
+                        finish()
                     }
                     .addOnFailureListener {
                         Toast.makeText(this, "Gagal menyelesaikan pesanan. Coba lagi.", Toast.LENGTH_SHORT).show()
