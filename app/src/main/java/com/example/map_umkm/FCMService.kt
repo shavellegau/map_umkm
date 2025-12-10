@@ -12,7 +12,8 @@ import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 
-class FCMService(private val context: Context) {
+class
+FCMService(private val context: Context) {
 
     private val PROJECT_ID = "map-umkm"
 

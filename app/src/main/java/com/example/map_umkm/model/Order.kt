@@ -9,6 +9,10 @@ data class Order(
     @SerializedName("orderId")
     val orderId: String = "",
 
+    // --- TAMBAHKAN BARIS INI ---
+    @SerializedName("userId")
+    val userId: String = "", // WAJIB ADA untuk referensi ke dokumen user
+
     @SerializedName("userEmail")
     val userEmail: String = "",
 
@@ -30,11 +34,10 @@ data class Order(
     @SerializedName("userToken")
     val userToken: String? = "",
 
-    // [FIXED] Tambahkan field yang hilang untuk menyimpan info pengiriman
     @SerializedName("deliveryAddress")
     val deliveryAddress: Address? = null,
 
     @SerializedName("orderType")
-    val orderType: String = "Take Away" // Default "Take Away", bisa juga "Delivery"
+    val orderType: String = "Take Away"
 
 ) : Parcelable
