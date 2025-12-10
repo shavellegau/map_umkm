@@ -1,14 +1,11 @@
 package com.example.map_umkm
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -16,10 +13,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.adapter.AdminOrdersAdapter
 import com.example.map_umkm.model.Order
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.chip.ChipGroup
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ListenerRegistration
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class AdminOrdersFragment : Fragment() {
 
@@ -27,160 +28,209 @@ class AdminOrdersFragment : Fragment() {
     private lateinit var rvRecentOrders: RecyclerView
     private lateinit var tvEmpty: TextView
     private lateinit var adapter: AdminOrdersAdapter
-    private lateinit var fabAction: FloatingActionButton
+    private lateinit var chipGroupFilter: ChipGroup
+
+    // Statistik
     private lateinit var tvTotalOrders: TextView
     private lateinit var tvTotalProducts: TextView
     private lateinit var tvTotalUsers: TextView
 
-    // Firebase
+    // Data
     private lateinit var fcmService: FCMService
     private val db = FirebaseFirestore.getInstance()
-    // OPTIMISASI: Gunakan HANYA SATU listener untuk semua data pesanan
-    private var allOrdersListener: ListenerRegistration? = null
+    private var orderListener: ListenerRegistration? = null
+
+    // Variabel Filter
+    private var allOrderList: List<Order> = emptyList() // Data mentah
+    private var currentFilterMode = "ALL" // Default mode
+
+    // Listener Statistik
+    private var statsListener1: ListenerRegistration? = null
+    private var statsListener2: ListenerRegistration? = null
+    private var statsListener3: ListenerRegistration? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_admin_orders, container, false)
         fcmService = FCMService(requireContext())
 
-        // Inisialisasi UI
+        // Init UI
         rvRecentOrders = view.findViewById(R.id.rvRecentOrders)
         tvEmpty = view.findViewById(R.id.tv_admin_no_orders)
-        // Sekarang ID ini sudah ada di layout XML
-        fabAction = view.findViewById(R.id.fab_add_promo)
+        chipGroupFilter = view.findViewById(R.id.chipGroupFilter)
+
         tvTotalOrders = view.findViewById(R.id.tvTotalOrders)
         tvTotalProducts = view.findViewById(R.id.tvTotalProducts)
         tvTotalUsers = view.findViewById(R.id.tvTotalUsers)
 
         setupRecyclerView()
-        fabAction.setOnClickListener { showPromoDialog() }
+
+        // Setup Listener Chip
+        setupFilterListener()
 
         return view
     }
 
     override fun onResume() {
         super.onResume()
-        // OPTIMISASI: Panggil fungsi listener tunggal
-        startListeningForAllOrdersAndStats()
+        startListeningForOrders()
+        startListeningForStats()
     }
 
     override fun onPause() {
         super.onPause()
-        // OPTIMISASI: Hentikan satu listener saja
-        allOrdersListener?.remove()
+        orderListener?.remove()
+        statsListener1?.remove()
+        statsListener2?.remove()
+        statsListener3?.remove()
     }
 
-    // OPTIMISASI: Satu fungsi untuk mengambil semua pesanan dan menghitung statistik
-    private fun startListeningForAllOrdersAndStats() {
-        allOrdersListener?.remove()
+    // ---------------- LOGIKA FILTER ------------------
+    private fun setupFilterListener() {
+        // Pastikan default terpilih
+        chipGroupFilter.check(R.id.chipAll)
 
-        allOrdersListener = db.collection("orders")
+        chipGroupFilter.setOnCheckedStateChangeListener { group, checkedIds ->
+            if (checkedIds.isNotEmpty()) {
+                currentFilterMode = when (checkedIds[0]) {
+                    R.id.chipToday -> "TODAY"
+                    R.id.chipYesterday -> "YESTERDAY"
+                    R.id.chipWeek -> "WEEK"
+                    else -> "ALL"
+                }
+                applyFilter() // Terapkan filter setiap kali chip berubah
+            } else {
+                // Jika user uncheck (kosong), paksa kembali ke ALL agar tidak blank
+                currentFilterMode = "ALL"
+                chipGroupFilter.check(R.id.chipAll)
+                applyFilter()
+            }
+        }
+    }
+
+    private fun applyFilter() {
+        // Logika Filter
+        val filteredList = when (currentFilterMode) {
+            "TODAY" -> allOrderList.filter { isDateToday(it.orderDate) }
+            "YESTERDAY" -> allOrderList.filter { isDateYesterday(it.orderDate) }
+            "WEEK" -> allOrderList.filter { isDateOlderThanWeek(it.orderDate) }
+            else -> allOrderList // Jika ALL, kembalikan semua data
+        }
+
+        // Update UI
+        if (filteredList.isEmpty()) {
+            tvEmpty.text = if (allOrderList.isEmpty()) "Belum ada pesanan." else "Tidak ada pesanan untuk filter ini."
+            tvEmpty.visibility = View.VISIBLE
+            rvRecentOrders.visibility = View.GONE
+        } else {
+            tvEmpty.visibility = View.GONE
+            rvRecentOrders.visibility = View.VISIBLE
+            adapter.updateData(filteredList)
+        }
+    }
+
+    // ---------------- HELPER DATE ------------------
+    private fun parseDate(dateString: String?): Date? {
+        if (dateString == null) return null
+        return try {
+            val format = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("id", "ID"))
+            format.parse(dateString)
+        } catch (e: Exception) { null }
+    }
+
+    private fun isDateToday(dateString: String?): Boolean {
+        val date = parseDate(dateString) ?: return false
+        val now = Calendar.getInstance()
+        val target = Calendar.getInstance().apply { time = date }
+        return now.get(Calendar.YEAR) == target.get(Calendar.YEAR) &&
+                now.get(Calendar.DAY_OF_YEAR) == target.get(Calendar.DAY_OF_YEAR)
+    }
+
+    private fun isDateYesterday(dateString: String?): Boolean {
+        val date = parseDate(dateString) ?: return false
+        val yesterday = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -1) }
+        val target = Calendar.getInstance().apply { time = date }
+        return yesterday.get(Calendar.YEAR) == target.get(Calendar.YEAR) &&
+                yesterday.get(Calendar.DAY_OF_YEAR) == target.get(Calendar.DAY_OF_YEAR)
+    }
+
+    private fun isDateOlderThanWeek(dateString: String?): Boolean {
+        val date = parseDate(dateString) ?: return false
+        val weekAgo = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -7) }
+        return date.before(weekAgo.time)
+    }
+
+    // ---------------- FIREBASE LOAD ------------------
+    private fun startListeningForOrders() {
+        orderListener?.remove()
+        orderListener = db.collection("orders")
             .orderBy("orderDate", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshots, e ->
                 if (e != null) {
-                    Log.e("Firestore", "All-in-one listener failed.", e)
-                    Toast.makeText(context, "Gagal memuat data pesanan.", Toast.LENGTH_LONG).show()
-                    tvEmpty.visibility = View.VISIBLE
+                    Log.e("Firestore", "Error: ${e.message}")
                     return@addSnapshotListener
                 }
 
-                val orders = snapshots?.toObjects(Order::class.java) ?: emptyList()
+                if (snapshots != null) {
+                    // 1. Simpan semua data mentah
+                    allOrderList = snapshots.toObjects(Order::class.java)
 
-                // Update RecyclerView
-                if (orders.isEmpty()) {
-                    tvEmpty.visibility = View.VISIBLE
-                    rvRecentOrders.visibility = View.GONE
-                } else {
-                    tvEmpty.visibility = View.GONE
-                    rvRecentOrders.visibility = View.VISIBLE
-                    adapter.updateData(orders)
+                    // 2. Langsung terapkan filter (PENTING AGAR TIDAK KOSONG SAAT AWAL LOAD)
+                    applyFilter()
                 }
-
-                // OPTIMISASI: Hitung statistik dari list 'orders' yang sudah ada di memori
-                calculateStats(orders)
             }
     }
 
-    /**
-     * Fungsi baru untuk menghitung statistik dari data yang sudah ada di aplikasi.
-     * Tidak melakukan query baru ke Firestore, sehingga lebih hemat & cepat.
-     */
-    private fun calculateStats(orders: List<Order>) {
-        val newOrdersCount = orders.count { it.status == "Menunggu Konfirmasi" || it.status == "Menunggu Pembayaran" }
-        val processingCount = orders.count { it.status == "Diproses" }
-        val completedCount = orders.count { it.status == "Selesai" }
+    // ---------------- STATISTIK & UPDATE ------------------
+    private fun startListeningForStats() {
+        statsListener1?.remove()
+        statsListener1 = db.collection("orders")
+            .whereIn("status", listOf("Menunggu Konfirmasi", "Menunggu Pembayaran"))
+            .addSnapshotListener { s, _ -> tvTotalOrders.text = "${s?.size() ?: 0}" }
 
-        tvTotalOrders.text = newOrdersCount.toString()
-        tvTotalProducts.text = processingCount.toString()
-        tvTotalUsers.text = completedCount.toString()
+        statsListener2?.remove()
+        statsListener2 = db.collection("orders")
+            .whereEqualTo("status", "Diproses")
+            .addSnapshotListener { s, _ -> tvTotalProducts.text = "${s?.size() ?: 0}" }
+
+        statsListener3?.remove()
+        statsListener3 = db.collection("orders")
+            .whereEqualTo("status", "Selesai")
+            .addSnapshotListener { s, _ -> tvTotalUsers.text = "${s?.size() ?: 0}" }
     }
 
-    private fun updateStatusAndNotify(orderId: String, newStatus: String, token: String?, title: String, body: String) {
+    private fun updateStatusAndNotify(
+        orderId: String, newStatus: String, token: String?, title: String, body: String, targetEmail: String?
+    ) {
         db.collection("orders").document(orderId).update("status", newStatus)
             .addOnSuccessListener {
-                Toast.makeText(context, "Status diubah menjadi $newStatus", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Status: $newStatus", Toast.LENGTH_SHORT).show()
                 if (!token.isNullOrEmpty()) {
-                    fcmService.sendNotification(token, title, body)
+                    // Kirim orderId dan targetEmail ke FCMService
+                    fcmService.sendNotification(token, title, body, orderId, targetEmail)
                 }
-            }
-            .addOnFailureListener {
-                Toast.makeText(context, "Gagal update status", Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun setupRecyclerView() {
-        // PERBAIKAN: Menggunakan nama parameter 'orders' yang benar
         adapter = AdminOrdersAdapter(
-            orders = emptyList(), // Parameter pertama adalah list pesanan
+            emptyList(),
             onItemClick = { order ->
                 val intent = Intent(requireContext(), OrderDetailActivity::class.java)
                 intent.putExtra("ORDER_DATA", order)
                 startActivity(intent)
             },
-            onConfirmPaymentClick = { order ->
-                updateStatusAndNotify(order.orderId, "Menunggu Konfirmasi", order.userToken, "Status Pesanan", "Pembayaran sedang dicek Admin.")
-            },
+            // Pass order.userEmail agar notifikasi masuk ke akun yang benar
+            onConfirmPaymentClick = { order -> updateStatusAndNotify(order.orderId, "Diproses", order.userToken, "Pesanan Diproses", "Pembayaran sedang dicek Admin.", order.userEmail) },
             onProsesClick = { order ->
-                updateStatusAndNotify(order.orderId, "Diproses", order.userToken, "Pesanan Diproses", "Pesananmu sedang dibuat.")
+                // Opsional: Jika ada logika khusus tombol proses
             },
-            // Menggunakan nama parameter yang benar: 'onAntarPesananClick'
-            onAntarPesananClick = { order ->
-                updateStatusAndNotify(order.orderId, "Selesai", order.userToken, "Pesanan Selesai", "Silakan ambil pesananmu!")
-            }
+            onAntarPesananClick = { order -> updateStatusAndNotify(order.orderId, "Dikirim", order.userToken, "Pesanan Dikirim", "Pesananmu sedang dalam perjalanan.", order.userEmail) },
+            onSelesaikanClick = { order -> updateStatusAndNotify(order.orderId, "Selesai", order.userToken, "Pesanan Selesai", "Terima kasih sudah memesan!", order.userEmail) }
         )
 
         rvRecentOrders.layoutManager = LinearLayoutManager(requireContext())
         rvRecentOrders.adapter = adapter
-    }
-
-    private fun showPromoDialog() {
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Kirim Info Broadcast")
-        builder.setMessage("Pesan ini dikirim ke semua user (topic: promo).")
-
-        val layout = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(50, 20, 50, 20)
-        }
-        val inputTitle = EditText(requireContext()).apply { hint = "Judul" }
-        val inputBody = EditText(requireContext()).apply { hint = "Isi pesan" }
-        layout.addView(inputTitle)
-        layout.addView(inputBody)
-        builder.setView(layout)
-
-        builder.setPositiveButton("Kirim") { _, _ ->
-            val title = inputTitle.text.toString()
-            val body = inputBody.text.toString()
-            if (title.isEmpty()) {
-                Toast.makeText(context, "Judul tidak boleh kosong", Toast.LENGTH_SHORT).show()
-                return@setPositiveButton
-            }
-            fcmService.sendNotification("promo", title, body)
-            Toast.makeText(context, "Broadcast terkirim!", Toast.LENGTH_SHORT).show()
-        }
-        builder.show()
     }
 }

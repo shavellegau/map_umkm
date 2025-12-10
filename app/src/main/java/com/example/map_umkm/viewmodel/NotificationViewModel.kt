@@ -1,4 +1,3 @@
-// File: com/example/map_umkm/viewmodel/NotificationViewModel.kt
 package com.example.map_umkm.viewmodel
 
 import androidx.lifecycle.ViewModel
@@ -10,21 +9,23 @@ import kotlinx.coroutines.launch
 
 class NotificationViewModel(private val repository: NotificationRepository) : ViewModel() {
 
-    // 🔥 LiveData Terpisah untuk Tab UI 🔥
     val infoList = repository.infoNotifications.asLiveData()
     val promoList = repository.promoNotifications.asLiveData()
-
-    // (Opsional) Data gabungan
     val allNotifications = repository.allNotifications.asLiveData()
 
-    // Fungsi Sync
     fun syncCloud(userEmail: String) {
         viewModelScope.launch {
-            repository.syncCloudToLocal(userEmail)
+            // 🔥 PERBAIKAN: Gunakan nama fungsi yang benar sesuai Repository 🔥
+
+            // 1. Ambil Info Pesanan (Nama di Repo: syncPersonalOrders)
+            repository.syncPersonalOrders(userEmail)
+
+            // 2. Ambil Promo (Nama di Repo: syncPromosFromAdmin)
+            // Perhatikan huruf 's' di Promos
+            repository.syncPromosFromAdmin()
         }
     }
 
-    // Fungsi Mark as Read
     fun markAsRead(id: String) {
         repository.updateNotificationReadStatus(id, true)
     }

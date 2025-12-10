@@ -1,24 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- PERBAIKAN: Menggunakan CoordinatorLayout untuk menampung FloatingActionButton -->
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F7F5F2"
-    tools:context=".AdminOrdersFragment">
+    android:background="#F7F5F2">
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="vertical">
 
-            <!-- Bagian Dashboard dan Statistik (Tidak ada perubahan) -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -42,13 +38,10 @@
                     android:background="@drawable/card_bg"
                     android:orientation="vertical"
                     android:padding="16dp">
-
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:src="@drawable/cart"
-                        android:contentDescription="Pesanan Baru" />
-
+                        android:src="@drawable/cart" />
                     <TextView
                         android:id="@+id/tvTotalOrders"
                         android:layout_width="wrap_content"
@@ -57,11 +50,10 @@
                         android:text="0"
                         android:textSize="20sp"
                         android:textStyle="bold" />
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Pesanan Baru"
+                        android:text="Baru"
                         android:textColor="#777"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -74,13 +66,10 @@
                     android:background="@drawable/card_bg"
                     android:orientation="vertical"
                     android:padding="16dp">
-
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:src="@drawable/food_menu"
-                        android:contentDescription="Pesanan Diproses" />
-
+                        android:src="@drawable/food_menu" />
                     <TextView
                         android:id="@+id/tvTotalProducts"
                         android:layout_width="wrap_content"
@@ -89,7 +78,6 @@
                         android:text="0"
                         android:textSize="20sp"
                         android:textStyle="bold" />
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -105,13 +93,10 @@
                     android:background="@drawable/card_bg"
                     android:orientation="vertical"
                     android:padding="16dp">
-
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:src="@drawable/ic_person"
-                        android:contentDescription="Pesanan Selesai" />
-
+                        android:src="@drawable/ic_person" />
                     <TextView
                         android:id="@+id/tvTotalUsers"
                         android:layout_width="wrap_content"
@@ -120,7 +105,6 @@
                         android:text="0"
                         android:textSize="20sp"
                         android:textStyle="bold" />
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -130,7 +114,6 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Bagian Daftar Pesanan (Tidak ada perubahan) -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -154,7 +137,6 @@
                     app:singleLine="true"
                     app:singleSelection="true">
 
-                    <!-- Chips ... -->
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipAll"
                         style="@style/Widget.MaterialComponents.Chip.Choice"
@@ -162,8 +144,8 @@
                         android:layout_height="wrap_content"
                         android:checked="true"
                         android:text="Semua"
-                        android:textColor="@color/tuku_dark"
-                        app:chipBackgroundColor="@color/white" />
+                        android:textColor="@color/state_chip_text"
+                        app:chipBackgroundColor="@color/state_chip_bg" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipToday"
@@ -171,8 +153,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Hari Ini"
-                        android:textColor="@color/tuku_dark"
-                        app:chipBackgroundColor="@color/white" />
+                        android:textColor="@color/state_chip_text"
+                        app:chipBackgroundColor="@color/state_chip_bg" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipYesterday"
@@ -180,17 +162,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Kemarin"
-                        android:textColor="@color/tuku_dark"
-                        app:chipBackgroundColor="@color/white" />
+                        android:textColor="@color/state_chip_text"
+                        app:chipBackgroundColor="@color/state_chip_bg" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipWeek"
                         style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="7 Hari Terakhir"
-                        android:textColor="@color/tuku_dark"
-                        app:chipBackgroundColor="@color/white" />
+                        android:text="> 7 Hari Lalu"
+                        android:textColor="@color/state_chip_text"
+                        app:chipBackgroundColor="@color/state_chip_bg" />
 
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
@@ -212,19 +194,4 @@
 
         </LinearLayout>
     </ScrollView>
-
-    <!-- PERBAIKAN: Menambahkan FloatingActionButton yang hilang -->
-    <!-- PERBAIKAN: Menggunakan ikon bawaan Android karena ic_add_promo tidak ada -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_promo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:src="@android:drawable/ic_menu_send"
-    android:contentDescription="Kirim Promo"
-    app:backgroundTint="@color/tuku_primary"
-    app:tint="@color/white" />
-
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</FrameLayout>

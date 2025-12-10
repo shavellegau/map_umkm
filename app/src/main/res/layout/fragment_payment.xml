@@ -7,7 +7,6 @@
     android:background="@color/tuku_bg"
     tools:context=".PaymentFragment">
 
-    <!-- APP BAR -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="0dp"
@@ -23,7 +22,6 @@
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back"
             app:title=" ">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -35,7 +33,22 @@
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- TOTAL DETAIL -->
+    <Button
+        android:id="@+id/btnPay"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/tuku_primary"
+        android:padding="14dp"
+        android:text="Pilih Metode Pembayaran"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <LinearLayout
         android:id="@+id/layout_total_detail"
         android:layout_width="0dp"
@@ -48,7 +61,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!-- SUBTOTAL -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -69,7 +81,6 @@
                 tools:text="Rp55.000" />
         </RelativeLayout>
 
-        <!-- TAX -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -90,7 +101,6 @@
                 tools:text="Rp6.050" />
         </RelativeLayout>
 
-        <!-- SHIPPING COST -->
         <RelativeLayout
             android:id="@+id/layout_shipping_cost"
             android:layout_width="match_parent"
@@ -114,7 +124,6 @@
                 tools:text="Rp10.000" />
         </RelativeLayout>
 
-        <!-- DISCOUNT -->
         <RelativeLayout
             android:id="@+id/layout_discount_info"
             android:layout_width="match_parent"
@@ -140,14 +149,12 @@
                 tools:text="-Rp5.000" />
         </RelativeLayout>
 
-        <!-- DIVIDER -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#EEEEEE"
             android:layout_marginBottom="8dp"/>
 
-        <!-- TOTAL PAYMENT -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -170,26 +177,6 @@
         </RelativeLayout>
     </LinearLayout>
 
-    <!-- BUTTON PAY -->
-    <Button
-        android:id="@+id/btnPay"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/tuku_primary"
-        android:padding="14dp"
-        android:text="Pilih Metode Pembayaran"
-        android:textAllCaps="false"
-        android:textColor="@android:color/white"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <!-- DIVIDER ABOVE TOTAL -->
     <View
         android:id="@+id/divider"
         android:layout_width="0dp"
@@ -199,7 +186,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- SCROLL VIEW -->
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="0dp"
@@ -215,7 +202,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- ORDER TYPE -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -247,7 +233,6 @@
                     android:text="Pesan Antar" />
             </RadioGroup>
 
-            <!-- DELIVERY INFO -->
             <LinearLayout
                 android:id="@+id/layout_delivery_info"
                 android:layout_width="match_parent"
@@ -266,22 +251,17 @@
                     android:orientation="vertical"
                     android:visibility="gone"
                     tools:visibility="visible">
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Alamat Pengiriman"
                         android:textStyle="bold" />
-
                     <TextView
                         android:id="@+id/tv_delivery_address"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:maxLines="3"
-                        android:ellipsize="end"
-                        tools:text="Budi (08123) - Jl. Kebahagiaan No. 123, Cilandak, Jakarta Selatan, 12430" />
-
+                        tools:text="Jalan Kebahagiaan No. 123" />
                     <Button
                         android:id="@+id/btn_change_address"
                         style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -290,14 +270,6 @@
                         android:layout_gravity="end"
                         android:text="Ubah Alamat"
                         android:textAllCaps="false" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rv_order_list"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false"
-                        tools:itemCount="3"
-                        tools:listitem="@layout/item_cart_product" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -306,26 +278,22 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:gravity="center"
-                    android:visibility="gone"
-                    tools:visibility="gone">
-
+                    android:visibility="gone">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Anda belum memilih alamat pengiriman."
+                        android:text="Belum ada alamat."
                         android:textColor="@color/text_secondary"
                         android:layout_marginBottom="8dp" />
-
                     <Button
                         android:id="@+id/btn_add_new_address"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tambah Alamat Baru"
+                        android:text="Tambah Alamat"
                         android:textAllCaps="false" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- ITEM PESANAN -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -335,7 +303,14 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <!-- VOUCHER -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_order_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_cart_product" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -361,7 +336,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:hint="Masukkan Kode (Ex: TUKU50)"
+                        android:hint="Masukkan Kode"
                         android:textAllCaps="true"
                         android:textSize="14sp"
                         android:padding="10dp"

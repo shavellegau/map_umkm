@@ -66,15 +66,15 @@ class PaymentFragment : Fragment() {
 
     private var discountAmount: Double = 0.0
     private var finalTotalAmount: Double = 0.0
-    private var shippingCost: Double = 0.0 // Default 0, akan dihitung
+    private var shippingCost: Double = 0.0 // Ongkir (default 0)
     private var selectedAddress: Address? = null
     private var isDelivery = false
 
     private val db by lazy { FirebaseFirestore.getInstance() }
     private val auth by lazy { FirebaseAuth.getInstance() }
 
-    // [BARU] Definisikan lokasi toko
-    private val storeLocation = LatLng(-6.2088, 106.8456) // Contoh: Lokasi Toko Tuku
+    // Lokasi Toko (Contoh: Jakarta Pusat)
+    private val storeLocation = LatLng(-6.2088, 106.8456)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -90,6 +90,7 @@ class PaymentFragment : Fragment() {
             updateTotals()
         }
 
+        // Default Take Away
         rbTakeAway.isChecked = true
         handleOrderTypeChange(R.id.rb_take_away)
 
@@ -98,120 +99,15 @@ class PaymentFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (isDelivery) {
+        if (isDelivery && selectedAddress == null) {
             viewLifecycleOwner.lifecycleScope.launch {
                 loadInitialAddress()
             }
-        }
-    }
-
-    private fun setupAddressHandling() {
-        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Address>("selectedAddress")
-            ?.observe(viewLifecycleOwner) { resultAddress ->
-                selectedAddress = resultAddress
-                updateAddressView()
-                // [MODIFIKASI] Panggil kalkulasi ongkir setelah alamat dipilih
-                calculateShippingCost()
-                findNavController().currentBackStackEntry?.savedStateHandle?.remove<Address>("selectedAddress")
-            }
-    }
-
-    private suspend fun loadInitialAddress() {
-        if (selectedAddress != null) {
+        } else if (isDelivery) {
             updateAddressView()
             calculateShippingCost()
-            return
-        }
-
-        val uid = auth.currentUser?.uid ?: return
-        try {
-            val addressesCollection = db.collection("users").document(uid).collection("addresses")
-            var snapshot = addressesCollection.whereEqualTo("isPrimary", true).limit(1).get().await()
-
-            if (snapshot.isEmpty) {
-                snapshot = addressesCollection.limit(1).get().await()
-            }
-
-            selectedAddress = if (!snapshot.isEmpty) {
-                val doc = snapshot.documents[0]
-                // Penting: Ambil juga ID dokumennya
-                doc.toObject(Address::class.java)?.apply { id = doc.id }
-            } else {
-                null
-            }
-
-        } catch (e: Exception) {
-            Log.e("PaymentFragment", "Gagal memuat alamat awal: ${e.message}")
-            selectedAddress = null
-        }
-        updateAddressView()
-        calculateShippingCost() // Panggil kalkulasi ongkir
-    }
-
-    // --- FITUR BARU: HITUNG ONGKIR & JARAK ---
-    private fun calculateShippingCost() {
-        val userAddress = selectedAddress
-        if (isDelivery && userAddress?.latLng != null) {
-            // Tampilkan loading & panggil API
-            tvShippingCost.text = "Menghitung..."
-            fetchDirections(userAddress.latLng!!, storeLocation)
-        } else {
-            // Jika tidak delivery atau tidak ada alamat, ongkir 0
-            shippingCost = 0.0
-            updateTotals()
         }
     }
-
-    private fun fetchDirections(origin: LatLng, destination: LatLng) {
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            // Ganti dengan API Key Anda yang sudah mengaktifkan Directions API
-            val apiKey = "AIzaSyDIrN5Cr4dSpkpWwM4dbyt7DTaPf-2PLrw"
-            val url = "https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apiKey"
-
-            try {
-                val connection = URL(url).openConnection() as HttpURLConnection
-                val reader = BufferedReader(InputStreamReader(connection.inputStream))
-                val response = reader.readText()
-                reader.close()
-                connection.disconnect()
-
-                val jsonResponse = JSONObject(response)
-                if (jsonResponse.getString("status") == "OK") {
-                    val routes = jsonResponse.optJSONArray("routes")
-                    if (routes != null && routes.length() > 0) {
-                        val leg = routes.getJSONObject(0).getJSONArray("legs").getJSONObject(0)
-                        val distanceValue = leg.getJSONObject("distance").getInt("value") // Jarak dalam meter
-                        val newShippingCost = getCostFromDistance(distanceValue)
-
-                        withContext(Dispatchers.Main) {
-                            shippingCost = newShippingCost
-                            updateTotals() // Perbarui total setelah ongkir didapat
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("DirectionsAPI", "Error: ${e.message}")
-                withContext(Dispatchers.Main) {
-                    shippingCost = 0.0
-                    tvShippingCost.text = "Gagal hitung"
-                    updateTotals()
-                }
-            }
-        }
-    }
-
-    private fun getCostFromDistance(distanceInMeters: Int): Double {
-        val distanceInKm = distanceInMeters / 1000.0
-        // Logika: Rp 2.500 per km, minimal Rp 8.000, maksimal Rp 50.000
-        val cost = distanceInKm * 2500
-        return when {
-            cost < 8000 -> 8000.0
-            cost > 50000 -> 50000.0
-            else -> cost
-        }
-    }
-    // --- AKHIR FITUR BARU ---
-
 
     private fun initializeViews(view: View) {
         val toolbar: Toolbar = view.findViewById(R.id.toolbar_payment)
@@ -245,7 +141,7 @@ class PaymentFragment : Fragment() {
                 return@setOnClickListener
             }
             if (isDelivery && selectedAddress == null) {
-                Toast.makeText(context, "Silakan tambah atau pilih alamat pengiriman terlebih dahulu.", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Silakan pilih alamat pengiriman.", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
             showPaymentChoiceDialog()
@@ -268,22 +164,66 @@ class PaymentFragment : Fragment() {
         btnAddNewAddress.setOnClickListener { navigateToAddressList() }
     }
 
+    private fun setupAddressHandling() {
+        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Address>("selectedAddress")
+            ?.observe(viewLifecycleOwner) { resultAddress ->
+                if (resultAddress != null) {
+                    selectedAddress = resultAddress
+                    updateAddressView()
+                    calculateShippingCost()
+                }
+            }
+    }
+
+    private suspend fun loadInitialAddress() {
+        val uid = auth.currentUser?.uid ?: return
+        try {
+            val addressesCollection = db.collection("users").document(uid).collection("addresses")
+            // Coba ambil alamat utama dulu
+            var snapshot = addressesCollection.whereEqualTo("isPrimary", true).limit(1).get().await()
+
+            if (snapshot.isEmpty) {
+                // Kalau tidak ada utama, ambil sembarang satu
+                snapshot = addressesCollection.limit(1).get().await()
+            }
+
+            if (!snapshot.isEmpty) {
+                val doc = snapshot.documents[0]
+                val addr = doc.toObject(Address::class.java)
+                addr?.id = doc.id
+                selectedAddress = addr
+            } else {
+                selectedAddress = null
+            }
+            updateAddressView()
+            calculateShippingCost()
+
+        } catch (e: Exception) {
+            Log.e("PaymentFragment", "Gagal memuat alamat: ${e.message}")
+        }
+    }
+
     private fun handleOrderTypeChange(checkedId: Int) {
         isDelivery = (checkedId == R.id.rb_delivery)
         if (isDelivery) {
-            viewLifecycleOwner.lifecycleScope.launch {
-                loadInitialAddress()
+            if (selectedAddress == null) {
+                viewLifecycleOwner.lifecycleScope.launch { loadInitialAddress() }
+            } else {
+                updateAddressView()
+                calculateShippingCost()
             }
         } else {
-            selectedAddress = null
+            // Take Away
+            shippingCost = 0.0
             updateAddressView()
-            calculateShippingCost() // Hitung ulang ongkir (jadi 0)
+            updateTotals()
         }
     }
 
     private fun updateAddressView() {
         if (isDelivery) {
             layoutDeliveryInfo.visibility = View.VISIBLE
+            layoutShippingCost.visibility = View.VISIBLE
             if (selectedAddress != null) {
                 layoutAddressSelected.visibility = View.VISIBLE
                 layoutAddressEmpty.visibility = View.GONE
@@ -294,34 +234,107 @@ class PaymentFragment : Fragment() {
             }
         } else {
             layoutDeliveryInfo.visibility = View.GONE
+            layoutShippingCost.visibility = View.GONE
         }
-        layoutShippingCost.visibility = if (isDelivery) View.VISIBLE else View.GONE
+    }
+
+    // --- HITUNG ONGKIR API ---
+    private fun calculateShippingCost() {
+        if (!isDelivery || selectedAddress == null || selectedAddress!!.latLng == null) {
+            shippingCost = 0.0
+            updateTotals()
+            return
+        }
+
+        tvShippingCost.text = "Menghitung..."
+
+        // Panggil API Directions
+        fetchDirections(selectedAddress!!.latLng!!, storeLocation)
+    }
+
+    private fun fetchDirections(origin: LatLng, destination: LatLng) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            // GANTI API KEY ANDA DI SINI
+            val apiKey = "AIzaSyDIrN5Cr4dSpkpWwM4dbyt7DTaPf-2PLrw"
+            val url = "https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apiKey"
+
+            try {
+                val connection = URL(url).openConnection() as HttpURLConnection
+                val reader = BufferedReader(InputStreamReader(connection.inputStream))
+                val response = reader.readText()
+                reader.close()
+
+                val jsonResponse = JSONObject(response)
+                if (jsonResponse.getString("status") == "OK") {
+                    val routes = jsonResponse.optJSONArray("routes")
+                    if (routes != null && routes.length() > 0) {
+                        val leg = routes.getJSONObject(0).getJSONArray("legs").getJSONObject(0)
+                        val distanceValue = leg.getJSONObject("distance").getInt("value") // meter
+
+                        val cost = getCostFromDistance(distanceValue)
+
+                        withContext(Dispatchers.Main) {
+                            shippingCost = cost
+                            updateTotals()
+                        }
+                    }
+                } else {
+                    Log.e("DirectionsAPI", "Status not OK: ${jsonResponse.getString("status")}")
+                }
+            } catch (e: Exception) {
+                Log.e("DirectionsAPI", "Error: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    shippingCost = 0.0
+                    tvShippingCost.text = "Gagal (Rp 0)"
+                    updateTotals()
+                }
+            }
+        }
+    }
+
+    private fun getCostFromDistance(distanceInMeters: Int): Double {
+        val distanceInKm = distanceInMeters / 1000.0
+        // Rumus: Rp 2.500/km, Min 8.000, Max 50.000
+        val cost = distanceInKm * 2500
+        return when {
+            cost < 8000 -> 8000.0
+            cost > 50000 -> 50000.0
+            else -> cost
+        }
     }
 
     private fun updateTotals() {
         val subtotal = calculateSubtotal()
         val tax = subtotal * 0.11
-        // Gunakan variabel shippingCost yang sudah dihitung
-        val currentShippingCost = if (isDelivery) shippingCost else 0.0
+        val currentShipping = if (isDelivery) shippingCost else 0.0
 
-        var total = (subtotal + tax + currentShippingCost) - discountAmount
+        var total = (subtotal + tax + currentShipping) - discountAmount
         if (total < 0) total = 0.0
         finalTotalAmount = total
 
         tvSubtotal.text = formatCurrency(subtotal)
         tvTax.text = formatCurrency(tax)
-        tvShippingCost.text = formatCurrency(currentShippingCost)
+        tvShippingCost.text = formatCurrency(currentShipping)
         tvTotalPayment.text = formatCurrency(total)
     }
 
-    // ... (Fungsi lain seperti checkVoucher, createOrder, dll tetap sama)
-    // ... Pastikan fungsi createOrder sekarang menyertakan `shippingCost` ke dalam `totalAmount`
-    // ... dan menyimpan `selectedAddress` dengan benar ke dokumen Order.
+    private fun calculateSubtotal(): Double {
+        return cartViewModel.cartList.value?.sumOf {
+            ((if (it.selectedType == "iced") it.price_iced else it.price_hot) ?: 0) * it.quantity.toDouble()
+        } ?: 0.0
+    }
+
+    private fun formatCurrency(amount: Double): String {
+        return NumberFormat.getCurrencyInstance(Locale("in", "ID")).format(amount)
+    }
+
     private fun createOrder(isCashPayment: Boolean) {
         val currentCart = cartViewModel.cartList.value ?: return
         val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
         val tokenPrefs = requireActivity().getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE)
+
         val orderType = if (isDelivery) "Delivery" else "Take Away"
+        // Simpan alamat hanya jika Delivery
         val addressToSave = if (isDelivery) selectedAddress else null
 
         val newOrder = Order(
@@ -329,7 +342,7 @@ class PaymentFragment : Fragment() {
             userEmail = prefs.getString("userEmail", "unknown@email.com") ?: "unknown",
             userName = prefs.getString("userName", "User") ?: "User",
             items = currentCart.toList(),
-            totalAmount = finalTotalAmount,
+            totalAmount = finalTotalAmount, // Sudah termasuk ongkir
             orderDate = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("id", "ID")).format(Date()),
             status = if (isCashPayment) "Menunggu Pembayaran" else "Menunggu Konfirmasi",
             userToken = tokenPrefs.getString("fcm_token", "") ?: "",
@@ -342,6 +355,7 @@ class PaymentFragment : Fragment() {
             .addOnSuccessListener {
                 setLoading(false)
                 cartViewModel.clearCart()
+
                 val action = if (isCashPayment) {
                     PaymentFragmentDirections.actionPaymentFragmentToPaymentSuccessFragment(paymentMethod = "CASH")
                 } else {
@@ -355,9 +369,8 @@ class PaymentFragment : Fragment() {
                 Toast.makeText(context, "Gagal menyimpan pesanan: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
-    private fun formatCurrency(amount: Double): String {
-        return NumberFormat.getCurrencyInstance(Locale("in", "ID")).format(amount)
-    }
+
+    // --- Helper UI & Voucher ---
     private fun setupRecyclerView() {
         cartAdapter = CartItemAdapter(
             mutableListOf(),
@@ -370,15 +383,23 @@ class PaymentFragment : Fragment() {
         rvOrderList.layoutManager = LinearLayoutManager(requireContext())
         rvOrderList.adapter = cartAdapter
     }
+
     private fun setLoading(isLoading: Boolean) {
         if (isAdded) {
             btnPay.isEnabled = !isLoading
             btnPay.text = if (isLoading) "Memproses..." else "Pilih Metode Pembayaran"
         }
     }
+
+    private fun resetVoucher() {
+        discountAmount = 0.0
+        etVoucher.text.clear()
+        layoutDiscountInfo.visibility = View.GONE
+        updateTotals()
+    }
+
     private fun applyVoucherLogic(discount: Double, minPurchase: Double) {
-        val currentSubtotal = calculateSubtotal()
-        if (currentSubtotal >= minPurchase) {
+        if (calculateSubtotal() >= minPurchase) {
             discountAmount = discount
             layoutDiscountInfo.visibility = View.VISIBLE
             tvDiscountInfo.text = "-${formatCurrency(discountAmount)}"
@@ -389,38 +410,24 @@ class PaymentFragment : Fragment() {
         }
         updateTotals()
     }
-    private fun resetVoucher() {
-        discountAmount = 0.0
-        etVoucher.text.clear()
-        layoutDiscountInfo.visibility = View.GONE
-        updateTotals()
-    }
-    private fun calculateSubtotal(): Double {
-        return cartViewModel.cartList.value?.sumOf {
-            ((if (it.selectedType == "iced") it.price_iced else it.price_hot) ?: 0) * it.quantity.toDouble()
-        } ?: 0.0
-    }
+
     private fun checkVoucherToFirebase(code: String) {
         db.collection("vouchers").document(code).get()
             .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val minPurchase = document.getDouble("minPurchase") ?: 0.0
-                    val discount = document.getDouble("discountAmount") ?: 0.0
-                    if (document.getBoolean("isActive") == true) {
-                        applyVoucherLogic(discount, minPurchase)
-                    } else {
-                        Toast.makeText(context, "Maaf, Voucher tidak aktif", Toast.LENGTH_SHORT).show()
-                        resetVoucher()
-                    }
+                if (document.exists() && document.getBoolean("isActive") == true) {
+                    val min = document.getDouble("minPurchase") ?: 0.0
+                    val disc = document.getDouble("discountAmount") ?: 0.0
+                    applyVoucherLogic(disc, min)
                 } else {
-                    Toast.makeText(context, "Kode Voucher Tidak Ditemukan!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Kode Voucher Tidak Valid/Aktif", Toast.LENGTH_SHORT).show()
                     resetVoucher()
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(context, "Gagal cek voucher: ${it.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Gagal cek voucher", Toast.LENGTH_SHORT).show()
             }
     }
+
     private fun showPaymentChoiceDialog() {
         Dialog(requireContext()).apply {
             requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -437,6 +444,4 @@ class PaymentFragment : Fragment() {
             show()
         }
     }
-
 }
-

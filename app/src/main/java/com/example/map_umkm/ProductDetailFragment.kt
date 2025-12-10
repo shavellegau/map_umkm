@@ -1,6 +1,7 @@
 package com.example.map_umkm
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,12 +30,16 @@ class ProductDetailFragment : Fragment() {
     private lateinit var rbIced: RadioButton
     private lateinit var btnAddToCart: Button
     private lateinit var etNotes: EditText
-    private lateinit var btnBack: ImageButton
+
+    // 🔥 Ganti btnBack jadi Toolbar (sesuai XML baru) 🔥
+    private lateinit var toolbar: androidx.appcompat.widget.Toolbar
 
     private val cartViewModel: CartViewModel by activityViewModels()
     private val favoriteViewModel: FavoriteViewModel by activityViewModels()
     private val args: ProductDetailFragmentArgs by navArgs()
+
     private lateinit var selectedProduct: Product
+    private var currentPrice: Int = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,6 +47,28 @@ class ProductDetailFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_product_detail, container, false)
 
+        initializeViews(view)
+
+        // Ambil Data Produk
+        selectedProduct = args.product
+
+        // Sync Favorit
+        selectedProduct = selectedProduct.copy(isFavorite = favoriteViewModel.isFavorite(selectedProduct.id))
+
+        setupUI()
+        setupListeners()
+
+        // Observe LiveData Favorit
+        favoriteViewModel.favoriteProducts.observe(viewLifecycleOwner) { favorites ->
+            val isFav = favorites.any { it.id == selectedProduct.id }
+            selectedProduct = selectedProduct.copy(isFavorite = isFav)
+            updateFavoriteIcon(isFav)
+        }
+
+        return view
+    }
+
+    private fun initializeViews(view: View) {
         ivImage = view.findViewById(R.id.ivImage)
         tvName = view.findViewById(R.id.tvName)
         tvDescription = view.findViewById(R.id.tvDescription)
@@ -53,40 +80,35 @@ class ProductDetailFragment : Fragment() {
         rbIced = view.findViewById(R.id.rbIced)
         btnAddToCart = view.findViewById(R.id.btnAddToCart)
         etNotes = view.findViewById(R.id.etNotes)
-        btnBack = view.findViewById(R.id.btnBack)
 
-        selectedProduct = args.product
+        // Inisialisasi Toolbar
+        toolbar = view.findViewById(R.id.toolbar)
+    }
 
-        // Sinkronkan flag isFavorite dari FavoriteViewModel
-        selectedProduct = selectedProduct.copy(isFavorite = favoriteViewModel.isFavorite(selectedProduct.id))
-
+    private fun setupUI() {
         tvName.text = selectedProduct.name
         tvDescription.text = selectedProduct.description
         tvCategory.text = selectedProduct.category
 
-        Glide.with(this)
-            .load(selectedProduct.image)
-            .placeholder(R.drawable.placeholder_image)
-            .error(R.drawable.placeholder_image)
-            .into(ivImage)
-
         updateFavoriteIcon(selectedProduct.isFavorite)
-        rbHot.isChecked = true
-        updateUiForProduct(selectedProduct)
+        updateUiForProductType(selectedProduct)
 
-        btnBack.setOnClickListener {
-            when (args.source) {
-                "wishlist" -> findNavController().popBackStack(R.id.wishlistFragment, false)
-                "cart" -> findNavController().popBackStack(R.id.nav_cart, false)
-                else -> findNavController().navigateUp()
-            }
-        }
+        // 🔥 LOGIC IMAGE LOADING: MENGGUNAKAN URL LANGSUNG (Sama seperti Cart) 🔥
 
-        // observe favorites agar icon update bila diubah di tempat lain
-        favoriteViewModel.favoriteProducts.observe(viewLifecycleOwner) { favorites ->
-            val isFav = favorites.any { it.id == selectedProduct.id }
-            selectedProduct = selectedProduct.copy(isFavorite = isFav)
-            updateFavoriteIcon(isFav)
+        // Cek logcat untuk memastikan URL yang masuk benar
+        Log.d("PRODUCT_DETAIL", "Memuat gambar dari URL: ${selectedProduct.image}")
+
+        Glide.with(this)
+            .load(selectedProduct.image) // Muat URL langsung
+            .placeholder(R.drawable.placeholder_image)
+            .error(R.drawable.error_image)
+            .into(ivImage)
+    }
+
+    private fun setupListeners() {
+        // Tombol Kembali via Toolbar
+        toolbar.setNavigationOnClickListener {
+            findNavController().navigateUp()
         }
 
         rgTemperature.setOnCheckedChangeListener { _, checkedId ->
@@ -97,14 +119,12 @@ class ProductDetailFragment : Fragment() {
 
         btnAddToCart.setOnClickListener {
             val notes = etNotes.text.toString().trim()
-            val wordCount = if (notes.isEmpty()) 0 else notes.split("\\s+".toRegex()).size
-
-            if (wordCount > 50) {
+            if (notes.isNotEmpty() && notes.split("\\s+".toRegex()).size > 50) {
                 Toast.makeText(requireContext(), "Catatan maksimal 50 kata!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val selectedType = if (rbHot.isChecked) "hot" else "iced"
+            val selectedType = if (rgTemperature.visibility == View.VISIBLE && rbIced.isChecked) "iced" else "hot"
             cartViewModel.addToCart(selectedProduct, selectedType, notes)
 
             Toast.makeText(requireContext(), "${selectedProduct.name} ditambahkan ke keranjang", Toast.LENGTH_SHORT).show()
@@ -118,30 +138,38 @@ class ProductDetailFragment : Fragment() {
 
             if (newState) {
                 favoriteViewModel.addFavorite(selectedProduct)
-                Toast.makeText(requireContext(), "${selectedProduct.name} ditambahkan ke favorit", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Ditambahkan ke favorit", Toast.LENGTH_SHORT).show()
             } else {
                 favoriteViewModel.removeFavorite(selectedProduct)
-                Toast.makeText(requireContext(), "${selectedProduct.name} dihapus dari favorit", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Dihapus dari favorit", Toast.LENGTH_SHORT).show()
             }
         }
-
-        return view
     }
 
-    private fun updateUiForProduct(product: Product) {
+    private fun updateUiForProductType(product: Product) {
         if (product.category.equals("TUKUDAPAN", ignoreCase = true)) {
             rgTemperature.visibility = View.GONE
-            val price = product.price_hot ?: 0
-            tvPrice.text = formatCurrency(price)
+            currentPrice = product.price_hot ?: 0
+            tvPrice.text = formatCurrency(currentPrice)
             return
         }
 
         rgTemperature.visibility = View.VISIBLE
-        rbIced.visibility = if (product.price_iced == null) View.GONE else View.VISIBLE
-        rbHot.visibility = if (product.price_hot == null) View.GONE else View.VISIBLE
+        val hasHot = product.price_hot != null && product.price_hot != 0
+        val hasIced = product.price_iced != null && product.price_iced != 0
 
-        val initialPrice = product.price_hot ?: product.price_iced ?: 0
-        tvPrice.text = formatCurrency(initialPrice)
+        rbHot.visibility = if (hasHot) View.VISIBLE else View.GONE
+        rbIced.visibility = if (hasIced) View.VISIBLE else View.GONE
+
+        if (hasIced) {
+            rbIced.isChecked = true
+            currentPrice = product.price_iced ?: 0
+        } else if (hasHot) {
+            rbHot.isChecked = true
+            currentPrice = product.price_hot ?: 0
+        }
+
+        tvPrice.text = formatCurrency(currentPrice)
     }
 
     private fun updatePriceForSelection(product: Product, checkedId: Int) {
@@ -149,6 +177,7 @@ class ProductDetailFragment : Fragment() {
             R.id.rbIced -> product.price_iced ?: 0
             else -> product.price_hot ?: 0
         }
+        currentPrice = newPrice
         tvPrice.text = formatCurrency(newPrice)
     }
 
