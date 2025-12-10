@@ -5,21 +5,33 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels // Ganti ke activityViewModels di child
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.map_umkm.adapter.NotificationAdapter
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.map_umkm.databinding.FragmentNotificationBinding
-import com.example.map_umkm.model.Notification
+import com.example.map_umkm.viewmodel.NotificationViewModel
+import com.example.map_umkm.viewmodel.NotificationViewModelFactory
+import com.example.map_umkm.repository.NotificationRepository
+import com.example.map_umkm.AppDatabase
+import com.google.android.material.tabs.TabLayoutMediator
 
 class NotificationFragment : Fragment() {
 
     private var _binding: FragmentNotificationBinding? = null
     private val binding get() = _binding!!
 
+    // ViewModel tetap di sini untuk trigger sync
+    private val notificationViewModel: NotificationViewModel by viewModels {
+        val database = AppDatabase.getDatabase(requireContext())
+        val repository = NotificationRepository(database.notificationDao())
+        NotificationViewModelFactory(repository)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        // XML ini isinya TabLayout + ViewPager2 (bukan RecyclerView)
         _binding = FragmentNotificationBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -27,39 +39,44 @@ class NotificationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Tombol kembali
-        binding.btnBack.setOnClickListener {
-            findNavController().popBackStack()
+        // Setup Tombol Back (Menggunakan findViewById jika binding error, atau pastikan ID benar di XML)
+        // Jika di XML namanya btnBack, gunakan binding.btnBack
+        // Jika Anda menggunakan include header, akses via binding.header.btnBack
+        try {
+            binding.root.findViewById<View>(R.id.btnBack).setOnClickListener {
+                findNavController().popBackStack()
+            }
+        } catch (e: Exception) { /* Handle if view not found */ }
+
+        // 1. Setup ViewPager
+        val pagerAdapter = NotifPagerAdapter(this)
+        binding.viewPager.adapter = pagerAdapter
+
+        // 2. Setup Tab Layout
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = if (position == 0) "Info Pesanan" else "Promo"
+        }.attach()
+
+        // 3. Trigger Sync Data
+        triggerCloudSync()
+    }
+
+    private fun triggerCloudSync() {
+        val prefs = requireActivity().getSharedPreferences("USER_SESSION", android.content.Context.MODE_PRIVATE)
+        val userEmail = prefs.getString("userEmail", null)
+        if (userEmail != null) {
+            notificationViewModel.syncCloud(userEmail)
         }
+    }
 
-        // ===== Dummy data =====
-        val dummyNotifications = listOf(
-            Notification(
-                title = "Pesanan Selesai!",
-                body = "Pesanan Anda dengan ID #12345 telah selesai.",
-                timestamp = "14 Okt 2025, 12:00"
-            ),
-            Notification(
-                title = "Pesanan Dikirim",
-                body = "Pesanan Anda sedang dalam perjalanan.",
-                timestamp = "13 Okt 2025, 18:32"
-            ),
-            Notification(
-                title = "Pembayaran Berhasil",
-                body = "Pembayaran untuk pesanan #12345 telah dikonfirmasi.",
-                timestamp = "13 Okt 2025, 17:15"
-            ),
-            Notification(
-                title = "Promo Baru!",
-                body = "Nikmati diskon 20% untuk produk UMKM pilihan minggu ini!",
-                timestamp = "12 Okt 2025, 10:05"
-            )
-        )
+    // Adapter untuk Tab
+    inner class NotifPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
+        override fun getItemCount(): Int = 2
 
-        // Setup RecyclerView
-        binding.recyclerNotifications.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = NotificationAdapter(dummyNotifications)
+        override fun createFragment(position: Int): Fragment {
+            // Mengirim Tipe ke Child Fragment
+            val type = if (position == 0) "INFO" else "PROMO"
+            return NotificationListFragment.newInstance(type)
         }
     }
 

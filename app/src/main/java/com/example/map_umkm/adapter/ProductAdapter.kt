@@ -30,9 +30,8 @@ class ProductAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
-        // Ganti 'item_menu' ke 'item_product' atau sebaliknya jika perlu
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_menu, parent, false)
+            .inflate(R.layout.item_menu, parent, false) // Pastikan layout ini benar
         return ProductViewHolder(view)
     }
 
@@ -41,20 +40,23 @@ class ProductAdapter(
 
         holder.tvProductName.text = product.name
 
+        // Tampilkan harga (gunakan hot jika ada, jika tidak pakai iced, jika tidak 0)
         val priceToShow = product.price_hot ?: product.price_iced ?: 0
         val formattedPrice = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
             .format(priceToShow.toLong())
         holder.tvProductPrice.text = formattedPrice
 
         val context = holder.itemView.context
-        val imageResId = context.resources.getIdentifier(product.image, "drawable", context.packageName)
 
+        // **PERBAIKAN KRUSIAL:** Muat string URL/Path gambar langsung menggunakan Glide.
+        // Hapus kode getIdentifier yang salah.
         Glide.with(context)
-            .load(if (imageResId != 0) imageResId else R.drawable.placeholder_image)
-            .placeholder(R.drawable.logo_tuku)
-            .error(R.drawable.error_image)
+            .load(product.image) // Muat langsung URL/Path dari model Product
+            .placeholder(R.drawable.logo_tuku) // Placeholder saat loading
+            .error(R.drawable.error_image) // Gambar jika terjadi error
             .into(holder.ivProductImage)
 
+        // Logika Tombol Favorite
         holder.btnFavorite.setImageResource(
             if (product.isFavorite) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_border
         )
@@ -84,6 +86,8 @@ class ProductAdapter(
     }
 
     fun updateFavorites(favoriteIds: Set<String>) {
+        // Update status favorit tanpa harus mengganti seluruh list jika hanya status yang berubah
+        // Ini adalah optimasi kecil, tapi notifyDataSetChanged() tetap diperlukan.
         for (product in products) {
             product.isFavorite = favoriteIds.contains(product.id)
         }

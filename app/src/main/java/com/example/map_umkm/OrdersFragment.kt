@@ -5,25 +5,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.viewpager2.adapter.FragmentStateAdapter
+// Import TabLayoutMediator sudah dihapus karena tidak dipakai lagi
 
 class OrdersFragment : Fragment() {
-
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Gunakan layout baru yang sudah kita buat
         return inflater.inflate(R.layout.fragment_orders, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        val viewPager = view.findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.viewPager)
 
-        // [FIXED] Langsung tampilkan OngoingOrdersFragment, tidak ada lagi TabLayout
-        if (savedInstanceState == null) {
-            childFragmentManager.beginTransaction()
-                .replace(R.id.orders_container, OngoingOrdersFragment())
-                .commit()
-        }
+        // Kita hapus variabel tabLayout dan TabLayoutMediator di sini
+
+        val adapter = OrdersPagerAdapter(this)
+        viewPager.adapter = adapter
+    }
+
+    class OrdersPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
+        override fun getItemCount(): Int = 1  // Tetap menampilkan 1 fragment
+        override fun createFragment(position: Int): Fragment = OngoingOrdersFragment()
     }
 }

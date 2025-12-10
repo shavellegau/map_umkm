@@ -1,111 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="3dp"
-    android:backgroundTint="@color/tuku_bg">
+    android:layout_marginVertical="10dp"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="5dp"
+    android:backgroundTint="@android:color/white"
+    android:clipToPadding="false"
+    app:strokeColor="@color/divider"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="18dp">
 
-        <!-- Info User -->
         <TextView
             android:id="@+id/tv_order_user_info"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/text_primary"
-            android:textSize="12sp"
+            android:textSize="14sp"
+            android:textStyle="bold"
             tools:text="Budi (budi@email.com)" />
 
         <TextView
             android:id="@+id/tv_order_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_bantuan"
+            android:textColor="@color/text_secondary"
             android:textSize="12sp"
             android:layout_marginTop="2dp"
-            tools:text="12 Okt 2025, 10:30" />
+            tools:text="12 Oktober 2025, 10:30" />
 
-        <!-- Daftar Item -->
         <TextView
             android:id="@+id/tv_order_items"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/tuku_dark"
-            android:textSize="16sp"
+            android:textSize="15.5sp"
             android:textStyle="bold"
-            android:layout_marginTop="8dp"
-            tools:text="Es Kopi Susu, Americano" />
+            android:layout_marginTop="10dp"
+            tools:text="Americano (x1), Kopi Susu (x1)" />
 
-        <!-- Total -->
         <TextView
             android:id="@+id/tv_order_total"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/tuku_primary"
             android:textStyle="bold"
-            tools:text="Total: Rp 55.000"
-            android:layout_marginTop="8dp" />
+            android:textSize="15sp"
+            android:layout_marginTop="6dp"
+            tools:text="Total: Rp 55.000" />
 
-        <!-- Status -->
         <TextView
             android:id="@+id/tv_order_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/tuku_accent"
-            android:textStyle="italic|bold"
-            android:layout_marginTop="8dp"
-            tools:text="Status: Menunggu Konfirmasi" />
+            android:textStyle="italic"
+            android:textSize="13.5sp"
+            android:layout_marginTop="10dp"
+            tools:text="Status: Menunggu Pembayaran" />
 
-        <!-- Tombol -->
         <LinearLayout
             android:id="@+id/layout_buttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="12dp">
+            android:gravity="center"
+            android:layout_marginTop="16dp">
 
             <Button
                 android:id="@+id/btn_konfirmasi_pembayaran"
-                style="@style/Widget.MaterialComponents.Button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Konfirmasi Bayar"
-                android:backgroundTint="@color/tuku_primary"
+                android:text="Konfirmasi"
+                android:textStyle="bold"
                 android:textColor="@android:color/white"
+                android:backgroundTint="@color/tuku_primary"
                 android:visibility="gone"
-                tools:visibility="visible" />
+                tools:visibility="visible"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_proses_pesanan"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginEnd="4dp"
+                android:layout_marginHorizontal="6dp"
                 android:text="Proses"
+                android:textStyle="bold"
                 android:textColor="@color/tuku_primary"
-                app:strokeColor="@color/tuku_primary" />
+                app:strokeColor="@color/tuku_primary"
+                app:strokeWidth="1dp"/>
 
             <Button
                 android:id="@+id/btn_selesaikan_pesanan"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:text="Selesaikan"
+                android:text="Selesai"
+                android:textStyle="bold"
                 android:textColor="@android:color/white"
-                android:backgroundTint="@color/tuku_dark" />
-        </LinearLayout>
+                android:backgroundTint="@color/tuku_dark"/>
 
+        </LinearLayout>
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

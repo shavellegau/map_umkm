@@ -1,33 +1,35 @@
 package com.example.map_umkm.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.example.map_umkm.databinding.ItemRewardBinding
+import com.example.map_umkm.R
 import com.example.map_umkm.model.Reward
 
-class RewardAdapter(private val rewardList: List<Reward>) :
+class RewardAdapter(private val rewards: List<Reward>) :
     RecyclerView.Adapter<RewardAdapter.RewardViewHolder>() {
 
-    inner class RewardViewHolder(val binding: ItemRewardBinding) :
-        RecyclerView.ViewHolder(binding.root)
+    class RewardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val imageView: ImageView = itemView.findViewById(R.id.imageView)
+        val title: TextView = itemView.findViewById(R.id.title)
+        val point: TextView = itemView.findViewById(R.id.point)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RewardViewHolder {
-        val binding = ItemRewardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return RewardViewHolder(binding)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_reward, parent, false)
+        return RewardViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: RewardViewHolder, position: Int) {
-        val reward = rewardList[position]
-        with(holder.binding) {
-            title.text = reward.title
-            point.text = "${reward.point} Poin"
-            Glide.with(imageView.context)
-                .load(reward.imageResId)
-                .into(imageView)
-        }
+        val reward = rewards[position]
+        holder.imageView.setImageResource(reward.imageResId)
+        holder.title.text = reward.title
+        holder.point.text = "${reward.point} Poin"
     }
 
-    override fun getItemCount() = rewardList.size
+    override fun getItemCount(): Int = rewards.size
 }

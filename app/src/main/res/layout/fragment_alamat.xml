@@ -1,233 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FDF6EF">
+    android:background="#FDF6EF"
+    tools:context=".AlamatFragment">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="16dp"
-        android:paddingTop="48dp"> <!-- Tambah paddingTop biar aman dari kamera -->
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Tombol Back dan Judul -->
-        <RelativeLayout
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="8dp">
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/white"
+            app:title="Alamat Pengiriman"
+            app:titleTextColor="@color/tuku_dark"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@color/tuku_dark" />
 
-            <ImageView
-                android:id="@+id/btnBack"
-                android:layout_width="wrap_content"
-                android:layout_height="24dp"
-                android:layout_alignParentStart="true"
-                android:contentDescription="Kembali"
-                android:src="@drawable/ic_arrow_back" />
+    </com.google.android.material.appbar.AppBarLayout>
 
-            <TextView
-                android:id="@+id/tvTitleAlamat"
-                android:text="Alamat Pengiriman"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="#3A2A1A"
-                android:layout_centerInParent="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </RelativeLayout>
+    <Button
+        android:id="@+id/btnTambahAlamat"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#A36C45"
+        android:paddingVertical="12dp"
+        android:text="+ Tambah Alamat Baru"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:elevation="4dp"
 
-        <!-- Kartu Alamat Utama -->
-        <LinearLayout
-            android:id="@+id/cardUtama"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_card"
-            android:clickable="true"
-            android:focusable="true">
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout"  app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvAddresses"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone"
 
-                <TextView
-                    android:text="Rumah"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:textColor="#3A2A1A"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+        app:layout_constraintTop_toBottomOf="@id/btnTambahAlamat" app:layout_constraintBottom_toBottomOf="parent"        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:listitem="@layout/item_address"
+        tools:visibility="visible"/>
 
-                <TextView
-                    android:text="Utama"
-                    android:background="@drawable/bg_label_utama"
-                    android:textColor="#FFFFFF"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="4dp"
-                    android:textSize="12sp"
-                    android:layout_marginStart="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
+    <TextView
+        android:id="@+id/tvEmpty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Anda belum punya alamat tersimpan."
+        android:visibility="gone"
 
-            <TextView
-                android:text="Ferry"
-                android:layout_marginTop="4dp"
-                android:textColor="#3A2A1A"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+        app:layout_constraintTop_toBottomOf="@id/btnTambahAlamat" app:layout_constraintBottom_toBottomOf="parent"        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible" />
 
-            <TextView
-                android:text="Jl. Bahagia No 17, Jakarta Selatan"
-                android:textColor="#3A2A1A"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="end"
-                android:layout_marginTop="8dp">
+        app:layout_constraintTop_toBottomOf="@id/btnTambahAlamat" app:layout_constraintBottom_toBottomOf="parent"        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible" />
 
-                <ImageView
-                    android:id="@+id/btnEdit1"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_edit"
-                    android:layout_marginEnd="12dp"
-                    android:contentDescription="Edit" />
-
-                <ImageView
-                    android:id="@+id/btnDelete1"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_delete"
-                    android:contentDescription="Hapus" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Kartu Alamat Kedua -->
-        <LinearLayout
-            android:id="@+id/cardKedua"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_card"
-            android:clickable="true"
-            android:focusable="true">
-
-            <TextView
-                android:text="Rumah"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:textColor="#3A2A1A"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:text="0812-3456-7890"
-                android:layout_marginTop="4dp"
-                android:textColor="#3A2A1A"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:text="Jl. Bahagia No 17, Jakarta Selatan"
-                android:textColor="#3A2A1A"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="end"
-                android:layout_marginTop="8dp">
-
-                <ImageView
-                    android:id="@+id/btnEdit2"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_edit"
-                    android:layout_marginEnd="12dp"
-                    android:contentDescription="Edit" />
-
-                <ImageView
-                    android:id="@+id/btnDelete2"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_delete"
-                    android:contentDescription="Hapus" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Kartu Pesanan Favorit -->
-        <LinearLayout
-            android:id="@+id/cardFavorit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_card"
-            android:clickable="true"
-            android:focusable="true">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:text="Pesanan Favoritku"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:textColor="#3A2A1A"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:text="Rp 45.000"
-                    android:textStyle="bold"
-                    android:textColor="#3A2A1A"
-                    android:layout_marginStart="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <TextView
-                android:text="Ferry"
-                android:layout_marginTop="4dp"
-                android:textColor="#3A2A1A"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:text="Jl. Bahagia No 17, Jakarta Selatan"
-                android:textColor="#3A2A1A"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <!-- Tombol Tambah Alamat Baru -->
-        <Button
-            android:id="@+id/btnTambahAlamat"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="+ Tambah Alamat Baru"
-            android:layout_marginTop="24dp"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#A36C45"
-            android:paddingVertical="12dp"
-            android:textStyle="bold" />
-    </LinearLayout>
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

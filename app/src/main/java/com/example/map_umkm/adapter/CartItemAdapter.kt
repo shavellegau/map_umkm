@@ -44,15 +44,16 @@ class CartItemAdapter(
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val item = items[position]
 
-        // --- [PERUBAHAN UTAMA DI SINI] ---
+        // **PERBAIKAN: Hapus logika getIdentifier, muat URL langsung**
         val context = holder.itemView.context
-        val imageResId = context.resources.getIdentifier(item.image, "drawable", context.packageName)
 
         Glide.with(context)
-            .load(if (imageResId != 0) imageResId else R.drawable.placeholder_image) // Muat gambar lokal
+            .load(item.image) // Muat URL/Path gambar dari model Product
             .placeholder(R.drawable.placeholder_image)
             .error(R.drawable.error_image)
             .into(holder.ivProductImage)
+
+        // --- Sisanya Tetap Sama ---
 
         holder.tvProductName.text = item.name
 

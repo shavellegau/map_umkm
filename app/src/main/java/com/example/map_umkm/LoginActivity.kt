@@ -1,15 +1,16 @@
-// [FIXED] Kesalahan ketik pada package dan import sudah diperbaiki
 package com.example.map_umkm
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 
 class LoginActivity : AppCompatActivity() {
 
@@ -18,10 +19,9 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var btnLogin: Button
     private lateinit var btnRegister: Button
 
-    // Tambahkan DatabaseHelper
-    private lateinit var dbHelper: DatabaseHelper
+    // [DIHAPUS] DatabaseHelper tidak lagi digunakan untuk proses login.
+    // private lateinit var dbHelper: DatabaseHelper
 
-    // Firebase tetap ada
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
@@ -34,13 +34,11 @@ class LoginActivity : AppCompatActivity() {
         btnLogin = findViewById(R.id.btnLogin)
         btnRegister = findViewById(R.id.btnRegister)
 
-        // Inisialisasi DatabaseHelper dan Firebase
-        dbHelper = DatabaseHelper(this)
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
         btnLogin.setOnClickListener {
-            handleLogin()
+            handleFirebaseLogin() // [FIXED] Selalu panggil fungsi login Firebase.
         }
 
         btnRegister.setOnClickListener {
@@ -48,8 +46,11 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    // Logika login digabung
-    private fun handleLogin() {
+    /**
+     * [FIXED TOTAL] Logika login sekarang HANYA dan SELALU ke Firebase.
+     * Tidak ada lagi pengecekan ke database lokal.
+     */
+    private fun handleFirebaseLogin() {
         val email = etEmail.text.toString().trim()
         val password = etPassword.text.toString().trim()
 
@@ -58,58 +59,90 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
-        // 1. Coba login ke database LOKAL terlebih dahulu
-        val localUserData = dbHelper.checkUser(email, password)
-        if (localUserData != null) {
-            val name = localUserData["name"] ?: ""
-            val role = localUserData["role"] ?: "user"
-            // Jika berhasil, langsung masuk tanpa perlu Firebase
-            onLoginSuccess(name, email, role, null) // uid null karena dari lokal
-            return
-        }
-
-        // 2. Jika di lokal tidak ada, baru coba login ke FIREBASE
         auth.signInWithEmailAndPassword(email, password)
-            .addOnSuccessListener { result ->
-                val uid = result.user?.uid
+            .addOnSuccessListener { authResult ->
+                val uid = authResult.user?.uid
                 if (uid != null) {
+                    // Setelah login Firebase berhasil, ambil data user dari Firestore.
                     db.collection("users").document(uid).get()
-                        .addOnSuccessListener { document ->
-                            val role = document.getString("role") ?: "user"
-                            val name = document.getString("name") ?: ""
-                            // Login via Firebase berhasil
-                            onLoginSuccess(name, email, role, uid)
+                        .addOnSuccessListener { documentSnapshot ->
+                            if (documentSnapshot.exists()) {
+                                val role = documentSnapshot.getString("role") ?: "user"
+                                val name = documentSnapshot.getString("name") ?: email // Fallback ke email jika nama null
+
+                                // [FIXED] Panggil onLoginSuccess dengan UID yang VALID dari Firebase.
+                                onLoginSuccess(name, email, role, uid)
+                                // Perbarui juga token FCM setelah semua data siap.
+                                updateFCMToken(uid)
+
+                            } else {
+                                Toast.makeText(this, "Data pengguna tidak ditemukan di database.", Toast.LENGTH_SHORT).show()
+                            }
                         }
-                        .addOnFailureListener {
-                            Toast.makeText(this, "Gagal mengambil data user dari Firestore.", Toast.LENGTH_SHORT).show()
+                        .addOnFailureListener { e ->
+                            Log.e("LoginActivity", "Gagal mengambil data user dari Firestore: ", e)
+                            Toast.makeText(this, "Gagal mengambil data pengguna.", Toast.LENGTH_SHORT).show()
                         }
+                } else {
+                    Toast.makeText(this, "Terjadi kesalahan saat otentikasi.", Toast.LENGTH_SHORT).show()
                 }
             }
-            .addOnFailureListener {
-                // Jika di lokal dan Firebase gagal, tampilkan error
-                Toast.makeText(this, "Email atau Password salah.", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { e ->
+                // Jika login Firebase gagal (email/password salah, user tidak ada).
+                Log.e("LoginActivity", "Firebase signInWithEmailAndPassword gagal: ", e)
+                Toast.makeText(this, "Login gagal: Email atau Password salah.", Toast.LENGTH_LONG).show()
             }
     }
 
-    // Fungsi ini sekarang menerima uid yang bisa null
-    private fun onLoginSuccess(name: String, email: String, role: String, uid: String?) {
-        // Simpan sesi login ke SharedPreferences
+    /**
+     * [FIXED] Fungsi ini sekarang PASTI menerima UID yang valid dan tidak null.
+     */
+    private fun onLoginSuccess(name: String, email: String, role: String, uid: String) {
+        // Simpan sesi login ke SharedPreferences dengan UID yang valid.
         val prefs = getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
         prefs.edit()
             .putString("userName", name)
             .putString("userEmail", email)
             .putString("userRole", role)
-            .putString("userUid", uid) // Simpan UID jika ada (dari Firebase)
+            .putString("userUid", uid) // UID PASTI ADA, tidak akan null lagi.
             .apply()
 
-        // Arahkan ke activity yang sesuai berdasarkan role
+        // Arahkan ke activity utama.
+        val intent = Intent(this, MainActivity::class.java)
         if (role == "admin") {
             Toast.makeText(this, "Selamat datang, Admin!", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, AdminActivity::class.java))
+            intent.putExtra("openAdmin", true)
         } else {
             Toast.makeText(this, "Login berhasil!", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, MainActivity::class.java))
         }
-        finish() // Tutup LoginActivity agar tidak bisa kembali
+        startActivity(intent)
+        finishAffinity() // Tutup semua activity sebelumnya agar tidak bisa kembali ke halaman login.
+    }
+
+    /**
+     * Memperbarui token FCM di Firestore setelah pengguna berhasil login.
+     * @param userId UID pengguna yang sedang login.
+     */
+    private fun updateFCMToken(userId: String) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+                if (token != null) {
+                    // Simpan token ke SharedPreferences juga
+                    getSharedPreferences("USER_PREFS", MODE_PRIVATE).edit()
+                        .putString("fcm_token", token)
+                        .apply()
+
+                    // Update token di Firestore
+                    val tokenData = mapOf("fcmToken" to token)
+                    db.collection("users").document(userId)
+                        .set(tokenData, com.google.firebase.firestore.SetOptions.merge())
+                        .addOnSuccessListener { Log.d("LoginActivity", "FCM Token berhasil diperbarui.") }
+                        .addOnFailureListener { e -> Log.e("LoginActivity", "Gagal menyimpan FCM token: ${e.message}") }
+                }
+            } else {
+                Log.w("LoginActivity", "Gagal mendapatkan FCM token", task.exception)
+            }
+        }
     }
 }

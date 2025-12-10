@@ -1,13 +1,13 @@
 package com.example.map_umkm.model
 
-import com.google.gson.annotations.SerializedName
 import android.os.Parcelable
+import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Order(
     @SerializedName("orderId")
-    val orderId: String = "", // Tambahkan nilai default untuk Parcelize
+    val orderId: String = "",
 
     @SerializedName("userEmail")
     val userEmail: String = "",
@@ -16,7 +16,7 @@ data class Order(
     val userName: String = "",
 
     @SerializedName("items")
-    val items: List<Product> = emptyList(), // Gunakan List<Product> dari proyek Anda
+    val items: List<Product> = emptyList(),
 
     @SerializedName("totalAmount")
     val totalAmount: Double = 0.0,
@@ -25,5 +25,16 @@ data class Order(
     val orderDate: String = "",
 
     @SerializedName("status")
-    var status: String = "Menunggu Pembayaran"
+    var status: String = "Menunggu Pembayaran",
+
+    @SerializedName("userToken")
+    val userToken: String? = "",
+
+    // [FIXED] Tambahkan field yang hilang untuk menyimpan info pengiriman
+    @SerializedName("deliveryAddress")
+    val deliveryAddress: Address? = null,
+
+    @SerializedName("orderType")
+    val orderType: String = "Take Away" // Default "Take Away", bisa juga "Delivery"
+
 ) : Parcelable

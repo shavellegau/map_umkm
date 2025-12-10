@@ -17,7 +17,10 @@
         <color name="divider">#E0E0E0</color>              <!-- Abu-abu muda untuk garis pemisah -->
         <color name="text_bantuan">#795548</color>          <!-- Warna teks bantuan yang sudah ada -->
         <color name="tuku_brown">#B68C5A</color>            <!-- Nama ini sudah ada, pastikan tetap ada -->
-
+        <color name="tuku_dark_grey">#70605A</color>
+        <color name="tuku_green">#4CAF50</color>
+        <color name="tuku_red">#D32F2F</color>
+        <color name="tuku_gray">#9E9E9E</color>
         <!-- Warna lama (opsional, bisa dihapus jika tidak dipakai lagi) -->
         <color name="purple_200">#BB86FC</color>
         <color name="purple_500">#6200EE</color>
@@ -29,6 +32,18 @@
         <color name="red_button">#E53935</color>
         <color name="orange_button">#FB8C00</color>
     <color name="green_status">#4CAF50</color>
-        <color name="brown_profile">#A86A3D</color>
+        <color name="brown_profile">#A86A3D</color>            <!-- Cokelat Sangat Tua untuk Teks Utama -->
+    <color name="tuku_background_cream">#F9F7F2</color>   <!-- Krem / Off-white untuk background halaman -->
+    <color name="tuku_surface_white">#FFFFFF</color>     <!-- Putih murni untuk permukaan kartu/komponen -->
+    <color name="terracotta_error">#E57373</color>       <!-- Merah bata lembut untuk aksi hapus/error -->
+    <color name="tuku_text_secondary">#757575</color>     <!-- Abu-abu untuk teks sekunder/hint -->
+    <color name="tuku_stroke_light_gray">#E0E0E0</color>
 
+
+<!-- File: app/src/main/res/values/colors.xml -->
+
+<!-- Palet Warna TUKU Admin (Tambahkan ini) -->
+    <!-- <color name="tuku_primary">#4A3B32</color> -->
+          <!-- Cokelat Tua -->
+    <!-- <color name="tuku_dark">#2E1F17</color> -->
 </resources>

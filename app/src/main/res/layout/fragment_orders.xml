@@ -2,31 +2,17 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/tuku_bg"
-    tools:context=".OrdersFragment">
+    android:fitsSystemWindows="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <!-- [FIXED] Header Coklat Sederhana di Atas -->
-    <com.google.android.material.appbar.AppBarLayout
+    <!-- AppBarLayout dan TabLayout sudah dihapus -->
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/tuku_primary">
-
-        <!-- Toolbar ini hanya untuk tinggi dan bayangan, tidak menampilkan apa-apa -->
-        <androidx.appcompat.widget.Toolbar
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:contentInsetStart="0dp" />
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <!-- [FIXED] Container untuk menampung fragment pesanan -->
-    <FrameLayout
-        android:id="@+id/orders_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="@color/tuku_bg" />
 
 </LinearLayout>

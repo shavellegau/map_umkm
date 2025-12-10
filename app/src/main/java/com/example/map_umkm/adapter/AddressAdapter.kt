@@ -1,0 +1,70 @@
+package com.example.map_umkm.adapter
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.example.map_umkm.R
+import com.example.map_umkm.model.Address
+
+// [PERBAIKAN UTAMA] Konstruktor sekarang menerima semua listener yang dibutuhkan
+class AddressAdapter(
+    private var addresses: List<Address>,
+    private val onItemClick: (Address) -> Unit,
+    private val onEditClick: (Address) -> Unit,
+    private val onDeleteClick: (Address) -> Unit,
+    private val onSetPrimaryClick: (Address) -> Unit
+) : RecyclerView.Adapter<AddressAdapter.ViewHolder>() {
+
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        // Hubungkan semua view dari item_address.xml
+        val tvLabel: TextView = view.findViewById(R.id.tvLabel)
+        val tvRecipient: TextView = view.findViewById(R.id.tvRecipient)
+        val tvAddressDetail: TextView = view.findViewById(R.id.tvAddressDetail)
+        val tvIsPrimary: TextView = view.findViewById(R.id.tvIsPrimary)
+        val btnSetPrimary: TextView = view.findViewById(R.id.btnSetPrimary)
+        val btnEdit: ImageView = view.findViewById(R.id.btnEdit)
+        val btnDelete: ImageView = view.findViewById(R.id.btnDelete)
+
+        fun bind(address: Address) {
+            tvLabel.text = address.label
+            tvRecipient.text = "${address.recipientName} (${address.phoneNumber})"
+            tvAddressDetail.text = address.fullAddress
+
+            // Tampilkan/sembunyikan label "Utama" dan tombol "Atur Jadi Utama"
+            if (address.isPrimary) {
+                tvIsPrimary.visibility = View.VISIBLE
+                btnSetPrimary.visibility = View.GONE
+            } else {
+                tvIsPrimary.visibility = View.GONE
+                btnSetPrimary.visibility = View.VISIBLE
+            }
+
+            // Set listener untuk setiap aksi
+            itemView.setOnClickListener { onItemClick(address) }
+            btnEdit.setOnClickListener { onEditClick(address) }
+            btnDelete.setOnClickListener { onDeleteClick(address) }
+            btnSetPrimary.setOnClickListener { onSetPrimaryClick(address) }
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_address, parent, false)
+        return ViewHolder(view)
+    }
+
+    override fun getItemCount(): Int = addresses.size
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(addresses[position])
+    }
+
+    // Fungsi untuk mengupdate data dari fragment
+    fun updateData(newData: List<Address>) {
+        addresses = newData
+        notifyDataSetChanged()
+    }
+}

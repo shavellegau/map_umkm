@@ -9,80 +9,92 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.R
 import com.example.map_umkm.model.Order
 import java.text.NumberFormat
-import java.util.*
+import java.util.Locale
 
 class AdminOrdersAdapter(
-    private var orders: List<Order>,
-    private val onItemClick: (Order) -> Unit, // Tambahkan listener ini
+    private var orderList: List<Order>,
+    // Callback fungsi dari Fragment
+    private val onItemClick: (Order) -> Unit,
     private val onConfirmPaymentClick: (Order) -> Unit,
     private val onProsesClick: (Order) -> Unit,
+    private val onAntarPesananClick: (Order) -> Unit,
     private val onSelesaikanClick: (Order) -> Unit
-) : RecyclerView.Adapter<AdminOrdersAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<AdminOrdersAdapter.AdminOrderViewHolder>() {
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvUserInfo: TextView = view.findViewById(R.id.tv_order_user_info)
-        val tvDate: TextView = view.findViewById(R.id.tv_order_date)
-        val tvItems: TextView = view.findViewById(R.id.tv_order_items)
-        val tvTotal: TextView = view.findViewById(R.id.tv_order_total)
-        val tvStatus: TextView = view.findViewById(R.id.tv_order_status)
-        val btnConfirmPayment: Button = view.findViewById(R.id.btn_konfirmasi_pembayaran)
-        val btnProses: Button = view.findViewById(R.id.btn_proses_pesanan)
-        val btnSelesaikan: Button = view.findViewById(R.id.btn_selesaikan_pesanan)
+    class AdminOrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        // ID View (Sesuai XML item_order_admin.xml)
+        val tvUserInfo: TextView = itemView.findViewById(R.id.tv_order_user_info)
+        val tvDate: TextView = itemView.findViewById(R.id.tv_order_date)
+        val tvItems: TextView = itemView.findViewById(R.id.tv_order_items)
+        val tvTotal: TextView = itemView.findViewById(R.id.tv_order_total)
+        val tvStatus: TextView = itemView.findViewById(R.id.tv_order_status)
+
+        // Tombol Aksi (Ada 3 tombol di XML Anda)
+        val btnConfirm: Button = itemView.findViewById(R.id.btn_konfirmasi_pembayaran)
+        val btnProses: Button = itemView.findViewById(R.id.btn_proses_pesanan) // Jika ada di XML
+        val btnSelesai: Button = itemView.findViewById(R.id.btn_selesaikan_pesanan) // Dipakai untuk Antar & Selesai
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_order_admin, parent, false)
-        return ViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdminOrderViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_order_admin, parent, false)
+        return AdminOrderViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val order = orders[position]
-        val currencyFormat = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
+    override fun onBindViewHolder(holder: AdminOrderViewHolder, position: Int) {
+        val order = orderList[position]
+
+        // Format Harga
+        val formatRp = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
         val itemNames = order.items.joinToString(", ") { "${it.name} (x${it.quantity})" }
 
+        // Set Text Data
         holder.tvUserInfo.text = "${order.userName} (${order.userEmail})"
         holder.tvDate.text = order.orderDate
         holder.tvItems.text = itemNames
-        holder.tvTotal.text = "Total: ${currencyFormat.format(order.totalAmount)}"
-        holder.tvStatus.text = "Status: ${order.status}"
+        holder.tvTotal.text = formatRp.format(order.totalAmount)
+        holder.tvStatus.text = order.status
 
-        // Set listener untuk seluruh item view
-        holder.itemView.setOnClickListener {
-            onItemClick(order)
-        }
+        // --- RESET VISIBILITY TOMBOL (Sembunyikan semua dulu) ---
+        holder.btnConfirm.visibility = View.GONE
+        holder.btnProses.visibility = View.GONE
+        holder.btnSelesai.visibility = View.GONE
 
-        holder.btnConfirmPayment.setOnClickListener { onConfirmPaymentClick(order) }
-        holder.btnProses.setOnClickListener { onProsesClick(order) }
-        holder.btnSelesaikan.setOnClickListener { onSelesaikanClick(order) }
-
+        // --- LOGIKA TAMPILAN TOMBOL BERDASARKAN STATUS ---
         when (order.status) {
-            "Menunggu Pembayaran" -> {
-                holder.btnConfirmPayment.visibility = View.VISIBLE
-                holder.btnProses.visibility = View.GONE
-                holder.btnSelesaikan.visibility = View.GONE
-            }
-            "Menunggu Konfirmasi" -> {
-                holder.btnConfirmPayment.visibility = View.GONE
-                holder.btnProses.visibility = View.VISIBLE
-                holder.btnSelesaikan.visibility = View.GONE
+            "Menunggu Pembayaran", "Menunggu Konfirmasi" -> {
+                holder.btnConfirm.visibility = View.VISIBLE
+                holder.btnConfirm.text = "Konfirmasi Pembayaran"
+                holder.btnConfirm.setOnClickListener { onConfirmPaymentClick(order) }
             }
             "Diproses" -> {
-                holder.btnConfirmPayment.visibility = View.GONE
-                holder.btnProses.visibility = View.GONE
-                holder.btnSelesaikan.visibility = View.VISIBLE
+                // Gunakan btnSelesai untuk aksi "Antar Pesanan"
+                holder.btnSelesai.visibility = View.VISIBLE
+                holder.btnSelesai.text = "Antar Pesanan"
+                holder.btnSelesai.setOnClickListener { onAntarPesananClick(order) }
+            }
+            "Dikirim" -> {
+                // Gunakan btnSelesai untuk aksi "Selesaikan"
+                holder.btnSelesai.visibility = View.VISIBLE
+                holder.btnSelesai.text = "Selesaikan Pesanan"
+                holder.btnSelesai.setOnClickListener { onSelesaikanClick(order) }
+            }
+            "Selesai", "Dibatalkan" -> {
+                // Tidak ada tombol aksi
             }
             else -> {
-                holder.btnConfirmPayment.visibility = View.GONE
-                holder.btnProses.visibility = View.GONE
-                holder.btnSelesaikan.visibility = View.GONE
+                // Default hide
             }
         }
+
+        // Klik Item untuk Detail
+        holder.itemView.setOnClickListener { onItemClick(order) }
     }
 
-    override fun getItemCount() = orders.size
+    override fun getItemCount(): Int = orderList.size
 
     fun updateData(newOrders: List<Order>) {
-        orders = newOrders
+        orderList = newOrders
         notifyDataSetChanged()
     }
 }
