@@ -1,35 +1,46 @@
 package com.example.map_umkm.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.example.map_umkm.R
+import com.example.map_umkm.databinding.ItemRewardBinding
 import com.example.map_umkm.model.Reward
+import com.example.map_umkm.service.PointService
 
-class RewardAdapter(private val rewards: List<Reward>) :
-    RecyclerView.Adapter<RewardAdapter.RewardViewHolder>() {
+class RewardAdapter(private val rewardList: List<Reward>) :
+    RecyclerView.Adapter<RewardAdapter.ViewHolder>() {
 
-    class RewardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imageView: ImageView = itemView.findViewById(R.id.imageView)
-        val title: TextView = itemView.findViewById(R.id.title)
-        val point: TextView = itemView.findViewById(R.id.point)
+    inner class ViewHolder(val binding: ItemRewardBinding) :
+        RecyclerView.ViewHolder(binding.root)
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val binding = ItemRewardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RewardViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_reward, parent, false)
-        return RewardViewHolder(view)
-    }
+    override fun getItemCount() = rewardList.size
 
-    override fun onBindViewHolder(holder: RewardViewHolder, position: Int) {
-        val reward = rewards[position]
-        holder.imageView.setImageResource(reward.imageResId)
-        holder.title.text = reward.title
-        holder.point.text = "${reward.point} Poin"
-    }
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val reward = rewardList[position]
+        val ctx = holder.itemView.context
 
-    override fun getItemCount(): Int = rewards.size
+        holder.binding.apply {
+            title.text = reward.name
+            point.text = "${reward.points} Poin"
+            imageView.setImageResource(reward.image)
+        }
+
+        holder.itemView.setOnClickListener {
+            PointService.redeemReward(
+                reward,
+                onSuccess = {
+                    Toast.makeText(ctx, "Berhasil Redeem!", Toast.LENGTH_SHORT).show()
+                },
+                onFail = { msg ->
+                    Toast.makeText(ctx, msg, Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
+    }
 }

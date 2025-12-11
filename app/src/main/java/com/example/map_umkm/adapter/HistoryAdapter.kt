@@ -2,32 +2,56 @@ package com.example.map_umkm.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.map_umkm.databinding.ItemHistoryBinding
-import com.example.map_umkm.model.History
+import com.example.map_umkm.model.HistoryModel
+import java.text.SimpleDateFormat
+import java.util.*
 
-class HistoryAdapter(private val historyList: List<History>) :
-    RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>() {
+class HistoryAdapter : ListAdapter<HistoryModel, HistoryAdapter.ViewHolder>(DIFF) {
 
-    inner class HistoryViewHolder(val binding: ItemHistoryBinding) :
-        RecyclerView.ViewHolder(binding.root)
+    companion object {
+        private val DIFF = object : DiffUtil.ItemCallback<HistoryModel>() {
+            override fun areItemsTheSame(oldItem: HistoryModel, newItem: HistoryModel): Boolean {
+                return oldItem.timestamp == newItem.timestamp && oldItem.title == newItem.title
+            }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
-        val binding = ItemHistoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return HistoryViewHolder(binding)
+            override fun areContentsTheSame(oldItem: HistoryModel, newItem: HistoryModel): Boolean {
+                return oldItem == newItem
+            }
+        }
+
+        private val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
     }
 
-    override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
-        val history = historyList[position]
-        with(holder.binding) {
-            title.text = history.title
-            point.text = "${history.point} Poin"
-            Glide.with(imageView.context)
-                .load(history.imageResId)
-                .into(imageView)
+    inner class ViewHolder(private val binding: ItemHistoryBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(item: HistoryModel) {
+            // title
+            binding.tvTitle.text = item.title
+
+            // points (+ or -)
+            binding.tvPoint.text = item.points.toString()
+            binding.tvPoint.setTextColor(
+                if (item.points >= 0) 0xFF388E3C.toInt() else 0xFFC62828.toInt()
+            )
+
+            // date
+            binding.tvDate.text =
+                if (item.timestamp > 0) sdf.format(Date(item.timestamp)) else ""
         }
     }
 
-    override fun getItemCount() = historyList.size
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val binding =
+            ItemHistoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
 }
