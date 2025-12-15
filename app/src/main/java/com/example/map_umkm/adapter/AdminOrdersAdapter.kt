@@ -14,13 +14,12 @@ import java.util.Locale
 class AdminOrdersAdapter(
 
     private var orderList: List<Order>,
-    // Callback fungsi dari Fragment
     private val onItemClick: (Order) -> Unit,
     private val onConfirmPaymentClick: (Order) -> Unit,
-    private val onProsesClick: (Order) -> Unit,
     private val onAntarPesananClick: (Order) -> Unit,
+    // Callback ini yang akan kita gunakan untuk memicu transaksi
     private val onSelesaikanClick: (Order) -> Unit
-) : RecyclerView.Adapter<AdminOrdersAdapter.AdminOrderViewHolder>() {
+)  : RecyclerView.Adapter<AdminOrdersAdapter.AdminOrderViewHolder>() {
 
     class AdminOrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         // ID View (Sesuai XML item_order_admin.xml)

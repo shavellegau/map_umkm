@@ -1,7 +1,7 @@
 package com.example.map_umkm
 
 import android.content.Context
-import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -159,16 +159,40 @@ class CartFragment : Fragment() {
         }
     }
 
+    // -------------------------------------------------------------
+    // FUNGSI INI TELAH DIPERBAIKI UNTUK MENGATUR WARNA TEKS & ICON
+    // -------------------------------------------------------------
     private fun updateToggleTextStyle(mode: String) {
-        val activeColor = ContextCompat.getColor(requireContext(), R.color.tuku_primary)
-        val inactiveColor = ContextCompat.getColor(requireContext(), R.color.text_bantuan)
+        // 1. Warna AKTIF = PUTIH (Agar kelihatan di atas kotak Coklat)
+        val activeColor = ContextCompat.getColor(requireContext(), android.R.color.white)
+        val activeTint = ColorStateList.valueOf(activeColor)
+
+        // 2. Warna NON-AKTIF = GELAP (Agar kelihatan di atas background Putih/Abu)
+        // Pastikan R.color.tuku_dark ada di colors.xml, jika error ganti R.color.black
+        val inactiveColor = ContextCompat.getColor(requireContext(), R.color.tuku_dark)
+        val inactiveTint = ColorStateList.valueOf(inactiveColor)
+
+        // Casting ke MaterialButton agar bisa mengubah warna Icon
+        val btnTakeAwayMat = btnTakeAway as? com.google.android.material.button.MaterialButton
+        val btnDeliveryMat = btnDelivery as? com.google.android.material.button.MaterialButton
 
         if (mode == "Take Away") {
+            // --- TAKE AWAY AKTIF (PUTIH) ---
             btnTakeAway.setTextColor(activeColor)
+            btnTakeAwayMat?.iconTint = activeTint
+
+            // --- DELIVERY MATI (GELAP) ---
             btnDelivery.setTextColor(inactiveColor)
+            btnDeliveryMat?.iconTint = inactiveTint
+
         } else {
+            // --- DELIVERY AKTIF (PUTIH) ---
             btnDelivery.setTextColor(activeColor)
+            btnDeliveryMat?.iconTint = activeTint
+
+            // --- TAKE AWAY MATI (GELAP) ---
             btnTakeAway.setTextColor(inactiveColor)
+            btnTakeAwayMat?.iconTint = inactiveTint
         }
     }
 

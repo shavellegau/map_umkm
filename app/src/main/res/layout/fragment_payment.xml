@@ -150,6 +150,52 @@
                 tools:text="-Rp5.000" />
         </RelativeLayout>
 
+        <!-- 🔥🔥🔥 LOKASI YANG BENAR ADA DI SINI 🔥🔥🔥 -->
+        <RelativeLayout
+            android:id="@+id/layout_use_points"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageView
+                android:id="@+id/iv_point_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_point" /> <!-- Pastikan ikon ini ada -->
+
+            <TextView
+                android:id="@+id/tv_use_points_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/iv_point_icon"
+                android:text="Gunakan Poin Tuku"
+                android:textColor="#FF9800"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_points_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tv_use_points_label"
+                android:layout_toEndOf="@id/iv_point_icon"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                tools:text="15.000 Poin"/>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_use_points"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true" />
+        </RelativeLayout>
+        <!-- 🔥🔥🔥 AKHIR DARI BLOK POIN 🔥🔥🔥 -->
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -353,7 +399,6 @@
                         android:layout_marginStart="8dp" />
                 </LinearLayout>
             </LinearLayout>
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

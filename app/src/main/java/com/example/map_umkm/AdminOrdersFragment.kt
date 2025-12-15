@@ -3,6 +3,7 @@ package com.example.map_umkm
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,9 +15,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.adapter.AdminOrdersAdapter
 import com.example.map_umkm.model.Order
 import com.google.android.material.chip.ChipGroup
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -31,19 +33,19 @@ class AdminOrdersFragment : Fragment() {
     private lateinit var adapter: AdminOrdersAdapter
     private lateinit var chipGroupFilter: ChipGroup
 
-    // Statistik
+    // Statistik UI
     private lateinit var tvTotalOrders: TextView
     private lateinit var tvTotalProducts: TextView
     private lateinit var tvTotalUsers: TextView
 
-    // Data
+    // Data & Services
     private lateinit var fcmService: FCMService
     private val db = FirebaseFirestore.getInstance()
     private var orderListener: ListenerRegistration? = null
 
     // Variabel Filter
-    private var allOrderList: List<Order> = emptyList() // Data mentah
-    private var currentFilterMode = "ALL" // Default mode
+    private var allOrderList: List<Order> = emptyList()
+    private var currentFilterMode = "ALL"
 
     // Listener Statistik
     private var statsListener1: ListenerRegistration? = null
@@ -60,14 +62,11 @@ class AdminOrdersFragment : Fragment() {
         rvRecentOrders = view.findViewById(R.id.rvRecentOrders)
         tvEmpty = view.findViewById(R.id.tv_admin_no_orders)
         chipGroupFilter = view.findViewById(R.id.chipGroupFilter)
-
         tvTotalOrders = view.findViewById(R.id.tvTotalOrders)
         tvTotalProducts = view.findViewById(R.id.tvTotalProducts)
         tvTotalUsers = view.findViewById(R.id.tvTotalUsers)
 
         setupRecyclerView()
-
-        // Setup Listener Chip
         setupFilterListener()
 
         return view
@@ -87,12 +86,125 @@ class AdminOrdersFragment : Fragment() {
         statsListener3?.remove()
     }
 
+    // 🔥🔥🔥 FUNGSI INI TELAH DIPERBARUI DENGAN LOGIKA POIN YANG BARU 🔥🔥🔥
+    private fun completeOrderAndAwardPoints(order: Order) {
+        // Safety check untuk memastikan User ID ada
+        if (order.userId.isEmpty()) {
+            Toast.makeText(context, "Error: User ID tidak ditemukan pada pesanan ini.", Toast.LENGTH_LONG).show()
+            Log.e("TransactionError", "userId is empty for order ${order.orderId}")
+            return
+        }
+
+        val orderRef = db.collection("orders").document(order.orderId)
+        val userRef = db.collection("users").document(order.userId)
+
+        // --- ATURAN BISNIS BARU: Poin adalah 10% dari subtotal ---
+
+        // 1. Hitung subtotal dari item di dalam pesanan
+        val subtotal = order.items.sumOf { item ->
+            // Gunakan harga yang sesuai (hot/iced) dikalikan kuantitas
+            val price = (if (item.selectedType == "iced") item.price_iced else item.price_hot) ?: 0
+            price * item.quantity.toDouble()
+        }
+
+        // 2. Hitung poin yang didapat (10% dari subtotal)
+        val pointsEarned = (subtotal * 0.10).toInt()
+        // --- AKHIR DARI PERUBAHAN LOGIKA POIN ---
+
+
+        if (pointsEarned <= 0) {
+            // Jika tidak ada poin yang didapat (misal subtotal 0 atau pesanan gratis),
+            // cukup selesaikan pesanan dan kirim notifikasi tanpa transaksi poin.
+            updateStatusAndNotify(order.orderId, "Selesai", order.userToken, "Pesanan Selesai", "Terima kasih sudah memesan!", order.userEmail)
+            return
+        }
+
+        db.runTransaction { transaction ->
+            // 1. Baca data user terbaru di dalam transaksi untuk mencegah race condition
+            val userSnapshot = transaction.get(userRef)
+            val currentPoints = userSnapshot.getLong("tukuPoints") ?: 0
+            val newTotalPoints = currentPoints + pointsEarned
+
+            // 2. Lakukan semua operasi penulisan (write)
+            //  a. Update status pesanan
+            transaction.update(orderRef, "status", "Selesai")
+
+            //  b. Update total poin user
+            transaction.update(userRef, "tukuPoints", newTotalPoints)
+
+            //  c. Catat riwayat poin di sub-koleksi user
+            val pointHistoryRef = userRef.collection("point_history").document()
+            val pointHistoryData = hashMapOf(
+                "title" to "Poin dari Pesanan",
+                "amount" to pointsEarned.toLong(),
+                "type" to "earn",
+                "timestamp" to FieldValue.serverTimestamp()
+            )
+            transaction.set(pointHistoryRef, pointHistoryData)
+
+            null // Transaksi akan mengembalikan null jika berhasil
+        }.addOnSuccessListener {
+            Log.d("FirestoreTransaction", "Transaksi Selesai & Poin berhasil diberikan untuk order: ${order.orderId}")
+            Toast.makeText(context, "Pesanan Selesai & $pointsEarned poin diberikan!", Toast.LENGTH_LONG).show()
+
+            // 3. Kirim notifikasi HANYA SETELAH transaksi sukses
+            if (!order.userToken.isNullOrEmpty()) {
+                fcmService.sendNotification(
+                    order.userToken,
+                    "Pesanan Selesai",
+                    "Terima kasih! Kamu mendapatkan $pointsEarned poin.",
+                    order.orderId,
+                    order.userEmail
+                )
+            }
+        }.addOnFailureListener { e ->
+            Log.e("FirestoreTransaction", "Transaksi Gagal: ", e)
+            Toast.makeText(context, "Gagal menyelesaikan pesanan: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    // ---------------- SETUP & UPDATE UI ------------------
+    private fun setupRecyclerView() {
+        adapter = AdminOrdersAdapter(
+            emptyList(),
+            onItemClick = { order ->
+                val intent = Intent(requireContext(), OrderDetailActivity::class.java)
+                intent.putExtra("ORDER_DATA", order)
+                startActivity(intent)
+            },
+            onConfirmPaymentClick = { order ->
+                updateStatusAndNotify(order.orderId, "Diproses", order.userToken, "Pesanan Diproses", "Pembayaran sedang dicek Admin.", order.userEmail)
+            },
+            onAntarPesananClick = { order ->
+                updateStatusAndNotify(order.orderId, "Dikirim", order.userToken, "Pesanan Dikirim", "Pesananmu sedang dalam perjalanan.", order.userEmail)
+            },
+            onSelesaikanClick = { order ->
+                completeOrderAndAwardPoints(order)
+            }
+        )
+        rvRecentOrders.layoutManager = LinearLayoutManager(requireContext())
+        rvRecentOrders.adapter = adapter
+    }
+
+    private fun updateStatusAndNotify(
+        orderId: String, newStatus: String, token: String?, title: String, body: String, targetEmail: String?
+    ) {
+        db.collection("orders").document(orderId).update("status", newStatus)
+            .addOnSuccessListener {
+                Toast.makeText(context, "Status pesanan diubah menjadi: $newStatus", Toast.LENGTH_SHORT).show()
+                if (!token.isNullOrEmpty()) {
+                    fcmService.sendNotification(token, title, body, orderId, targetEmail)
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Gagal mengubah status", Toast.LENGTH_SHORT).show()
+            }
+    }
+
     // ---------------- LOGIKA FILTER ------------------
     private fun setupFilterListener() {
-        // Pastikan default terpilih
         chipGroupFilter.check(R.id.chipAll)
-
-        chipGroupFilter.setOnCheckedStateChangeListener { group, checkedIds ->
+        chipGroupFilter.setOnCheckedStateChangeListener { _, checkedIds ->
             if (checkedIds.isNotEmpty()) {
                 currentFilterMode = when (checkedIds[0]) {
                     R.id.chipToday -> "TODAY"
@@ -100,9 +212,8 @@ class AdminOrdersFragment : Fragment() {
                     R.id.chipWeek -> "WEEK"
                     else -> "ALL"
                 }
-                applyFilter() // Terapkan filter setiap kali chip berubah
+                applyFilter()
             } else {
-                // Jika user uncheck (kosong), paksa kembali ke ALL agar tidak blank
                 currentFilterMode = "ALL"
                 chipGroupFilter.check(R.id.chipAll)
                 applyFilter()
@@ -111,15 +222,13 @@ class AdminOrdersFragment : Fragment() {
     }
 
     private fun applyFilter() {
-        // Logika Filter
         val filteredList = when (currentFilterMode) {
             "TODAY" -> allOrderList.filter { isDateToday(it.orderDate) }
             "YESTERDAY" -> allOrderList.filter { isDateYesterday(it.orderDate) }
             "WEEK" -> allOrderList.filter { isDateOlderThanWeek(it.orderDate) }
-            else -> allOrderList // Jika ALL, kembalikan semua data
+            else -> allOrderList
         }
 
-        // Update UI
         if (filteredList.isEmpty()) {
             tvEmpty.text = if (allOrderList.isEmpty()) "Belum ada pesanan." else "Tidak ada pesanan untuk filter ini."
             tvEmpty.visibility = View.VISIBLE
@@ -129,6 +238,40 @@ class AdminOrdersFragment : Fragment() {
             rvRecentOrders.visibility = View.VISIBLE
             adapter.updateData(filteredList)
         }
+    }
+
+    // ---------------- FIREBASE LOAD ------------------
+    private fun startListeningForOrders() {
+        orderListener?.remove()
+        orderListener = db.collection("orders")
+            .orderBy("orderDate", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshots, e ->
+                if (e != null) {
+                    Log.e("Firestore", "Error: ${e.message}")
+                    return@addSnapshotListener
+                }
+                if (snapshots != null) {
+                    allOrderList = snapshots.toObjects(Order::class.java)
+                    applyFilter()
+                }
+            }
+    }
+
+    private fun startListeningForStats() {
+        statsListener1?.remove()
+        statsListener1 = db.collection("orders")
+            .whereIn("status", listOf("Menunggu Konfirmasi", "Menunggu Pembayaran"))
+            .addSnapshotListener { s, _ -> tvTotalOrders.text = "${s?.size() ?: 0}" }
+
+        statsListener2?.remove()
+        statsListener2 = db.collection("orders")
+            .whereEqualTo("status", "Diproses")
+            .addSnapshotListener { s, _ -> tvTotalProducts.text = "${s?.size() ?: 0}" }
+
+        statsListener3?.remove()
+        statsListener3 = db.collection("orders")
+            .whereEqualTo("status", "Selesai")
+            .addSnapshotListener { s, _ -> tvTotalUsers.text = "${s?.size() ?: 0}" }
     }
 
     // ---------------- HELPER DATE ------------------
@@ -160,78 +303,5 @@ class AdminOrdersFragment : Fragment() {
         val date = parseDate(dateString) ?: return false
         val weekAgo = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -7) }
         return date.before(weekAgo.time)
-    }
-
-    // ---------------- FIREBASE LOAD ------------------
-    private fun startListeningForOrders() {
-        orderListener?.remove()
-        orderListener = db.collection("orders")
-            .orderBy("orderDate", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshots, e ->
-                if (e != null) {
-                    Log.e("Firestore", "Error: ${e.message}")
-                    return@addSnapshotListener
-                }
-
-                if (snapshots != null) {
-                    // 1. Simpan semua data mentah
-                    allOrderList = snapshots.toObjects(Order::class.java)
-
-                    // 2. Langsung terapkan filter (PENTING AGAR TIDAK KOSONG SAAT AWAL LOAD)
-                    applyFilter()
-                }
-            }
-    }
-
-    // ---------------- STATISTIK & UPDATE ------------------
-    private fun startListeningForStats() {
-        statsListener1?.remove()
-        statsListener1 = db.collection("orders")
-            .whereIn("status", listOf("Menunggu Konfirmasi", "Menunggu Pembayaran"))
-            .addSnapshotListener { s, _ -> tvTotalOrders.text = "${s?.size() ?: 0}" }
-
-        statsListener2?.remove()
-        statsListener2 = db.collection("orders")
-            .whereEqualTo("status", "Diproses")
-            .addSnapshotListener { s, _ -> tvTotalProducts.text = "${s?.size() ?: 0}" }
-
-        statsListener3?.remove()
-        statsListener3 = db.collection("orders")
-            .whereEqualTo("status", "Selesai")
-            .addSnapshotListener { s, _ -> tvTotalUsers.text = "${s?.size() ?: 0}" }
-    }
-
-    private fun updateStatusAndNotify(
-        orderId: String, newStatus: String, token: String?, title: String, body: String, targetEmail: String?
-    ) {
-        db.collection("orders").document(orderId).update("status", newStatus)
-            .addOnSuccessListener {
-                Toast.makeText(context, "Status: $newStatus", Toast.LENGTH_SHORT).show()
-                if (!token.isNullOrEmpty()) {
-                    // Kirim orderId dan targetEmail ke FCMService
-                    fcmService.sendNotification(token, title, body, orderId, targetEmail)
-                }
-            }
-    }
-
-    private fun setupRecyclerView() {
-        adapter = AdminOrdersAdapter(
-            emptyList(),
-            onItemClick = { order ->
-                val intent = Intent(requireContext(), OrderDetailActivity::class.java)
-                intent.putExtra("ORDER_DATA", order)
-                startActivity(intent)
-            },
-            // Pass order.userEmail agar notifikasi masuk ke akun yang benar
-            onConfirmPaymentClick = { order -> updateStatusAndNotify(order.orderId, "Diproses", order.userToken, "Pesanan Diproses", "Pembayaran sedang dicek Admin.", order.userEmail) },
-            onProsesClick = { order ->
-                // Opsional: Jika ada logika khusus tombol proses
-            },
-            onAntarPesananClick = { order -> updateStatusAndNotify(order.orderId, "Dikirim", order.userToken, "Pesanan Dikirim", "Pesananmu sedang dalam perjalanan.", order.userEmail) },
-            onSelesaikanClick = { order -> updateStatusAndNotify(order.orderId, "Selesai", order.userToken, "Pesanan Selesai", "Terima kasih sudah memesan!", order.userEmail) }
-        )
-
-        rvRecentOrders.layoutManager = LinearLayoutManager(requireContext())
-        rvRecentOrders.adapter = adapter
     }
 }

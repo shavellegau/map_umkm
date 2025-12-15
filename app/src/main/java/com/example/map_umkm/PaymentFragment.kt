@@ -23,7 +23,9 @@ import com.example.map_umkm.model.Address
 import com.example.map_umkm.model.Order
 import com.example.map_umkm.viewmodel.CartViewModel
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,11 +39,13 @@ import java.net.URL
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.min
 
 class PaymentFragment : Fragment() {
 
     private val cartViewModel: CartViewModel by activityViewModels()
 
+    // UI Components
     private lateinit var rvOrderList: RecyclerView
     private lateinit var tvSubtotal: TextView
     private lateinit var tvTax: TextView
@@ -64,16 +68,23 @@ class PaymentFragment : Fragment() {
     private lateinit var layoutShippingCost: RelativeLayout
     private lateinit var cartAdapter: CartItemAdapter
 
+    // --- PROPERTI BARU UNTUK FITUR POIN ---
+    private lateinit var layoutUsePoints: RelativeLayout
+    private lateinit var switchUsePoints: SwitchMaterial
+    private lateinit var tvPointsValue: TextView
+    private lateinit var tvUsePointsLabel: TextView
+    private var currentUserPoints: Long = 0
+    private var pointsToUse: Double = 0.0 // Poin yang akan digunakan (dalam format Rupiah)
+
+    // Data & Logic Variables
     private var discountAmount: Double = 0.0
     private var finalTotalAmount: Double = 0.0
-    private var shippingCost: Double = 0.0 // Ongkir (default 0)
+    private var shippingCost: Double = 0.0
     private var selectedAddress: Address? = null
     private var isDelivery = false
 
     private val db by lazy { FirebaseFirestore.getInstance() }
     private val auth by lazy { FirebaseAuth.getInstance() }
-
-    // Lokasi Toko (Contoh: Jakarta Pusat)
     private val storeLocation = LatLng(-6.2088, 106.8456)
 
     override fun onCreateView(
@@ -84,13 +95,13 @@ class PaymentFragment : Fragment() {
         setupRecyclerView()
         setupListeners()
         setupAddressHandling()
+        loadUserPoints() // Muat poin pengguna saat fragment dibuat
 
         cartViewModel.cartList.observe(viewLifecycleOwner) { cart ->
             cartAdapter.updateItems(cart)
             updateTotals()
         }
 
-        // Default Take Away
         rbTakeAway.isChecked = true
         handleOrderTypeChange(R.id.rb_take_away)
 
@@ -100,9 +111,7 @@ class PaymentFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         if (isDelivery && selectedAddress == null) {
-            viewLifecycleOwner.lifecycleScope.launch {
-                loadInitialAddress()
-            }
+            viewLifecycleOwner.lifecycleScope.launch { loadInitialAddress() }
         } else if (isDelivery) {
             updateAddressView()
             calculateShippingCost()
@@ -112,6 +121,8 @@ class PaymentFragment : Fragment() {
     private fun initializeViews(view: View) {
         val toolbar: Toolbar = view.findViewById(R.id.toolbar_payment)
         toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
+
+        // Existing Views
         rvOrderList = view.findViewById(R.id.rv_order_list)
         tvSubtotal = view.findViewById(R.id.tvSubtotal)
         tvTax = view.findViewById(R.id.tvTax)
@@ -132,10 +143,17 @@ class PaymentFragment : Fragment() {
         btnAddNewAddress = view.findViewById(R.id.btn_add_new_address)
         tvShippingCost = view.findViewById(R.id.tvShippingCost)
         layoutShippingCost = view.findViewById(R.id.layout_shipping_cost)
+
+        // New Views for Points
+        layoutUsePoints = view.findViewById(R.id.layout_use_points)
+        switchUsePoints = view.findViewById(R.id.switch_use_points)
+        tvPointsValue = view.findViewById(R.id.tv_points_value)
+        tvUsePointsLabel = view.findViewById(R.id.tv_use_points_label)
     }
 
     private fun setupListeners() {
         btnPay.setOnClickListener {
+            // Validasi dasar
             if (cartViewModel.cartList.value.isNullOrEmpty()) {
                 Toast.makeText(context, "Keranjang kosong!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -144,7 +162,16 @@ class PaymentFragment : Fragment() {
                 Toast.makeText(context, "Silakan pilih alamat pengiriman.", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
-            showPaymentChoiceDialog()
+
+            // --- LOGIKA BARU: Cek jika total pembayaran adalah Rp 0 ---
+            if (finalTotalAmount <= 0) {
+                // Jika total Rp 0, langsung buat pesanan tanpa memilih metode pembayaran.
+                Toast.makeText(context, "Pesanan diproses.", Toast.LENGTH_LONG).show()
+                createOrder(isCashPayment = false) // 'false' agar statusnya "Diproses" dan tidak memicu logika tunai
+            } else {
+                // Jika total > Rp 0, tampilkan dialog pilihan pembayaran seperti biasa.
+                showPaymentChoiceDialog()
+            }
         }
 
         btnApplyVoucher.setOnClickListener {
@@ -153,15 +180,195 @@ class PaymentFragment : Fragment() {
             else Toast.makeText(context, "Masukkan kode voucher dulu", Toast.LENGTH_SHORT).show()
         }
 
-        rgOrderType.setOnCheckedChangeListener { _, checkedId ->
-            handleOrderTypeChange(checkedId)
-        }
+        rgOrderType.setOnCheckedChangeListener { _, checkedId -> handleOrderTypeChange(checkedId) }
 
-        val navigateToAddressList = {
-            findNavController().navigate(R.id.action_paymentFragment_to_alamatFragment)
-        }
+        val navigateToAddressList = { findNavController().navigate(R.id.action_paymentFragment_to_alamatFragment) }
         btnChangeAddress.setOnClickListener { navigateToAddressList() }
         btnAddNewAddress.setOnClickListener { navigateToAddressList() }
+
+        // Listener untuk Switch Poin
+        switchUsePoints.setOnCheckedChangeListener { _, isChecked ->
+            pointsToUse = if (isChecked) currentUserPoints.toDouble() else 0.0
+            updateTotals()
+        }
+    }
+
+    private fun loadUserPoints() {
+        val uid = auth.currentUser?.uid ?: return
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val points = document.getLong("tukuPoints") ?: 0
+                    if (points > 0) {
+                        currentUserPoints = points
+                        layoutUsePoints.visibility = View.VISIBLE
+                        tvUsePointsLabel.text = "Gunakan Poin Tuku Anda"
+                        tvPointsValue.text = "${NumberFormat.getNumberInstance(Locale("id", "ID")).format(points)} Poin"
+                    } else {
+                        layoutUsePoints.visibility = View.GONE
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("PaymentFragment", "Gagal memuat poin pengguna", e)
+                layoutUsePoints.visibility = View.GONE
+            }
+    }
+
+    private fun updateTotals() {
+        val subtotal = calculateSubtotal()
+        val tax = subtotal * 0.11
+        val currentShipping = if (isDelivery) shippingCost else 0.0
+
+        val totalBeforeDiscounts = subtotal + tax + currentShipping
+        val totalAfterVoucher = totalBeforeDiscounts - discountAmount
+        val actualPointsToUse = min(pointsToUse, totalAfterVoucher)
+        var totalAfterPoints = totalAfterVoucher - actualPointsToUse
+        if (totalAfterPoints < 0) totalAfterPoints = 0.0
+
+        finalTotalAmount = totalAfterPoints
+
+        // Update UI
+        tvSubtotal.text = formatCurrency(subtotal)
+        tvTax.text = formatCurrency(tax)
+        tvShippingCost.text = formatCurrency(currentShipping)
+        tvTotalPayment.text = formatCurrency(finalTotalAmount)
+
+        // Update teks tombol berdasarkan total akhir
+        if (finalTotalAmount <= 0 && (pointsToUse > 0 || discountAmount > 0)) {
+            btnPay.text = "Konfirmasi Pesanan"
+        } else {
+            btnPay.text = "Pilih Metode Pembayaran"
+        }
+
+        if (switchUsePoints.isChecked && actualPointsToUse > 0) {
+            tvPointsValue.text = "Diskon -${formatCurrency(actualPointsToUse)}"
+        } else if (currentUserPoints > 0) {
+            tvPointsValue.text = "${NumberFormat.getNumberInstance(Locale("id", "ID")).format(currentUserPoints)} Poin"
+        }
+    }
+
+    // 🔥🔥🔥 FUNGSI INI DIPERBARUI DENGAN LOGIKA TRANSAKSI YANG BENAR 🔥🔥🔥
+    private fun createOrder(isCashPayment: Boolean) {
+        val currentUser = auth.currentUser ?: return
+        val currentUserId = currentUser.uid
+        val currentCart = cartViewModel.cartList.value ?: return
+
+        if (currentCart.isEmpty()) {
+            Toast.makeText(context, "Keranjang Anda kosong.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        setLoading(true)
+
+        val tokenPrefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
+        val userToken = tokenPrefs.getString("fcm_token", "") ?: ""
+        val orderType = if (isDelivery) "Delivery" else "Take Away"
+        val addressToSave = if (isDelivery) selectedAddress else null
+        val orderId = "TUKU-${System.currentTimeMillis()}"
+
+        // Tentukan status berdasarkan pembayaran
+        val finalStatus = when {
+            finalTotalAmount <= 0 -> "Diproses" // Langsung diproses jika gratis
+            isCashPayment -> "Menunggu Pembayaran"
+            else -> "Menunggu Konfirmasi"
+        }
+
+        val newOrder = Order(
+            orderId = orderId,
+            userId = currentUserId,
+            userEmail = currentUser.email ?: "",
+            userName = currentUser.displayName ?: "Pengguna",
+            items = currentCart.toList(),
+            totalAmount = finalTotalAmount,
+            orderDate = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("id", "ID")).format(Date()),
+            status = finalStatus,
+            userToken = userToken,
+            deliveryAddress = addressToSave,
+            orderType = orderType
+        )
+
+        val orderRef = db.collection("orders").document(newOrder.orderId)
+        val userRef = db.collection("users").document(currentUserId)
+
+        val totalBeforePoints = (calculateSubtotal() * 1.11) + (if (isDelivery) shippingCost else 0.0) - discountAmount
+        val actualPointsToUse = if (switchUsePoints.isChecked) min(pointsToUse, totalBeforePoints) else 0.0
+        val pointsUsedAsLong = actualPointsToUse.toLong()
+
+        db.runTransaction { transaction ->
+            // 1. --- SEMUA OPERASI BACA (READ) DULU ---
+            var currentPoints: Long = 0
+            if (switchUsePoints.isChecked && pointsUsedAsLong > 0) {
+                // Hanya baca jika poin benar-benar akan digunakan
+                val userSnapshot = transaction.get(userRef)
+                currentPoints = userSnapshot.getLong("tukuPoints") ?: 0
+            }
+
+            // 2. --- SEMUA OPERASI TULIS (WRITE) KEMUDIAN ---
+            //  a. Simpan dokumen pesanan baru
+            transaction.set(orderRef, newOrder)
+
+            //  b. Jika ada poin yang digunakan, kurangi poin pengguna
+            if (switchUsePoints.isChecked && pointsUsedAsLong > 0) {
+                val newTotalPoints = if (currentPoints - pointsUsedAsLong < 0) 0 else currentPoints - pointsUsedAsLong
+                transaction.update(userRef, "tukuPoints", newTotalPoints)
+
+                //  c. Buat catatan riwayat penggunaan poin
+                val pointHistoryRef = userRef.collection("point_history").document()
+                val pointHistoryData = hashMapOf(
+                    "title" to "Digunakan untuk Pesanan #${orderId.takeLast(6)}",
+                    "amount" to -pointsUsedAsLong, // Nilai negatif untuk 'redeem'
+                    "type" to "redeem",
+                    "timestamp" to FieldValue.serverTimestamp()
+                )
+                transaction.set(pointHistoryRef, pointHistoryData)
+            }
+
+            null // Transaksi berhasil jika mengembalikan null
+        }.addOnSuccessListener {
+            Log.d("PaymentFragment", "Transaksi berhasil: Pesanan dibuat dan poin (jika ada) diperbarui.")
+            setLoading(false)
+            cartViewModel.clearCart()
+
+            // Tentukan navigasi setelah sukses
+            val action = if (finalTotalAmount <= 0 || isCashPayment) {
+                // Langsung ke sukses jika gratis atau bayar tunai
+                val paymentMethod = if (finalTotalAmount <= 0) "POINTS/VOUCHER" else "CASH"
+                PaymentFragmentDirections.actionPaymentFragmentToPaymentSuccessFragment(paymentMethod = paymentMethod)
+            } else {
+                // Ke halaman QRIS jika perlu bayar non-tunai
+                PaymentFragmentDirections.actionPaymentFragmentToQrisFragment()
+            }
+            findNavController().navigate(action)
+            Toast.makeText(context, "Pesanan berhasil dibuat!", Toast.LENGTH_SHORT).show()
+        }.addOnFailureListener { e ->
+            Log.e("PaymentFragment", "Transaksi Gagal", e)
+            setLoading(false)
+            Toast.makeText(context, "Gagal memproses pesanan: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun calculateSubtotal(): Double {
+        return cartViewModel.cartList.value?.sumOf {
+            ((if (it.selectedType == "iced") it.price_iced else it.price_hot) ?: 0) * it.quantity.toDouble()
+        } ?: 0.0
+    }
+
+    private fun formatCurrency(amount: Double): String {
+        return NumberFormat.getCurrencyInstance(Locale("in", "ID")).format(amount)
+    }
+
+    private fun setupRecyclerView() {
+        cartAdapter = CartItemAdapter(
+            mutableListOf(),
+            onQuantityChanged = { resetVoucher() },
+            onDeleteItem = { product ->
+                cartViewModel.deleteItem(product)
+                resetVoucher()
+            }
+        )
+        rvOrderList.layoutManager = LinearLayoutManager(requireContext())
+        rvOrderList.adapter = cartAdapter
     }
 
     private fun setupAddressHandling() {
@@ -179,14 +386,10 @@ class PaymentFragment : Fragment() {
         val uid = auth.currentUser?.uid ?: return
         try {
             val addressesCollection = db.collection("users").document(uid).collection("addresses")
-            // Coba ambil alamat utama dulu
             var snapshot = addressesCollection.whereEqualTo("isPrimary", true).limit(1).get().await()
-
             if (snapshot.isEmpty) {
-                // Kalau tidak ada utama, ambil sembarang satu
                 snapshot = addressesCollection.limit(1).get().await()
             }
-
             if (!snapshot.isEmpty) {
                 val doc = snapshot.documents[0]
                 val addr = doc.toObject(Address::class.java)
@@ -197,7 +400,6 @@ class PaymentFragment : Fragment() {
             }
             updateAddressView()
             calculateShippingCost()
-
         } catch (e: Exception) {
             Log.e("PaymentFragment", "Gagal memuat alamat: ${e.message}")
         }
@@ -213,7 +415,6 @@ class PaymentFragment : Fragment() {
                 calculateShippingCost()
             }
         } else {
-            // Take Away
             shippingCost = 0.0
             updateAddressView()
             updateTotals()
@@ -238,7 +439,6 @@ class PaymentFragment : Fragment() {
         }
     }
 
-    // --- HITUNG ONGKIR API ---
     private fun calculateShippingCost() {
         if (!isDelivery || selectedAddress == null || selectedAddress!!.latLng == null) {
             shippingCost = 0.0
@@ -247,14 +447,11 @@ class PaymentFragment : Fragment() {
         }
 
         tvShippingCost.text = "Menghitung..."
-
-        // Panggil API Directions
         fetchDirections(selectedAddress!!.latLng!!, storeLocation)
     }
 
     private fun fetchDirections(origin: LatLng, destination: LatLng) {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            // GANTI API KEY ANDA DI SINI
             val apiKey = "AIzaSyDIrN5Cr4dSpkpWwM4dbyt7DTaPf-2PLrw"
             val url = "https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apiKey"
 
@@ -269,7 +466,7 @@ class PaymentFragment : Fragment() {
                     val routes = jsonResponse.optJSONArray("routes")
                     if (routes != null && routes.length() > 0) {
                         val leg = routes.getJSONObject(0).getJSONArray("legs").getJSONObject(0)
-                        val distanceValue = leg.getJSONObject("distance").getInt("value") // meter
+                        val distanceValue = leg.getJSONObject("distance").getInt("value")
 
                         val cost = getCostFromDistance(distanceValue)
 
@@ -294,94 +491,12 @@ class PaymentFragment : Fragment() {
 
     private fun getCostFromDistance(distanceInMeters: Int): Double {
         val distanceInKm = distanceInMeters / 1000.0
-        // Rumus: Rp 2.500/km, Min 8.000, Max 50.000
         val cost = distanceInKm * 2500
         return when {
             cost < 8000 -> 8000.0
             cost > 50000 -> 50000.0
             else -> cost
         }
-    }
-
-    private fun updateTotals() {
-        val subtotal = calculateSubtotal()
-        val tax = subtotal * 0.11
-        val currentShipping = if (isDelivery) shippingCost else 0.0
-
-        var total = (subtotal + tax + currentShipping) - discountAmount
-        if (total < 0) total = 0.0
-        finalTotalAmount = total
-
-        tvSubtotal.text = formatCurrency(subtotal)
-        tvTax.text = formatCurrency(tax)
-        tvShippingCost.text = formatCurrency(currentShipping)
-        tvTotalPayment.text = formatCurrency(total)
-    }
-
-    private fun calculateSubtotal(): Double {
-        return cartViewModel.cartList.value?.sumOf {
-            ((if (it.selectedType == "iced") it.price_iced else it.price_hot) ?: 0) * it.quantity.toDouble()
-        } ?: 0.0
-    }
-
-    private fun formatCurrency(amount: Double): String {
-        return NumberFormat.getCurrencyInstance(Locale("in", "ID")).format(amount)
-    }
-
-    private fun createOrder(isCashPayment: Boolean) {
-        val currentCart = cartViewModel.cartList.value ?: return
-        val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
-        val tokenPrefs = requireActivity().getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE)
-
-        val orderType = if (isDelivery) "Delivery" else "Take Away"
-        // Simpan alamat hanya jika Delivery
-        val addressToSave = if (isDelivery) selectedAddress else null
-
-        val newOrder = Order(
-            orderId = "TUKU-${System.currentTimeMillis()}",
-            userEmail = prefs.getString("userEmail", "unknown@email.com") ?: "unknown",
-            userName = prefs.getString("userName", "User") ?: "User",
-            items = currentCart.toList(),
-            totalAmount = finalTotalAmount, // Sudah termasuk ongkir
-            orderDate = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("id", "ID")).format(Date()),
-            status = if (isCashPayment) "Menunggu Pembayaran" else "Menunggu Konfirmasi",
-            userToken = tokenPrefs.getString("fcm_token", "") ?: "",
-            deliveryAddress = addressToSave,
-            orderType = orderType
-        )
-
-        setLoading(true)
-        db.collection("orders").document(newOrder.orderId).set(newOrder)
-            .addOnSuccessListener {
-                setLoading(false)
-                cartViewModel.clearCart()
-
-                val action = if (isCashPayment) {
-                    PaymentFragmentDirections.actionPaymentFragmentToPaymentSuccessFragment(paymentMethod = "CASH")
-                } else {
-                    PaymentFragmentDirections.actionPaymentFragmentToQrisFragment()
-                }
-                findNavController().navigate(action)
-                Toast.makeText(context, "Pesanan berhasil dibuat!", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { e ->
-                setLoading(false)
-                Toast.makeText(context, "Gagal menyimpan pesanan: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-    }
-
-    // --- Helper UI & Voucher ---
-    private fun setupRecyclerView() {
-        cartAdapter = CartItemAdapter(
-            mutableListOf(),
-            onQuantityChanged = { resetVoucher() },
-            onDeleteItem = { product ->
-                cartViewModel.deleteItem(product)
-                resetVoucher()
-            }
-        )
-        rvOrderList.layoutManager = LinearLayoutManager(requireContext())
-        rvOrderList.adapter = cartAdapter
     }
 
     private fun setLoading(isLoading: Boolean) {

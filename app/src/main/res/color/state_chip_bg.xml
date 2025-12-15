@@ -3,4 +3,14 @@
     <item android:color="@color/tuku_primary" android:state_checked="true" />
 
     <item android:color="@android:color/white" />
+<!-- File: app/src/main/res/values/colors.xml -->
+
+<!-- Palet Warna TUKU Admin (Tambahkan ini) -->
+    <color name="tuku_primary">#4A3B32</color>          <!-- Cokelat Tua -->
+    <color name="tuku_dark">#2E1F17</color>            <!-- Cokelat Sangat Tua untuk Teks Utama -->
+    <color name="tuku_background_cream">#F9F7F2</color>   <!-- Krem / Off-white untuk background halaman -->
+    <color name="tuku_surface_white">#FFFFFF</color>     <!-- Putih murni untuk permukaan kartu/komponen -->
+    <color name="terracotta_error">#E57373</color>       <!-- Merah bata lembut untuk aksi hapus/error -->
+    <color name="tuku_text_secondary">#757575</color>     <!-- Abu-abu untuk teks sekunder/hint -->
+    <color name="tuku_stroke_light_gray">#E0E0E0</color>
 </selector>
