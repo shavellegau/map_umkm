@@ -90,6 +90,7 @@
                             android:orientation="vertical"
                             android:gravity="center_horizontal"
                             android:paddingHorizontal="4dp">
+
                             <ImageView
                                 android:id="@+id/iv_tuku_point"
                                 android:layout_width="55dp"
@@ -98,6 +99,7 @@
                                 android:background="@drawable/circle_brown_bg"
                                 android:padding="8dp"
                                 android:contentDescription="Tuku Point"/>
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -105,10 +107,12 @@
                                 android:textSize="12sp"
                                 android:layout_marginTop="4dp"
                                 android:textColor="@color/tuku_dark"/>
+
                             <TextView
+                                android:id="@+id/tvTukuPointValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="25.000 Points"
+                                android:text="0 Points"
                                 android:textSize="10sp"
                                 android:textColor="@color/text_bantuan"/>
                         </LinearLayout>

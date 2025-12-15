@@ -1,6 +1,5 @@
 package com.example.map_umkm.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +21,7 @@ class OrderDetailAdapter(private val items: List<Product>) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        // Pastikan nama layout XML ini sesuai dengan file layout item kamu
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_order_detail_product, parent, false)
         return ViewHolder(view)
@@ -43,13 +43,12 @@ class OrderDetailAdapter(private val items: List<Product>) :
             holder.tvNotes.text = "Catatan: ${item.notes}"
         }
 
-        // 🔥 3. LOAD GAMBAR LANGSUNG (SAMA SEPERTI CART ITEM) 🔥
-        Log.d("ORDER_ADAPTER", "Loading Image: ${item.image}") // Cek log ini
-
+        // 🔥 3. LOAD GAMBAR (Simple Logic ala CartItemAdapter) 🔥
+        // Langsung muat item.image (baik itu URL Firebase maupun Path lokal)
         Glide.with(context)
-            .load(item.image) // Langsung muat path/url dari object
-            .placeholder(R.drawable.placeholder_image)
-            .error(R.drawable.error_image)
+            .load(item.image)
+            .placeholder(R.drawable.placeholder_image) // Gambar saat loading
+            .error(R.drawable.error_image) // Gambar jika gagal/null
             .into(holder.ivProductImage)
     }
 

@@ -1,4 +1,4 @@
-package com.example.map_umkm
+package com.example.map_umkm.model
 
 import com.google.firebase.Timestamp
 

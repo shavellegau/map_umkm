@@ -6,13 +6,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.map_umkm.databinding.FragmentProfileBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import android.widget.TextView
-import android.widget.Button
+import java.text.NumberFormat
+import java.util.Locale
 
 class ProfileFragment : Fragment() {
 
@@ -33,35 +34,66 @@ class ProfileFragment : Fragment() {
 
         val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
         val auth = FirebaseAuth.getInstance()
-        val uid = auth.currentUser!!.uid
+        val currentUser = auth.currentUser
 
-        // 1 ===> AMBIL DARI FIREBASE AUTH DULU
-        binding.txtName.text = auth.currentUser?.displayName ?: "User"
+        if (currentUser == null) {
+            logout()
+            return
+        }
 
-        // 2 ===> LISTENER REALTIME FIRESTORE
+        val uid = currentUser.uid
+
+        // 1. TAMPILKAN DATA SEMENTARA (CACHE/AUTH) AGAR TIDAK KOSONG
+        binding.txtName.text = currentUser.displayName ?: prefs.getString("userName", "Pengguna Tuku")
+        binding.tvEmail.text = currentUser.email ?: prefs.getString("userEmail", "-")
+
+        // Placeholder Poin
+        binding.tvMemberPoints.text = "0 Pts"
+        binding.tvMemberStatus.text = "New Member"
+
+        // 2. LISTENER REALTIME FIRESTORE (NAMA & POIN)
+        // Kita pakai satu listener saja untuk mengambil Nama DAN Poin sekaligus
         FirebaseFirestore.getInstance().collection("users")
             .document(uid)
-            .addSnapshotListener { doc, _ ->
+            .addSnapshotListener { doc, error ->
 
-                // kalau fragment sudah tidak aktif → stop
+                // Cek validitas fragment & error
                 if (_binding == null || !isAdded) return@addSnapshotListener
+                if (error != null) return@addSnapshotListener
 
+                if (doc != null && doc.exists()) {
 
-                val name = doc?.getString("name")
-                if (name != null) {
-                    binding.txtName.text = name
+                    // A. UPDATE NAMA
+                    val name = doc.getString("name")
+                    if (name != null) {
+                        binding.txtName.text = name
+                        prefs.edit().putString("userName", name).apply()
+                    }
 
-                    // sync ke SharedPref
-                    val ed = prefs.edit()
-                    ed.putString("userName", name)
-                    ed.apply()
+                    // B. UPDATE POIN (REALTIME) 🔥
+                    val points = doc.getLong("tukuPoints") ?: 0
+
+                    // Format angka (contoh: 5000 -> 5.000)
+                    val formattedPoints = NumberFormat.getInstance(Locale("in", "ID")).format(points)
+                    binding.tvMemberPoints.text = "$formattedPoints Pts"
+
+                    // C. UPDATE STATUS MEMBER (LOGIKA SEDERHANA)
+                    // Contoh: > 5000 jadi Gold, sisanya Silver
+                    val status = when {
+                        points >= 5000 -> "Gold Member"
+                        points >= 1000 -> "Silver Member"
+                        else -> "Bronze Member"
+                    }
+                    binding.tvMemberStatus.text = status
                 }
             }
 
-        // tampil email
-        binding.tvMember.text = prefs.getString("userEmail", "email@user.com")
+        // 3. NAVIGASI MENU
+        setupNavigation()
+    }
 
-        // click navigations
+    private fun setupNavigation() {
+        // Grid Menu (Aktivitas)
         binding.cardPesanan.setOnClickListener {
             findNavController().navigate(R.id.action_nav_profile_to_historyOrdersFragment)
         }
@@ -78,6 +110,7 @@ class ProfileFragment : Fragment() {
             findNavController().navigate(R.id.action_nav_profile_to_voucherSayaFragment)
         }
 
+        // List Menu (Pengaturan)
         binding.menuBantuan.setOnClickListener {
             findNavController().navigate(R.id.action_nav_profile_to_bantuanFragment)
         }
@@ -90,6 +123,7 @@ class ProfileFragment : Fragment() {
             findNavController().navigate(R.id.action_nav_profile_to_pengaturanAkunFragment)
         }
 
+        // Tombol Logout
         binding.btnLogout.setOnClickListener {
             showLogoutConfirmation()
         }
@@ -116,6 +150,8 @@ class ProfileFragment : Fragment() {
     private fun logout() {
         val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
         prefs.edit().clear().apply()
+
+        FirebaseAuth.getInstance().signOut()
 
         val intent = Intent(activity, LoginActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
