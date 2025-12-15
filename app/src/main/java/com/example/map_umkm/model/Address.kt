@@ -4,7 +4,6 @@ import android.os.Parcelable
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.Exclude
 import kotlinx.parcelize.IgnoredOnParcel
-// [FIXED] 'import kotlinx.parcelize.Parcelize' dipindahkan ke baris baru
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -18,14 +17,14 @@ data class Address(
     val notes: String? = null,
     var isPrimary: Boolean = false,
 
-    // Field untuk menyimpan koordinat
+    // Menggunakan Double nullable agar kompatibel dengan Firestore
     val latitude: Double? = null,
     val longitude: Double? = null
 ) : Parcelable {
 
-    // Helper untuk mengubah lat/lng menjadi objek LatLng dengan mudah
+    // Helper Property untuk LatLng
     @IgnoredOnParcel
-    @get:Exclude // Agar tidak disimpan lagi oleh Firestore
+    @get:Exclude
     val latLng: LatLng?
         get() = if (latitude != null && longitude != null) {
             LatLng(latitude, longitude)

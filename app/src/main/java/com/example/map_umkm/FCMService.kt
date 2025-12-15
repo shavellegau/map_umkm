@@ -12,13 +12,10 @@ import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 
-class
-FCMService(private val context: Context) {
+class FCMService(private val context: Context) {
 
-    private val PROJECT_ID = "map-umkm"
+    private val PROJECT_ID = "map-umkm" // Pastikan ID ini sesuai project Firebase Anda
 
-
-    // 🔥 PERBAIKAN: Tambah parameter targetEmail 🔥
     fun sendNotification(target: String, title: String, body: String, orderId: String? = null, targetEmail: String? = null) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -53,7 +50,7 @@ FCMService(private val context: Context) {
         title: String,
         bodyText: String,
         orderId: String?,
-        targetEmail: String? // 🔥 Terima di sini juga
+        targetEmail: String?
     ) {
         withContext(Dispatchers.IO) {
             try {
@@ -64,43 +61,44 @@ FCMService(private val context: Context) {
                 conn.setRequestProperty("Content-Type", "application/json; UTF-8")
                 conn.doOutput = true
 
-                val messageJson = JSONObject()
                 val messageContent = JSONObject()
+                val notification = JSONObject()
+                val data = JSONObject()
+                val finalJson = JSONObject()
+
+                // Logic Penentuan Target (Explicit Variables)
+                val targetKey: String
+                val targetValue: String
 
                 if (target == "promo") {
-                    messageContent.put("topic", "promo")
+                    targetKey = "topic"
+                    targetValue = "promo"
                 } else {
-                    messageContent.put("token", target)
+                    targetKey = "token"
+                    targetValue = target
                 }
+                messageContent.put(targetKey, targetValue)
 
-                val notification = JSONObject()
+                // Logic Penentuan Tipe
+                val typeString: String = if (target == "promo") "PROMO" else "INFO"
+
                 notification.put("title", title)
                 notification.put("body", bodyText)
 
-                val data = JSONObject()
                 data.put("title", title)
                 data.put("body", bodyText)
-
-                // Logika Tipe Notifikasi
-                if (target == "promo") {
-                    data.put("type", "PROMO")
-                } else {
-                    data.put("type", "INFO")
-                }
-
+                data.put("type", typeString)
                 data.put("orderId", orderId ?: "")
                 data.put("timestamp", System.currentTimeMillis().toString())
-
-                // 🔥 Masukkan targetEmail ke Payload 🔥
                 data.put("targetEmail", targetEmail ?: "")
 
                 messageContent.put("notification", notification)
                 messageContent.put("data", data)
 
-                messageJson.put("message", messageContent)
+                finalJson.put("message", messageContent)
 
                 val os = OutputStreamWriter(conn.outputStream)
-                os.write(messageJson.toString())
+                os.write(finalJson.toString())
                 os.flush()
                 os.close()
 
@@ -111,12 +109,16 @@ FCMService(private val context: Context) {
                     val errorStream = conn.errorStream
                     if (errorStream != null) {
                         val errorResponse = errorStream.bufferedReader().use { it.readText() }
-                        Log.e("FCM_SERVICE", "GAGAL KIRIM! Detail: $errorResponse")
+                        Log.e("FCM_SERVICE", "GAGAL: $errorResponse")
                     }
                 }
 
+                // Return Unit explicit
+                Unit
+
             } catch (e: Exception) {
-                Log.e("FCM_SERVICE", "Exception saat kirim: ${e.message}")
+                Log.e("FCM_SERVICE", "Exception saat mengirim request V1: ${e.message}")
+                Unit
             }
         }
     }

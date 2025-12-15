@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.R
 import com.example.map_umkm.model.Cabang
@@ -81,8 +80,9 @@ class CabangAdapter(
         // 🔥 LOGIKA LISTENER 🔥
         if (ketikaEditDiklik != null && ketikaHapusDiklik != null) {
             // KASUS 1: ADMIN (menggunakan Primary Constructor)
-            holder.btnEdit?.setOnClickListener { ketikaEditDiklik(cabang) }
-            holder.btnHapus?.setOnClickListener { ketikaHapusDiklik(cabang) }
+            // PERBAIKAN: Menggunakan safe call '?.invoke()'
+            holder.btnEdit?.setOnClickListener { ketikaEditDiklik?.invoke(cabang) }
+            holder.btnHapus?.setOnClickListener { ketikaHapusDiklik?.invoke(cabang) }
             // Item view tidak merespons klik
             holder.itemView.setOnClickListener(null)
 
