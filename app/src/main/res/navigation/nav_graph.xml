@@ -44,6 +44,9 @@
         <action
             android:id="@+id/action_nav_cart_to_paymentFragment"
             app:destination="@id/paymentFragment" />
+        <action
+            android:id="@+id/action_nav_cart_to_cabangFragment"
+            app:destination="@id/pilihCabangActivity" />
     </fragment>
 
     <fragment
@@ -114,6 +117,10 @@
         <action
             android:id="@+id/action_paymentFragment_to_alamatFragment"
             app:destination="@id/alamatFragment" />
+
+        <action
+            android:id="@+id/action_paymentFragment_to_voucherSayaFragment"
+            app:destination="@id/voucherSayaFragment" />
     </fragment>
 
     <fragment
@@ -236,7 +243,6 @@
         android:label="Edit Profile"
         tools:layout="@layout/fragment_edit_profile" />
 
-
     <fragment
         android:id="@+id/adminDashboardFragment"
         android:name="com.example.map_umkm.admin.AdminDashboardFragment"
@@ -279,5 +285,11 @@
         android:name="com.example.map_umkm.AdminVoucherFragment"
         android:label="Kelola Voucher"
         tools:layout="@layout/fragment_admin_voucher" />
+
+    <activity
+        android:id="@+id/pilihCabangActivity"
+        android:name="com.example.map_umkm.PilihCabangActivity"
+        android:label="Pilih Cabang"
+        tools:layout="@layout/activity_pilih_cabang" />
 
 </navigation>

@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/tuku_bg"
     tools:context=".PaymentFragment">
+
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -149,6 +151,52 @@
                 tools:text="-Rp5.000" />
         </RelativeLayout>
 
+        <!-- 🔥🔥🔥 LOKASI YANG BENAR ADA DI SINI 🔥🔥🔥 -->
+        <RelativeLayout
+            android:id="@+id/layout_use_points"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageView
+                android:id="@+id/iv_point_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_point" /> <!-- Pastikan ikon ini ada -->
+
+            <TextView
+                android:id="@+id/tv_use_points_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/iv_point_icon"
+                android:text="Gunakan Poin Tuku"
+                android:textColor="#FF9800"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_points_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tv_use_points_label"
+                android:layout_toEndOf="@id/iv_point_icon"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                tools:text="15.000 Poin"/>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_use_points"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true" />
+        </RelativeLayout>
+        <!-- 🔥🔥🔥 AKHIR DARI BLOK POIN 🔥🔥🔥 -->
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -185,7 +233,6 @@
         app:layout_constraintBottom_toTopOf="@+id/layout_total_detail"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
@@ -311,48 +358,62 @@
                 tools:itemCount="3"
                 tools:listitem="@layout/item_cart_product" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Voucher &amp; Promo"
+                android:textColor="@color/tuku_dark"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
             <LinearLayout
+                android:id="@+id/layout_voucher_select"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="24dp"
+                android:orientation="horizontal"
                 android:background="@drawable/bg_rounded_border"
-                android:padding="12dp">
+                android:padding="16dp"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_voucher"
+                    android:layout_marginEnd="12dp"
+                    app:tint="@color/tuku_primary" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tv_selected_voucher_name"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Punya Kode Voucher?"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
+                    android:layout_weight="1"
+                    android:text="Pilih Voucher / Diskon"
+                    android:textColor="@color/tuku_dark"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                <ImageView
+                    android:id="@+id/btn_remove_voucher"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_close"
+                    android:visibility="gone"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:tint="@color/text_secondary"/>
 
-                    <EditText
-                        android:id="@+id/et_voucher_code"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="Masukkan Kode"
-                        android:textAllCaps="true"
-                        android:textSize="14sp"
-                        android:padding="10dp"
-                        android:background="@android:color/white" />
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_arrow_forward"
+                    app:tint="@color/text_secondary"/>
 
-                    <Button
-                        android:id="@+id/btn_apply_voucher"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="PAKAI"
-                        android:backgroundTint="@color/tuku_dark"
-                        android:textColor="@android:color/white"
-                        android:layout_marginStart="8dp" />
-                </LinearLayout>
             </LinearLayout>
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

@@ -187,18 +187,19 @@
                 android:background="@drawable/bg_mode_selection"
                 android:padding="4dp">
 
-                <!-- INDICATOR PUTIH YANG BERGERAK -->
                 <View
                     android:id="@+id/view_toggle_selector"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_gravity="start"
-                    android:background="@drawable/bg_toggle_selector" />
+                    android:elevation="0dp"
+                    android:background="@drawable/bg_toggle_selector"
+                    android:backgroundTint="@color/tuku_primary" />
 
-                <!-- TOMBOL -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:elevation="10dp"
                     android:orientation="horizontal">
 
                     <Button
@@ -209,12 +210,14 @@
                         android:text="Take Away"
                         android:textStyle="bold"
                         android:textSize="13sp"
+                        android:textColor="@android:color/white"
                         android:background="@android:color/transparent"
-                        android:textColor="@color/black"
+                        app:backgroundTint="@null"
+                        android:stateListAnimator="@null"
                         app:icon="@drawable/ic_walk"
                         app:iconSize="16dp"
                         app:iconPadding="6dp"
-                        app:iconTint="@color/black"
+                        app:iconTint="@android:color/white"
                         style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
 
                     <Button
@@ -225,19 +228,19 @@
                         android:text="Delivery"
                         android:textStyle="bold"
                         android:textSize="13sp"
+                        android:textColor="@color/tuku_dark"
                         android:background="@android:color/transparent"
-                        android:textColor="@color/black"
+                        app:backgroundTint="@null"
+                        android:stateListAnimator="@null"
                         app:icon="@drawable/ic_takeaway"
                         app:iconSize="16dp"
                         app:iconPadding="6dp"
-                        app:iconTint="@color/black"
+                        app:iconTint="@color/tuku_dark"
                         style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
 
                 </LinearLayout>
 
             </FrameLayout>
-
-
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

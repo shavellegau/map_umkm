@@ -1,7 +1,6 @@
 package com.example.map_umkm
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -47,7 +46,7 @@ class CartFragment : Fragment() {
 
     // Branch Selection
     private lateinit var tvSelectedBranch: TextView
-    private lateinit var btnChangeBranch: TextView
+    private lateinit var btnChangeBranch: TextView // Tombol Ubah Cabang
 
     // Data
     private val cartViewModel: CartViewModel by activityViewModels()
@@ -68,8 +67,10 @@ class CartFragment : Fragment() {
 
         jsonHelper = JsonHelper(requireContext())
         initializeViews(view)
+
         setupSearchListener()
         setupBottomBarListener()
+        setupBranchListener() // 🔥 INI PENTING: Agar tombol cabang bisa diklik 🔥
         setupProductAdapter()
 
         setupModeAnimation()
@@ -93,7 +94,6 @@ class CartFragment : Fragment() {
     }
 
     private fun initializeViews(view: View) {
-
         rvCategory = view.findViewById(R.id.rv_category)
         rvProducts = view.findViewById(R.id.rv_products)
         tvTotal = view.findViewById(R.id.tv_total)
@@ -113,11 +113,21 @@ class CartFragment : Fragment() {
         btnChangeBranch = view.findViewById(R.id.btn_change_branch)
     }
 
-    // -------------------------------
-    //     MODE ANIMATION SYSTEM
-    // -------------------------------
-    private fun setupModeAnimation() {
+    // 🔥 LOGIC KLIK TOMBOL CABANG 🔥
+    private fun setupBranchListener() {
+        btnChangeBranch.setOnClickListener {
+            // Coba navigasi ke halaman Pilih Cabang
+            try {
+                // Pastikan ID 'action_nav_cart_to_cabangFragment' ada di nav_graph.xml
+                findNavController().navigate(R.id.action_nav_cart_to_cabangFragment)
+            } catch (e: Exception) {
+                // Jika ID salah/belum dibuat, tampilkan pesan error biar tau
+                Toast.makeText(requireContext(), "Error Navigasi: Cek nav_graph.xml", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
+    private fun setupModeAnimation() {
         btnTakeAway.setOnClickListener {
             if (currentMode != "Take Away") {
                 currentMode = "Take Away"
@@ -134,13 +144,9 @@ class CartFragment : Fragment() {
     }
 
     private fun animateMode(mode: String, immediate: Boolean = false) {
-
-        // Lebar selector = setengah container
         toggleContainer.post {
-
             val totalWidth = toggleContainer.width
             val selectorWidth = totalWidth / 2
-
             toggleSelector.layoutParams.width = selectorWidth
             toggleSelector.requestLayout()
 
@@ -154,7 +160,6 @@ class CartFragment : Fragment() {
                     .setDuration(250)
                     .start()
             }
-
             updateToggleTextStyle(mode)
         }
     }
@@ -172,19 +177,12 @@ class CartFragment : Fragment() {
         }
     }
 
-    // -------------------------------
-    //          BRANCH SYSTEM
-    // -------------------------------
     private fun loadSelectedBranch() {
         val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
         val name = prefs.getString("selectedBranchName", "Cabang Belum Dipilih")
         tvSelectedBranch.text = name
     }
 
-
-    // -------------------------------
-    //     PRODUCT + CATEGORY
-    // -------------------------------
     private fun setupProductAdapter() {
         productAdapter = ProductAdapter(
             products = mutableListOf(),
@@ -197,12 +195,11 @@ class CartFragment : Fragment() {
             onFavoriteToggle = { product, isFav ->
                 if (isFav) {
                     favoriteViewModel.addFavorite(product)
-                    Toast.makeText(requireContext(), "${product.name} ditambahkan ke favorit", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "${product.name} masuk Favorit", Toast.LENGTH_SHORT).show()
                 } else {
                     favoriteViewModel.removeFavorite(product)
-                    Toast.makeText(requireContext(), "${product.name} dihapus dari favorit", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "${product.name} dihapus dari Favorit", Toast.LENGTH_SHORT).show()
                 }
-                product.isFavorite = isFav
             },
             onAddToCartClick = { product ->
                 val action = CartFragmentDirections.actionNavCartToProductDetailFragment(product)
@@ -211,23 +208,19 @@ class CartFragment : Fragment() {
                 findNavController().navigate(R.id.productDetailFragment, bundle)
             }
         )
-
         rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
         rvProducts.adapter = productAdapter
     }
-
 
     private fun observeFavorites() {
         favoriteViewModel.favoriteProducts.observe(viewLifecycleOwner) { fav ->
             val ids = fav.map { it.id }.toSet()
             productAdapter.updateFavorites(ids)
-            allProducts = allProducts.map {
-                it.copy(isFavorite = ids.contains(it.id))
-            }
         }
     }
 
     private fun loadMenu() {
+        // Ambil data (pastikan JSON/API mengembalikan URL gambar yang valid)
         val menu = jsonHelper.getMenuData() ?: return
 
         allProducts = menu.menu.map { m ->
@@ -236,28 +229,21 @@ class CartFragment : Fragment() {
                 name = m.name,
                 category = m.category ?: "Lainnya",
                 description = m.description ?: "",
-                image = m.image,
+                image = m.image, // Ini harus URL Supabase (https://...)
                 price_hot = m.price_hot,
                 price_iced = m.price_iced,
                 isFavorite = favoriteViewModel.isFavorite(m.id.toString())
             )
         }
-
         productAdapter.updateProducts(allProducts)
 
-        val categories = allProducts
-            .map { it.category }
-            .distinct()
-            .map { Category(it) }
-
-        rvCategory.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        rvCategory.adapter =
-            CategoryAdapter(categories) { selected ->
-                selectedCategory = selected.name
-                filterProducts(selectedCategory, etSearch.text.toString())
-            }
-
+        // Setup Kategori
+        val categories = allProducts.map { it.category }.distinct().map { Category(it) }
+        rvCategory.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        rvCategory.adapter = CategoryAdapter(categories) { selected ->
+            selectedCategory = selected.name
+            filterProducts(selectedCategory, etSearch.text.toString())
+        }
         if (categories.isNotEmpty()) {
             selectedCategory = categories[0].name
             filterProducts(selectedCategory, "")
@@ -276,40 +262,22 @@ class CartFragment : Fragment() {
 
     private fun filterProducts(categoryName: String?, query: String?) {
         val q = query.orEmpty().trim()
-
-        val byCategory = if (categoryName.isNullOrEmpty()) {
-            allProducts
-        } else {
-            allProducts.filter { it.category.equals(categoryName, ignoreCase = true) }
-        }
-
-        val finalList =
-            if (q.isEmpty()) byCategory else byCategory.filter {
-                it.name.contains(q, ignoreCase = true)
-            }
-
+        val byCategory = if (categoryName.isNullOrEmpty()) allProducts else allProducts.filter { it.category.equals(categoryName, ignoreCase = true) }
+        val finalList = if (q.isEmpty()) byCategory else byCategory.filter { it.name.contains(q, ignoreCase = true) }
         productAdapter.updateProducts(finalList)
     }
 
-
-    // -------------------------------
-    //     BOTTOM ORDER SYSTEM
-    // -------------------------------
     private fun setupBottomBarListener() {
-
         btnViewOrder.setOnClickListener {
-
             val cart = cartViewModel.cartList.value
             if (cart.isNullOrEmpty()) {
                 Toast.makeText(context, "Keranjang masih kosong!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
             if (tvSelectedBranch.text == "Cabang Belum Dipilih") {
                 Toast.makeText(context, "Mohon pilih cabang terlebih dahulu!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
             saveOrderPreference()
             findNavController().navigate(R.id.action_nav_cart_to_paymentFragment)
         }
@@ -323,13 +291,8 @@ class CartFragment : Fragment() {
             .apply()
     }
 
-
-    // -------------------------------
-    //           TOTAL SYSTEM
-    // -------------------------------
     private fun updateTotal() {
         val cart = cartViewModel.cartList.value ?: emptyList()
-
         if (cart.isNotEmpty()) {
             bottomBar.visibility = View.VISIBLE
             val qty = cart.sumOf { it.quantity }
@@ -337,16 +300,12 @@ class CartFragment : Fragment() {
         } else {
             bottomBar.visibility = View.GONE
         }
-
         val subtotal = cart.sumOf {
-            val price =
-                (if (it.selectedType == "iced") it.price_iced else it.price_hot) ?: 0
+            val price = (if (it.selectedType == "iced") it.price_iced else it.price_hot) ?: 0
             price.toDouble() * it.quantity
         }
-
         val tax = subtotal * 0.11
         val total = subtotal + tax
-
         val format = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
         tvSubtotal.text = format.format(subtotal)
         tvTax.text = format.format(tax)
