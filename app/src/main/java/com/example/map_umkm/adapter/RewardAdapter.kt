@@ -1,3 +1,4 @@
+// File: com/example/map_umkm/adapter/RewardAdapter.kt
 package com.example.map_umkm.adapter
 
 import android.view.LayoutInflater
@@ -9,7 +10,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.R
 import com.example.map_umkm.model.Reward
 
-class RewardAdapter(private val rewards: List<Reward>) :
+class RewardAdapter(
+    private val rewards: List<Reward>,
+    // Tambahkan listener untuk menangani klik penukaran
+    private val onRedeemClick: (Reward) -> Unit
+) :
     RecyclerView.Adapter<RewardAdapter.RewardViewHolder>() {
 
     class RewardViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -26,9 +31,17 @@ class RewardAdapter(private val rewards: List<Reward>) :
 
     override fun onBindViewHolder(holder: RewardViewHolder, position: Int) {
         val reward = rewards[position]
+
+        // --- FITUR YANG SUDAH ADA ---
         holder.imageView.setImageResource(reward.imageResId)
         holder.title.text = reward.title
         holder.point.text = "${reward.point} Poin"
+        // ---------------------------
+
+        // 🔥 INTEGRASI LOGIKA KLIK PENUKARAN 🔥
+        holder.itemView.setOnClickListener {
+            onRedeemClick(reward)
+        }
     }
 
     override fun getItemCount(): Int = rewards.size

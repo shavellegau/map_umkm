@@ -1,3 +1,4 @@
+// File: com/example/map_umkm/RiwayatPoinFragment.kt
 package com.example.map_umkm
 
 import android.os.Bundle
@@ -11,91 +12,73 @@ import com.example.map_umkm.adapter.PoinHistoryAdapter
 import com.example.map_umkm.model.PoinHistory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import java.text.SimpleDateFormat
+import java.util.*
 
 class RiwayatPoinFragment : Fragment() {
+
+    private val auth = FirebaseAuth.getInstance()
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // PERHATIAN: Pastikan R.layout.fragment_riwayat_poin memiliki RecyclerView dengan ID 'recyclerViewPoin'
         val view = inflater.inflate(R.layout.fragment_riwayat_poin, container, false)
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerViewPoin)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        val poinList = listOf(
-            PoinHistory("Tambah Poin", "+500", "01 Oktober 2025"),
-            PoinHistory("Tukar Voucher", "-2000", "05 Oktober 2025"),
-            PoinHistory("Bonus Member Gold", "+1000", "10 Oktober 2025")
-        )
+        // Memuat riwayat dari Firestore
+        loadHistory(recyclerView)
 
-        recyclerView.adapter = PoinHistoryAdapter(poinList)
         return view
     }
-}
 
-object FirestoreHelper {
-    private val db = FirebaseFirestore.getInstance()
+    private fun loadHistory(recyclerView: RecyclerView) {
+        val userId = auth.currentUser?.uid
+        if (userId == null) return
 
-    // Menyimpan produk favorit ke Firestore
-    fun addToWishlist(productId: String, productName: String, productPrice: Double, imageUrl: String, onComplete: (Boolean) -> Unit) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            onComplete(false)
-            return
-        }
-
-        val wishlistData = hashMapOf(
-            "productId" to productId,
-            "productName" to productName,
-            "productPrice" to productPrice,
-            "imageUrl" to imageUrl
-        )
-
-        db.collection("users")
-            .document(userId)
-            .collection("wishlist")
-            .document(productId)
-            .set(wishlistData)
-            .addOnSuccessListener { onComplete(true) }
-            .addOnFailureListener { onComplete(false) }
-    }
-
-    // Menghapus produk dari wishlist
-    fun removeFromWishlist(productId: String, onComplete: (Boolean) -> Unit) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            onComplete(false)
-            return
-        }
-
-        db.collection("users")
-            .document(userId)
-            .collection("wishlist")
-            .document(productId)
-            .delete()
-            .addOnSuccessListener { onComplete(true) }
-            .addOnFailureListener { onComplete(false) }
-    }
-
-    // Mengambil semua wishlist user
-    fun getWishlist(onResult: (List<Map<String, Any>>) -> Unit) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            onResult(emptyList())
-            return
-        }
-
-        db.collection("users")
-            .document(userId)
-            .collection("wishlist")
+        // Mengambil data dari koleksi 'point_transactions'
+        db.collection("point_transactions")
+            .whereEqualTo("userId", userId) // Filter hanya transaksi user yang login
+            .orderBy("timestamp", Query.Direction.DESCENDING) // Urutkan dari yang terbaru
             .get()
             .addOnSuccessListener { result ->
-                val items = result.documents.mapNotNull { it.data }
-                onResult(items)
+                val historyList = mutableListOf<PoinHistory>()
+                // Format tanggal Indonesia
+                val dateFormat = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("in", "ID"))
+
+                for (document in result.documents) {
+                    val amount = document.getLong("amount") ?: 0L
+                    val description = document.getString("description") ?: "Transaksi Poin"
+                    val timestamp = document.getTimestamp("timestamp")
+
+                    val dateString = if (timestamp != null) {
+                        dateFormat.format(timestamp.toDate())
+                    } else {
+                        "Tanggal Tidak Diketahui"
+                    }
+
+                    // Tentukan tanda +/- untuk ditampilkan di UI
+                    val amountString = if (amount > 0) "+${amount}" else "${amount}"
+
+                    historyList.add(
+                        PoinHistory(
+                            title = description,
+                            amount = amountString,
+                            date = dateString
+                        )
+                    )
+                }
+
+                // Set Adapter dengan data yang sudah diproses
+                recyclerView.adapter = PoinHistoryAdapter(historyList)
             }
             .addOnFailureListener {
-                onResult(emptyList())
+                // Di sini Anda bisa menampilkan Toast atau View kosong jika gagal memuat data
             }
     }
 }

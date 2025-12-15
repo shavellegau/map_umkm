@@ -1,86 +1,127 @@
+// File: TukuPointFragment.kt (Perbaikan Final & Definitif)
 package com.example.map_umkm
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+// import androidx.compose.ui.semantics.text // <-- DIHAPUS, ini penyebab error pertama
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.map_umkm.adapter.HistoryAdapter
-import com.example.map_umkm.adapter.RewardAdapter
 import com.example.map_umkm.databinding.FragmentTukuPointBinding
 import com.example.map_umkm.model.History
-import com.example.map_umkm.model.Reward
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 
 class TukuPointFragment : Fragment() {
+
 
     private var _binding: FragmentTukuPointBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var rewardAdapter: RewardAdapter
-    private lateinit var historyAdapter: HistoryAdapter
+    private lateinit var db: FirebaseFirestore
+    private lateinit var auth: FirebaseAuth
+
+    private var userPointsListener: ListenerRegistration? = null
+    private var historyListener: ListenerRegistration? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTukuPointBinding.inflate(inflater, container, false)
+        db = FirebaseFirestore.getInstance()
+        auth = FirebaseAuth.getInstance()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        setupRewardRecycler()
-        setupHistoryRecycler()
-
-        // 🔙 Tombol Back
-        binding.btnBack.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
-        }
-
-        // ➕ Tombol Lihat Semua
-        binding.btnLihatSemua.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace((view.parent as ViewGroup).id, PointDetailFragment())
-                .addToBackStack(null)
-                .commit()
-        }
+        super.onViewCreated(view, savedInstanceState)
+        setupRecyclerView()
     }
 
-    private fun setupRewardRecycler() {
-        val rewards = listOf(
-            Reward("Gratis Kopi Susu", 5000, R.drawable.mini_kst),
-            Reward("Diskon 20%", 8000, R.drawable.mini_kst),
-            Reward("Voucher Makan", 6000, R.drawable.mini_kst),
-            Reward("Gratis Donat", 7000, R.drawable.mini_kst),
-            Reward("Voucher 10rb", 10000, R.drawable.mini_kst),
-            Reward("Diskon Kopi 50%", 12000, R.drawable.mini_kst),
-            Reward("Gratis Roti", 4000, R.drawable.mini_kst),
-            Reward("Minuman Spesial", 9000, R.drawable.mini_kst),
-            Reward("Hadiah Misterius", 15000, R.drawable.mini_kst),
-            Reward("Voucher Belanja", 20000, R.drawable.mini_kst)
-        )
-
-        rewardAdapter = RewardAdapter(rewards)
-        binding.rvRewards.apply {
-            layoutManager = GridLayoutManager(context, 2)
-            adapter = rewardAdapter
-        }
+    override fun onResume() {
+        super.onResume()
+        loadUserPoints()
+        loadPointHistory()
     }
 
-    private fun setupHistoryRecycler() {
-        val histories = listOf(
-            History("Tukar Kopi Susu", 5000, R.drawable.mini_kst),
-            History("Dapat Voucher Diskon", 8000, R.drawable.mini_kst)
-        )
-
-        historyAdapter = HistoryAdapter(histories)
-        binding.rvHistory.apply {
-            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
-            adapter = historyAdapter
-        }
+    override fun onPause() {
+        super.onPause()
+        userPointsListener?.remove()
+        historyListener?.remove()
     }
 
+    private fun loadUserPoints() {
+        val userId = auth.currentUser?.uid ?: return
+
+        userPointsListener?.remove()
+
+        userPointsListener = db.collection("users").document(userId)
+            .addSnapshotListener { snapshot, e ->
+                if (_binding == null) {
+                    Log.w("TukuPointFragment", "Points updated but fragment view is null.")
+                    return@addSnapshotListener
+                }
+
+                if (e != null) {
+                    Log.e("TukuPointFragment", "Error loading points", e)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    val points = snapshot.getLong("tukuPoints") ?: 0
+                    // PERBAIKAN FINAL: Menggunakan ID yang benar "tvTotalPoint" dari file XML
+                    binding.tvTotalPoint.text = points.toString()
+                } else {
+                    // PERBAIKAN FINAL: Menggunakan ID yang benar "tvTotalPoint"
+                    binding.tvTotalPoint.text = "0"
+                }
+            }
+    }
+
+    private fun loadPointHistory() {
+        val userId = auth.currentUser?.uid ?: return
+
+        historyListener?.remove()
+
+        historyListener = db.collection("users").document(userId)
+            .collection("point_history")
+            .orderBy("timestamp", Query.Direction.DESCENDING)
+            .limit(10)
+            .addSnapshotListener { snapshots, e ->
+                if (_binding == null) {
+                    Log.w("TukuPointFragment", "History updated but fragment view is null.")
+                    return@addSnapshotListener
+                }
+
+                if (e != null) {
+                    Log.e("TukuPointFragment", "Error loading history", e)
+                    return@addSnapshotListener
+                }
+
+                val historyList = mutableListOf<History>()
+                snapshots?.forEach { doc ->
+                    val title = doc.getString("title") ?: "Transaksi"
+                    val amount = doc.getLong("amount") ?: 0
+                    val type = doc.getString("type") ?: "redeem"
+
+                    val imageRes = if (type == "earn") R.drawable.ic_earn_point else R.drawable.ic_redeem_point
+                    historyList.add(History(title, amount.toInt(), imageRes))
+                }
+                (binding.rvHistory.adapter as? HistoryAdapter)?.updateData(historyList)
+            }
+    }
+
+    private fun setupRecyclerView() {
+        // Asumsi RecyclerView di layout Anda untuk riwayat poin memiliki ID "rvHistory"
+        binding.rvHistory.layoutManager = LinearLayoutManager(context)
+        binding.rvHistory.adapter = HistoryAdapter(mutableListOf())
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
