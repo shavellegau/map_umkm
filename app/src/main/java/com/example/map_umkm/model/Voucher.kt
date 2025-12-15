@@ -10,5 +10,7 @@ data class Voucher(
     val discountAmount: Double = 0.0,// Ex: 5000.0
     val minPurchase: Double = 0.0,   // Ex: 20000.0
     val expiryDate: String = "",     // Ex: 31-12-2025
+    val description: String = "",    // Ex: Khusus Dine In
+
     val isActive: Boolean = true     // Status aktif/tidak
 ) : Parcelable
