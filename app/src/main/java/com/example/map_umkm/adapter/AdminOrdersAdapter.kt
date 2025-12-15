@@ -12,6 +12,7 @@ import java.text.NumberFormat
 import java.util.Locale
 
 class AdminOrdersAdapter(
+
     private var orderList: List<Order>,
     // Callback fungsi dari Fragment
     private val onItemClick: (Order) -> Unit,

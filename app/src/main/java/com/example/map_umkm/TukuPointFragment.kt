@@ -14,6 +14,7 @@ import com.example.map_umkm.model.Reward
 
 class TukuPointFragment : Fragment() {
 
+
     private var _binding: FragmentTukuPointBinding? = null
     private val binding get() = _binding!!
 

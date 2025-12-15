@@ -6,6 +6,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Order(
+
     @SerializedName("orderId")
     val orderId: String = "",
 

@@ -4,4 +4,5 @@ data class Reward(
     val title: String,
     val point: Int,
     val imageResId: Int
+
 )
