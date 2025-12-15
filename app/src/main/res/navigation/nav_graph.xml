@@ -13,6 +13,11 @@
         <action
             android:id="@+id/action_nav_home_to_nav_orders"
             app:destination="@id/nav_orders" />
+
+        <action
+            android:id="@+id/action_nav_home_to_tetanggaTukuFragment"
+            app:destination="@id/nav_tetangga_tuku" />
+
         <action
             android:id="@+id/action_nav_home_to_bantuanFragment"
             app:destination="@id/bantuanFragment" />
@@ -32,6 +37,12 @@
             android:id="@+id/action_nav_home_to_referralFragment"
             app:destination="@id/referralFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/nav_tetangga_tuku"
+        android:name="com.example.map_umkm.TetanggaTukuFragment"
+        android:label="Tetangga Tuku"
+        tools:layout="@layout/fragment_tetangga_tuku" />
 
     <fragment
         android:id="@+id/nav_cart"
