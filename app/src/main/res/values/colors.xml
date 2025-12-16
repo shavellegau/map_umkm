@@ -39,7 +39,7 @@
     <color name="terracotta_error">#E57373</color>       <!-- Merah bata lembut untuk aksi hapus/error -->
     <color name="tuku_text_secondary">#757575</color>     <!-- Abu-abu untuk teks sekunder/hint -->
     <color name="tuku_stroke_light_gray">#E0E0E0</color>
-
+    <color name="gray">#888888</color>
 
 <!-- File: app/src/main/res/values/colors.xml -->
 

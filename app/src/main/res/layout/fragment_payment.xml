@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,276 +8,65 @@
     android:background="@color/tuku_bg"
     tools:context=".PaymentFragment">
 
-
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/tuku_primary"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar_payment"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:background="@color/tuku_brown"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:title=" ">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Ringkasan Pesanan"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-        </androidx.appcompat.widget.Toolbar>
+            app:title="Ringkasan Pesanan"
+            app:titleTextColor="@android:color/white"
+            app:theme="@style/ThemeOverlay.MaterialComponents.ActionBar" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <Button
-        android:id="@+id/btnPay"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/tuku_primary"
-        android:padding="14dp"
-        android:text="Pilih Metode Pembayaran"
-        android:textAllCaps="false"
-        android:textColor="@android:color/white"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/layout_total_detail"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        android:elevation="8dp"
-        android:orientation="vertical"
-        android:padding="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnPay"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Subtotal"
-                android:textColor="@color/text_bantuan"
-                android:textSize="14sp" />
-            <TextView
-                android:id="@+id/tvSubtotal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:textColor="@color/tuku_dark"
-                android:textSize="14sp"
-                tools:text="Rp55.000" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pajak (11%)"
-                android:textColor="@color/text_bantuan"
-                android:textSize="14sp" />
-            <TextView
-                android:id="@+id/tvTax"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:textColor="@color/tuku_dark"
-                android:textSize="14sp"
-                tools:text="Rp6.050" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/layout_shipping_cost"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:visibility="gone"
-            tools:visibility="visible">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ongkos Kirim"
-                android:textColor="@color/text_bantuan"
-                android:textSize="14sp" />
-            <TextView
-                android:id="@+id/tvShippingCost"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:textColor="@color/tuku_dark"
-                android:textSize="14sp"
-                tools:text="Rp10.000" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/layout_discount_info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone"
-            tools:visibility="visible">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Diskon Voucher"
-                android:textStyle="bold"
-                android:textColor="#4CAF50"
-                android:textSize="14sp" />
-            <TextView
-                android:id="@+id/tvDiscountInfo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:textColor="#4CAF50"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                tools:text="-Rp5.000" />
-        </RelativeLayout>
-
-        <!-- 🔥🔥🔥 LOKASI YANG BENAR ADA DI SINI 🔥🔥🔥 -->
-        <RelativeLayout
-            android:id="@+id/layout_use_points"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone"
-            tools:visibility="visible">
-
-            <ImageView
-                android:id="@+id/iv_point_icon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="8dp"
-                android:src="@drawable/ic_point" /> <!-- Pastikan ikon ini ada -->
-
-            <TextView
-                android:id="@+id/tv_use_points_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/iv_point_icon"
-                android:text="Gunakan Poin Tuku"
-                android:textColor="#FF9800"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_points_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/tv_use_points_label"
-                android:layout_toEndOf="@id/iv_point_icon"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                tools:text="15.000 Poin"/>
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/switch_use_points"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true" />
-        </RelativeLayout>
-        <!-- 🔥🔥🔥 AKHIR DARI BLOK POIN 🔥🔥🔥 -->
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#EEEEEE"
-            android:layout_marginBottom="8dp"/>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Total Pembayaran"
-                android:textColor="@color/tuku_dark"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-            <TextView
-                android:id="@+id/tvTotalPayment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:textColor="@color/tuku_dark"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                tools:text="Rp61.050" />
-        </RelativeLayout>
-    </LinearLayout>
-
-    <View
-        android:id="@+id/divider"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="#E0E0E0"
-        app:layout_constraintBottom_toTopOf="@+id/layout_total_detail"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/nestedScrollView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/divider"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:paddingBottom="100dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
                 android:text="Pilihan Pengambilan"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 android:textColor="@color/tuku_dark"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:layout_marginBottom="8dp"/>
 
             <RadioGroup
                 android:id="@+id/rg_order_type"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
+                android:weightSum="2">
 
                 <RadioButton
                     android:id="@+id/rb_take_away"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Ambil di Tempat" />
+                    android:text="Ambil di Tempat"
+                    android:checked="true"/>
 
                 <RadioButton
                     android:id="@+id/rb_delivery"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Pesan Antar" />
+                    android:text="Pesan Antar"/>
             </RadioGroup>
 
             <LinearLayout
@@ -285,116 +74,134 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_rounded_border"
-                android:padding="12dp"
-                android:layout_marginBottom="16dp"
                 android:visibility="gone"
-                tools:visibility="visible">
-
-                <LinearLayout
-                    android:id="@+id/layout_address_selected"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone"
-                    tools:visibility="visible">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Alamat Pengiriman"
-                        android:textStyle="bold" />
-                    <TextView
-                        android:id="@+id/tv_delivery_address"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        tools:text="Jalan Kebahagiaan No. 123" />
-                    <Button
-                        android:id="@+id/btn_change_address"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:text="Ubah Alamat"
-                        android:textAllCaps="false" />
-                </LinearLayout>
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_rounded_white"
+                android:elevation="2dp"
+                android:padding="12dp">
 
                 <LinearLayout
                     android:id="@+id/layout_address_empty"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:gravity="center"
-                    android:visibility="gone">
+                    android:gravity="center">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Belum ada alamat."
-                        android:textColor="@color/text_secondary"
-                        android:layout_marginBottom="8dp" />
-                    <Button
+                        android:text="Alamat pengiriman belum dipilih"
+                        android:textColor="#888888"
+                        android:textSize="14sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_add_new_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Pilih Lokasi di Peta"
+                        app:icon="@drawable/ic_location"
+                        app:iconGravity="textStart"
+                        android:textColor="@android:color/white"
+                        app:backgroundTint="@color/tuku_brown"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_address_selected"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tambah Alamat"
-                        android:textAllCaps="false" />
+                        android:text="Dikirim ke:"
+                        android:textSize="12sp"
+                        android:textColor="#888888"/>
+
+                    <TextView
+                        android:id="@+id/tv_delivery_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Jalan Contoh No. 123"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"
+                        android:maxLines="3"
+                        android:ellipsize="end"
+                        android:layout_marginVertical="4dp"/>
+
+                    <Button
+                        android:id="@+id/btn_change_address"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ubah Alamat"
+                        android:textColor="@color/tuku_brown"
+                        app:strokeColor="@color/tuku_brown"/>
                 </LinearLayout>
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                android:layout_marginVertical="16dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
                 android:text="Item Pesanan"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 android:textColor="@color/tuku_dark"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:layout_marginBottom="8dp"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_order_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                tools:itemCount="3"
-                tools:listitem="@layout/item_cart_product" />
+                tools:itemCount="2"
+                tools:listitem="@layout/item_cart_product"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
                 android:text="Voucher &amp; Promo"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 android:textColor="@color/tuku_dark"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"/>
 
             <LinearLayout
                 android:id="@+id/layout_voucher_select"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:background="@drawable/bg_rounded_border"
-                android:padding="16dp"
+                android:background="@drawable/bg_rounded_white"
+                android:padding="12dp"
                 android:gravity="center_vertical"
-                android:layout_marginTop="8dp"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
 
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_voucher"
-                    android:layout_marginEnd="12dp"
-                    app:tint="@color/tuku_primary" />
+                    app:tint="@color/tuku_brown"/>
 
                 <TextView
                     android:id="@+id/tv_selected_voucher_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_marginStart="12dp"
                     android:text="Pilih Voucher / Diskon"
-                    android:textColor="@color/tuku_dark"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/tuku_dark"/>
 
                 <ImageView
                     android:id="@+id/btn_remove_voucher"
@@ -402,19 +209,142 @@
                     android:layout_height="24dp"
                     android:src="@drawable/ic_close"
                     android:visibility="gone"
-                    android:layout_marginEnd="8dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    app:tint="@color/text_secondary"/>
+                    android:padding="4dp"/>
 
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_arrow_forward"
-                    app:tint="@color/text_secondary"/>
-
+                    app:tint="#888888"/>
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Subtotal"/>
+                <TextView
+                    android:id="@+id/tvSubtotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="Rp 0"
+                    android:textColor="@android:color/black"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pajak (11%)"/>
+                <TextView
+                    android:id="@+id/tvTax"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="Rp 0"
+                    android:textColor="@android:color/black"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/layout_shipping_cost"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ongkos Kirim"/>
+                <TextView
+                    android:id="@+id/tvShippingCost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="Rp 0"
+                    android:textColor="@android:color/black"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/layout_discount_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Diskon Voucher"
+                    android:textColor="#4CAF50"/>
+                <TextView
+                    android:id="@+id/tvDiscountInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="-Rp 0"
+                    android:textColor="#4CAF50"/>
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                android:layout_marginVertical="8dp"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total Pembayaran"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/tuku_dark"/>
+                <TextView
+                    android:id="@+id/tvTotalPayment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:text="Rp 0"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@color/tuku_dark"/>
+            </RelativeLayout>
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_bottom_sheet_rounded"
+        android:padding="16dp"
+        android:elevation="8dp">
+
+        <Button
+            android:id="@+id/btnPay"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Pilih Metode Pembayaran"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:cornerRadius="28dp"
+            android:backgroundTint="@color/tuku_brown"/>
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

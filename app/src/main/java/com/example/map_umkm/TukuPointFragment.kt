@@ -12,6 +12,7 @@ import com.example.map_umkm.adapter.HistoryAdapter
 import com.example.map_umkm.databinding.FragmentTukuPointBinding
 import com.example.map_umkm.model.History
 import com.google.firebase.auth.FirebaseAuth
+import com.example.map_umkm.utils.PointService
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query

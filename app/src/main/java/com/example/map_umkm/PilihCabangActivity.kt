@@ -1,150 +1,140 @@
 package com.example.map_umkm
 
+import android.Manifest
 import android.app.Activity
-import android.content.Context // 🔥 WAJIB: Tambahkan import Context
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.appbar.MaterialToolbar
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
-import com.example.map_umkm.adapter.CabangAdapter
+import com.example.map_umkm.adapter.AdminCabangAdapter
 import com.example.map_umkm.model.Cabang
+import com.google.android.gms.location.LocationServices
+import com.google.firebase.firestore.FirebaseFirestore
 
 class PilihCabangActivity : AppCompatActivity() {
 
     private lateinit var rvCabang: RecyclerView
     private lateinit var etSearch: EditText
-    private lateinit var cabangAdapter: CabangAdapter
-
+    private lateinit var adapter: AdminCabangAdapter
     private val db = FirebaseFirestore.getInstance()
-    private var cabangListener: ListenerRegistration? = null
-    private var daftarCabangLengkap = mutableListOf<Cabang>()
-
-    // --- Siklus Hidup Activity ---
+    private var userLat: Double = 0.0
+    private var userLng: Double = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pilih_cabang)
 
-        // Inisialisasi View
-        val toolbar: MaterialToolbar = findViewById(R.id.toolbar)
+        // [FIXED] ID disesuaikan dengan XML kamu (rv_cabang)
         rvCabang = findViewById(R.id.rv_cabang)
-        etSearch = findViewById(R.id.et_search_cabang)
+        etSearch = findViewById(R.id.et_search_cabang) // Inisialisasi search bar juga
 
-        // Setup
-        setupToolbar(toolbar)
-        setupRecyclerView()
-        setupSearchListener()
-
-        // Mulai memuat data
-        loadCabangFromFirebase()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        cabangListener?.remove()
-    }
-
-    // --- Data dan Loading ---
-
-    private fun loadCabangFromFirebase() {
-        cabangListener?.remove()
-
-        cabangListener = db.collection("branches")
-            .orderBy("nama")
-            .addSnapshotListener { snapshots, e ->
-                if (e != null) {
-                    Log.e("CabangActivity", "Listen failed.", e)
-                    Toast.makeText(this, "Gagal memuat data cabang.", Toast.LENGTH_LONG).show()
-                    return@addSnapshotListener
-                }
-
-                if (snapshots != null) {
-                    daftarCabangLengkap.clear()
-
-                    val newCabangList = snapshots.toObjects(Cabang::class.java)
-
-                    for ((index, document) in snapshots.documents.withIndex()) {
-                        newCabangList[index].id = document.id
-                    }
-
-                    daftarCabangLengkap.addAll(newCabangList)
-                    filter(etSearch.text.toString())
-                }
-            }
-    }
-
-    // --- UI Setup ---
-
-    private fun setupToolbar(toolbar: MaterialToolbar) {
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        toolbar.setNavigationOnClickListener {
-            finish()
-        }
-    }
-
-    private fun setupRecyclerView() {
-        cabangAdapter = CabangAdapter(daftarCabangLengkap.toMutableList()) { cabang ->
-            showConfirmationDialog(cabang)
-        }
         rvCabang.layoutManager = LinearLayoutManager(this)
-        rvCabang.adapter = cabangAdapter
+
+        // Setup Adapter Awal (Kosong dulu)
+        adapter = AdminCabangAdapter(emptyList(),
+            onEditClick = { cabang -> pilihCabang(cabang) },
+            onDeleteClick = { cabang -> pilihCabang(cabang) }
+        )
+        rvCabang.adapter = adapter
+
+        // Mulai Cek Lokasi User
+        cekLokasiUser()
     }
 
-    private fun setupSearchListener() {
-        etSearch.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                filter(s.toString())
+    private fun cekLokasiUser() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.getFusedLocationProviderClient(this).lastLocation.addOnSuccessListener { loc ->
+                if (loc != null) {
+                    userLat = loc.latitude
+                    userLng = loc.longitude
+                    loadCabang()
+                } else {
+                    loadCabang()
+                }
             }
-
-            override fun afterTextChanged(s: Editable?) {}
-        })
-    }
-
-    private fun filter(query: String) {
-        val filteredList = if (query.isEmpty()) {
-            daftarCabangLengkap
         } else {
-            daftarCabangLengkap.filter {
-                it.nama.contains(query, ignoreCase = true) || it.alamat.contains(query, ignoreCase = true)
-            }
+            loadCabang()
         }
-        cabangAdapter.updateData(filteredList.toMutableList())
     }
 
-    // --- Dialog dan Hasil ---
+    private fun loadCabang() {
+        db.collection("branches").get().addOnSuccessListener { result ->
+            val list = mutableListOf<Cabang>()
+            for (doc in result) {
+                val lat = doc.getDouble("latitude") ?: 0.0
+                val lng = doc.getDouble("longitude") ?: 0.0
+
+                // Hitung jarak user ke cabang ini
+                var jarakMeter = 0f
+                if (userLat != 0.0) {
+                    val res = FloatArray(1)
+                    Location.distanceBetween(userLat, userLng, lat, lng, res)
+                    jarakMeter = res[0]
+                }
+
+                // [FIXED] Cara inisialisasi Cabang karena jarakHitung ada di luar constructor
+                val itemCabang = Cabang(
+                    id = doc.id,
+                    nama = doc.getString("nama") ?: "",
+                    alamat = doc.getString("alamat") ?: "",
+                    jamBuka = doc.getString("jamBuka") ?: "",
+                    jamTutup = doc.getString("jamTutup") ?: "",
+                    fasilitas = doc.getString("fasilitas") ?: "",
+                    latitude = lat,
+                    longitude = lng
+                )
+
+                // Set variabel @Exclude secara manual
+                itemCabang.jarakHitung = jarakMeter
+
+                list.add(itemCabang)
+            }
+
+            // Urutkan dari yang terdekat
+            list.sortBy { it.jarakHitung }
+
+            // Update adapter
+            adapter = AdminCabangAdapter(list,
+                onEditClick = { cabang -> showConfirmationDialog(cabang) },
+                onDeleteClick = { }
+            )
+            rvCabang.adapter = adapter
+        }
+    }
+
+    private fun pilihCabang(cabang: Cabang) {
+        showConfirmationDialog(cabang)
+    }
 
     private fun showConfirmationDialog(cabang: Cabang) {
+        val jarakInfo = if (userLat != 0.0) "(${String.format("%.1f km", (cabang.jarakHitung ?: 0f)/1000)})" else ""
+
         AlertDialog.Builder(this)
             .setTitle("Pilih Cabang")
-            .setMessage("Apakah Anda yakin ingin memilih cabang ${cabang.nama}?")
-            .setPositiveButton("Pilih") { dialog, _ ->
-
-                // 🔥 PERUBAHAN UTAMA: Menyimpan data ke SharedPreferences 🔥
+            .setMessage("Pilih ${cabang.nama} $jarakInfo sebagai lokasi pemesanan?")
+            .setPositiveButton("Ya") { _, _ ->
                 val prefs = getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
                 prefs.edit().apply {
                     putString("selectedBranchId", cabang.id)
                     putString("selectedBranchName", cabang.nama)
-                    apply() // Terapkan perubahan
+
+                    // Simpan Lat/Lng sebagai String agar aman
+                    putString("selectedBranchLat", cabang.latitude.toString())
+                    putString("selectedBranchLng", cabang.longitude.toString())
+                    apply()
                 }
 
-                // Mengirim hasil kembali ke HomeFragment
                 val resultIntent = Intent()
                 resultIntent.putExtra("CABANG_ID", cabang.id)
-                resultIntent.putExtra("CABANG_NAMA", cabang.nama) // Kirim nama yang disimpan
+                resultIntent.putExtra("CABANG_NAMA", cabang.nama)
                 setResult(Activity.RESULT_OK, resultIntent)
                 finish()
             }
