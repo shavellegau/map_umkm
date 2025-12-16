@@ -1,12 +1,11 @@
 package com.example.map_umkm.model
 
+import com.google.firebase.Timestamp
+
 data class History(
     val title: String = "",
-    val point: Int = 0,       // Nama field asli di database/kode lama
-    val imageResId: Int = 0,  // Nama field asli
-    val date: String = ""     // Tambahan umum
-) {
-    // Properti bantuan agar Adapter tidak error membaca 'amount' dan 'imageRes'
-    val amount: Int get() = point
-    val imageRes: Int get() = imageResId
-}
+    val point: Int = 0,
+    val type: String = "redeem", // "earn" atau "redeem"
+    val timestamp: Timestamp? = null,
+    val imageResId: Int = 0 // Ini default 0 karena Firestore tidak menyimpan ID gambar Android
+)
