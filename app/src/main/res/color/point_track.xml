@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true" android:color="@color/tuku_primary_light"/>
+
+    <item android:color="@color/tuku_stroke_light_gray"/>
+</selector>
+
+<!-- ini untuk ngatur garis tepinya yang lonjong biar berubah warna juga coklat abu-->

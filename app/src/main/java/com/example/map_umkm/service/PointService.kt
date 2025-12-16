@@ -1,9 +1,9 @@
 package com.example.map_umkm.service
 
 import com.example.map_umkm.model.Reward
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.Timestamp
 
 object PointService {
     private val db = FirebaseFirestore.getInstance()
@@ -13,29 +13,48 @@ object PointService {
         onSuccess: () -> Unit,
         onFail: (String) -> Unit
     ) {
-        val uid = FirebaseAuth.getInstance().uid ?: return onFail("Not logged in")
+        val uid = FirebaseAuth.getInstance().uid
+
+        // Cek login
+        if (uid == null) {
+            onFail("User belum login")
+            return
+        }
+
         val userDoc = db.collection("users").document(uid)
 
         db.runTransaction { trx ->
             val snapshot = trx.get(userDoc)
+            // Ambil poin user saat ini dari Firestore
             val currentPoints = snapshot.getLong("points") ?: 0
 
-            if (currentPoints < reward.points) {
-                throw Exception("Point tidak cukup!")
+            // [PERBAIKAN] Menggunakan reward.point (sesuai Model Reward)
+            if (currentPoints < reward.point) {
+                throw Exception("Poin tidak mencukupi!")
             }
 
-            trx.update(userDoc, "points", currentPoints - reward.points)
+            // [PERBAIKAN] Menggunakan reward.point
+            val sisaPoin = currentPoints - reward.point
+            trx.update(userDoc, "points", sisaPoin)
 
-            trx.set(
-                userDoc.collection("histories").document(),
-                mapOf(
-                    "title" to reward.name,
-                    "points" to reward.points,
-                    "type" to "redeem",
-                    "timestamp" to Timestamp.now()
-                )
+            // Catat Riwayat
+            val newHistoryRef = userDoc.collection("histories").document()
+
+            val historyMap = hashMapOf(
+                // [PERBAIKAN] Menggunakan reward.title (sesuai Model Reward)
+                "title" to "Tukar: ${reward.title}",
+                // [PERBAIKAN] Menggunakan reward.point
+                "points" to reward.point,
+                "type" to "redeem",
+                "timestamp" to Timestamp.now()
             )
-        }.addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { e -> onFail(e.message ?: "Error!") }
+
+            trx.set(newHistoryRef, historyMap)
+
+        }.addOnSuccessListener {
+            onSuccess()
+        }.addOnFailureListener { e ->
+            onFail(e.message ?: "Terjadi kesalahan transaksi")
+        }
     }
 }

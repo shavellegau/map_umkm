@@ -1,4 +1,3 @@
-// File: com/example/map_umkm/adapter/PoinHistoryAdapter.kt
 package com.example.map_umkm.adapter
 
 import android.graphics.Color
@@ -10,18 +9,23 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.R
 import com.example.map_umkm.model.PoinHistory
 
-class PoinHistoryAdapter(private val historyList: List<PoinHistory>) :
+// Ubah constructor menjadi var agar bisa diupdate
+class PoinHistoryAdapter(private var historyList: List<PoinHistory> = listOf()) :
     RecyclerView.Adapter<PoinHistoryAdapter.HistoryViewHolder>() {
 
+    // [SOLUSI ERROR submitList] Tambahkan fungsi ini manual
+    fun updateData(newList: List<PoinHistory>) {
+        historyList = newList
+        notifyDataSetChanged()
+    }
+
     class HistoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        // MENGGUNAKAN ID DARI XML ANDA (item_poin_history.xml)
         val tvDescription: TextView = view.findViewById(R.id.txtTitle)
         val tvAmount: TextView = view.findViewById(R.id.txtAmount)
         val tvDate: TextView = view.findViewById(R.id.txtDate)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
-        // MERUJUK KE FILE LAYOUT ITEM_POIN_HISTORY.XML
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_poin_history, parent, false)
         return HistoryViewHolder(view)
@@ -34,16 +38,12 @@ class PoinHistoryAdapter(private val historyList: List<PoinHistory>) :
         holder.tvAmount.text = item.amount
         holder.tvDate.text = item.date
 
-        // Logika pewarnaan berdasarkan tanda (+) atau (-)
-        val color = if (item.amount.startsWith("+")) {
-            // Jika poin bertambah (Hijau/Teal)
-            Color.parseColor("#008577")
+        // Logika warna: Hijau jika ada tanda "+", Merah jika tidak
+        if (item.amount.contains("+")) {
+            holder.tvAmount.setTextColor(Color.parseColor("#008577")) // Hijau Teal
         } else {
-            // 🔥 SOLUSI R.color.design_default_color_error: Diganti dengan Color.RED
-            // Jika poin berkurang (Merah)
-            Color.RED
+            holder.tvAmount.setTextColor(Color.RED)
         }
-        holder.tvAmount.setTextColor(color)
     }
 
     override fun getItemCount() = historyList.size

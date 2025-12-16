@@ -86,7 +86,6 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:gravity="center">
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -94,7 +93,6 @@
                         android:textColor="#888888"
                         android:textSize="14sp"
                         android:layout_marginBottom="8dp"/>
-
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_add_new_address"
                         android:layout_width="match_parent"
@@ -112,14 +110,12 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:visibility="gone">
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Dikirim ke:"
                         android:textSize="12sp"
                         android:textColor="#888888"/>
-
                     <TextView
                         android:id="@+id/tv_delivery_address"
                         android:layout_width="match_parent"
@@ -130,7 +126,6 @@
                         android:maxLines="3"
                         android:ellipsize="end"
                         android:layout_marginVertical="4dp"/>
-
                     <Button
                         android:id="@+id/btn_change_address"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -162,7 +157,63 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:itemCount="2"
-                tools:listitem="@layout/item_cart_product"/>
+                tools:listitem="@layout/item_cart_product" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                android:layout_marginVertical="16dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp"
+                android:background="@drawable/bg_rounded_white"
+                android:elevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Gunakan Poin"
+                        android:textStyle="bold"
+                        android:textColor="@color/tuku_dark"
+                        android:textSize="16sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Untuk Berhemat"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:id="@+id/tvUserPoints"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Saldo Poin: Memuat..."
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="12sp"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchPoint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:useMaterialThemeColors="false"
+                    app:thumbTint="@color/point_thumb"
+                    app:trackTint="@color/point_track" />
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -287,7 +338,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Diskon Voucher"
+                    android:text="Diskon Poin"
                     android:textColor="#4CAF50"/>
                 <TextView
                     android:id="@+id/tvDiscountInfo"
@@ -340,7 +391,7 @@
             android:id="@+id/btnPay"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="Pilih Metode Pembayaran"
+            android:text="Bayar Sekarang"
             android:textSize="16sp"
             android:textStyle="bold"
             app:cornerRadius="28dp"
