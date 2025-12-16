@@ -20,16 +20,15 @@ class AdminProductAdapter(
 ) : RecyclerView.Adapter<AdminProductAdapter.AdminProductViewHolder>() {
 
     inner class AdminProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // --- PERBAIKAN: Menggunakan ID baru dari layout yang sudah di-redesign ---
-        val productImage: ImageView = itemView.findViewById(R.id.ivProductImage) // ID baru
-        val productName: TextView = itemView.findViewById(R.id.tvProductName)     // ID baru
-        val productPrice: TextView = itemView.findViewById(R.id.tvProductPrice)    // ID baru
-        val deleteButton: ImageButton = itemView.findViewById(R.id.btnDelete)        // ID baru
-        val editButton: ImageButton = itemView.findViewById(R.id.btnEdit)          // ID baru
+        // Pastikan ID ini SAMA PERSIS dengan di file item_admin_product.xml
+        val productImage: ImageView = itemView.findViewById(R.id.ivProductImage)
+        val productName: TextView = itemView.findViewById(R.id.tvProductName)
+        val productPrice: TextView = itemView.findViewById(R.id.tvProductPrice)
+        val deleteButton: ImageButton = itemView.findViewById(R.id.btnDelete)
+        val editButton: ImageButton = itemView.findViewById(R.id.btnEdit)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdminProductViewHolder {
-        // Menggunakan layout item_admin_product.xml yang sudah di-redesign
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_admin_product, parent, false)
         return AdminProductViewHolder(view)
@@ -45,17 +44,16 @@ class AdminProductAdapter(
         val priceToShow = product.price_hot ?: product.price_iced ?: 0
         holder.productPrice.text = format.format(priceToShow)
 
-        // Load gambar menggunakan Glide
-        val context = holder.itemView.context
-        val imageResId = context.resources.getIdentifier(product.image, "drawable", context.packageName)
-
-        Glide.with(context)
-            .load(if (imageResId != 0) imageResId else R.drawable.logo_tuku) // Fallback ke logo_tuku
-            .placeholder(R.drawable.logo_tuku)
-            .error(R.drawable.logo_tuku)
+        // --- PERBAIKAN GLIDE (Load URL Langsung) ---
+        // Hapus kode getIdentifier, langsung load String URL dari model
+        Glide.with(holder.itemView.context)
+            .load(product.image) // Ini berisi "https://..."
+            .placeholder(R.drawable.logo_tuku) // Gambar loading
+            .error(R.drawable.error_image)     // Gambar jika URL rusak/kosong
+            .centerCrop() // Agar gambar rapi memenuhi kotak
             .into(holder.productImage)
 
-        // --- PERBAIKAN: Menambahkan listener untuk tombol edit yang baru ---
+        // Listener Tombol
         holder.deleteButton.setOnClickListener {
             onDeleteClick(product)
         }
@@ -63,13 +61,6 @@ class AdminProductAdapter(
         holder.editButton.setOnClickListener {
             onEditClick(product)
         }
-
-        // --- PERBAIKAN: Sebaiknya klik pada item juga memicu edit, bukan di seluruh itemView ---
-        // Jika ingin klik di mana saja pada kartu untuk edit, baris ini bisa diaktifkan kembali.
-        // Namun, karena sudah ada tombol edit, ini bisa jadi redundan.
-        // holder.itemView.setOnClickListener {
-        //     onEditClick(product)
-        // }
     }
 
     override fun getItemCount(): Int {
@@ -78,6 +69,6 @@ class AdminProductAdapter(
 
     fun updateData(newProductList: List<Product>) {
         this.productList = newProductList
-        notifyDataSetChanged() // Untuk kesederhanaan. Bisa dioptimalkan dengan DiffUtil jika perlu.
+        notifyDataSetChanged()
     }
 }

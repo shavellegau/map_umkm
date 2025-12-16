@@ -12,7 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- 🔙 Header dengan tombol back -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -40,7 +39,6 @@
                 android:textSize="22sp" />
         </RelativeLayout>
 
-        <!-- Header XP & Poin -->
         <LinearLayout
             android:orientation="horizontal"
             android:weightSum="2"
@@ -71,7 +69,6 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <!-- Grid Semua Reward -->
         <GridLayout
             android:id="@+id/gridRewards"
             android:columnCount="2"
@@ -81,5 +78,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:useDefaultMargins="true" />
+
+        <!-- Tambahkan RecyclerView di sini -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvPointDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:layout_marginTop="16dp"/>
+
     </LinearLayout>
 </ScrollView>

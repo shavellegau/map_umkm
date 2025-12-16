@@ -1,306 +1,392 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/tuku_bg">
+    android:background="@color/tuku_bg"
+    android:fillViewport="true"
+    android:clipToPadding="false">
 
-    <ScrollView
-        android:id="@+id/scrollMain"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:padding="16dp"
-        android:scrollbars="none">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
 
-            <!-- Header Profile -->
-            <androidx.cardview.widget.CardView
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:background="@color/tuku_primary" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@android:color/white">
+                android:orientation="vertical"
+                android:paddingHorizontal="24dp"
+                android:paddingTop="48dp"
+                android:paddingBottom="24dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-                    <ImageView
+                    <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/imgProfile"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
                         android:src="@drawable/ic_launcher_foreground"
-                        android:background="@drawable/bg_circle"
+                        android:background="@android:color/white"
                         android:scaleType="centerCrop"
-                        android:contentDescription="Foto Profil" />
+                        android:padding="2dp"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                        app:strokeColor="@color/tuku_accent"
+                        app:strokeWidth="2dp" />
 
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical"
-                        android:layout_marginStart="12dp">
+                        android:layout_marginStart="16dp">
 
                         <TextView
                             android:id="@+id/txtName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Hi, Budi Santoso"
-                            android:textSize="18sp"
+                            android:text="Budi Santoso"
+                            android:textSize="22sp"
                             android:textStyle="bold"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="@android:color/white"
+                            android:fontFamily="sans-serif-medium"/>
 
                         <TextView
-                            android:id="@+id/tvMember"
+                            android:id="@+id/tvEmail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Gold Member • 5480 Points"
-                            android:textColor="@color/brown_profile"
-                            android:textSize="14sp" />
+                            android:text="budi@example.com"
+                            android:textSize="14sp"
+                            android:textColor="#E0E0E0"
+                            android:layout_marginTop="2dp"/>
                     </LinearLayout>
 
-<!--                    <ImageButton-->
-<!--                        android:id="@+id/btnEditProfile"-->
-<!--                        android:layout_width="40dp"-->
-<!--                        android:layout_height="40dp"-->
-<!--                        android:background="?attr/selectableItemBackgroundBorderless"-->
-<!--                        android:src="@android:drawable/ic_menu_edit"-->
-<!--                        app:tint="@color/tuku_dark"-->
-<!--                        android:contentDescription="Edit Profil" />-->
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
 
-            <!-- Aktivitas Saya -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/tuku_primary">
-
-                <LinearLayout
+                <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_marginTop="24dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="6dp"
+                    app:cardBackgroundColor="@android:color/white">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Aktivitas Saya"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@android:color/white"
-                        android:layout_marginBottom="12dp" />
-
-                    <GridLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:columnCount="2"
-                        android:alignmentMode="alignMargins"
-                        android:columnOrderPreserved="false">
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
 
-                        <!-- Pesanan Saya -->
-                        <androidx.cardview.widget.CardView
-                            android:id="@+id/cardPesanan"
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_point"
+                            app:tint="#FFD700" />
+
+                        <LinearLayout
                             android:layout_width="0dp"
-                            android:layout_height="100dp"
-                            android:layout_margin="8dp"
-                            android:layout_columnWeight="1"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="2dp"
-                            app:cardBackgroundColor="@android:color/white">
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:orientation="vertical">
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Tuku Points"
+                                android:textSize="12sp"
+                                android:textColor="@color/text_secondary" />
 
-                                <ImageView
-                                    android:layout_width="38dp"
-                                    android:layout_height="40dp"
-                                    android:src="@drawable/ic_riwayat_pesanan"
-                                    app:tint="@color/brown_profile" />
+                            <TextView
+                                android:id="@+id/tvMemberPoints"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="5,480 Pts"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/tuku_dark" />
+                        </LinearLayout>
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Riwayat Pesanan"
-                                    android:textSize="14sp"
-                                    android:textColor="@color/text_primary" />
-                            </LinearLayout>
-                        </androidx.cardview.widget.CardView>
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="40dp"
+                            android:background="#E0E0E0"
+                            android:layout_marginHorizontal="16dp"/>
 
-                        <!-- Wishlist -->
-                        <androidx.cardview.widget.CardView
-                            android:id="@+id/cardWishlist"
-                            android:layout_width="0dp"
-                            android:layout_height="100dp"
-                            android:layout_margin="8dp"
-                            android:layout_columnWeight="1"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="2dp"
-                            app:cardBackgroundColor="@android:color/white">
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal">
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Status"
+                                android:textSize="12sp"
+                                android:textColor="@color/text_secondary" />
 
-                                <ImageView
-                                    android:layout_width="40dp"
-                                    android:layout_height="40dp"
-                                    android:src="@drawable/ic_fav"
-                                    app:tint="@color/brown_profile" />
+                            <TextView
+                                android:id="@+id/tvMemberStatus"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Gold Member"
+                                android:textStyle="bold"
+                                android:textColor="@color/tuku_primary"
+                                android:textSize="14sp"/>
+                        </LinearLayout>
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Favorite"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
-                        </androidx.cardview.widget.CardView>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
 
-                        <!-- Ulasan -->
-                        <androidx.cardview.widget.CardView
-                            android:id="@+id/cardTukuPoint"
-                            android:layout_width="0dp"
-                            android:layout_height="94dp"
-                            android:layout_columnWeight="1"
-                            android:layout_margin="8dp"
-                            android:clickable="true"
-                            android:foreground="?attr/selectableItemBackground"
-                            app:cardBackgroundColor="@android:color/white"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="2dp">
+            </LinearLayout>
+        </FrameLayout>
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center_horizontal"
-                                android:orientation="vertical"
-                                android:padding="12dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="8dp">
 
-                                <ImageView
-                                    android:layout_width="41dp"
-                                    android:layout_height="44dp"
-                                    android:background="@drawable/bg_card_tuku_point"
-                                    android:contentDescription="Tuku Point"
-                                    android:padding="8dp" />
-                                <!--                                    android:src="@drawable/ic_point" />-->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Aktivitas Saya"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@color/tuku_dark"
+                android:layout_marginBottom="12dp"
+                android:layout_marginStart="8dp"/>
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="4dp"
-                                    android:text="Tuku Point"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="14sp" />
-
-                            </LinearLayout>
-                        </androidx.cardview.widget.CardView>
-
-
-                        <!-- Voucher Saya -->
-                        <androidx.cardview.widget.CardView
-                            android:id="@+id/cardVoucher"
-                            android:layout_width="0dp"
-                            android:layout_height="94dp"
-                            android:layout_columnWeight="1"
-                            android:layout_margin="8dp"
-                            app:cardBackgroundColor="@android:color/white"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="2dp">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center"
-                                android:orientation="vertical">
-
-                                <ImageView
-                                    android:layout_width="40dp"
-                                    android:layout_height="40dp"
-                                    android:src="@drawable/ic_voucher"
-                                    app:tint="@color/brown_profile" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Kupon Saya"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
-                        </androidx.cardview.widget.CardView>
-                    </GridLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Menu Tambahan -->
-            <LinearLayout
+            <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="16dp">
+                android:columnCount="2"
+                android:rowCount="2"
+                android:alignmentMode="alignMargins"
+                android:columnOrderPreserved="false">
 
-
-                <TextView
-                    android:id="@+id/menuAlamat"
-                    android:layout_width="match_parent"
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardPesanan"
+                    style="@style/Widget.Material3.CardView.Elevated"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="Alamat Pengiriman"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:background="@drawable/bg_item_menu" />
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@android:color/white"
+                    android:clickable="true"
+                    android:focusable="true">
 
-                <TextView
-                    android:id="@+id/menuPengaturanAkun"
-                    android:layout_width="match_parent"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_riwayat_pesanan"
+                            app:tint="@color/tuku_primary"
+                            android:layout_marginBottom="8dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Riwayat"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/tuku_dark"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardWishlist"
+                    style="@style/Widget.Material3.CardView.Elevated"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="Pengaturan Akun"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:background="@drawable/bg_item_menu" />
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@android:color/white"
+                    android:clickable="true"
+                    android:focusable="true">
 
-                <TextView
-                    android:id="@+id/menuBantuan"
-                    android:layout_width="match_parent"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_fav"
+                            app:tint="@color/tuku_primary"
+                            android:layout_marginBottom="8dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Favorit"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/tuku_dark"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardVoucher"
+                    style="@style/Widget.Material3.CardView.Elevated"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="Pusat Bantuan &amp; S&amp;K"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:background="@drawable/bg_item_menu" />
-            </LinearLayout>
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@android:color/white"
+                    android:clickable="true"
+                    android:focusable="true">
 
-            <!-- Tombol Logout -->
-            <Button
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_voucher"
+                            app:tint="@color/tuku_primary"
+                            android:layout_marginBottom="8dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Voucher"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/tuku_dark"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardTukuPoint"
+                    style="@style/Widget.Material3.CardView.Elevated"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@android:color/white"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_point"
+                            app:tint="@color/tuku_primary"
+                            android:layout_marginBottom="8dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tukar Poin"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/tuku_dark"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </GridLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="120dp"> <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pengaturan"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/tuku_dark"
+            android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/menuAlamat"
+                style="@style/ProfileMenuItemStyle"
+                android:text="Alamat Pengiriman"
+                app:drawableStartCompat="@drawable/ic_location" />
+
+            <View style="@style/DividerStyle"/>
+
+            <TextView
+                android:id="@+id/menuPengaturanAkun"
+                style="@style/ProfileMenuItemStyle"
+                android:text="Edit Profil &amp; Akun"
+                app:drawableStartCompat="@drawable/ic_settings" />
+
+            <View style="@style/DividerStyle"/>
+
+            <TextView
+                android:id="@+id/menuBantuan"
+                style="@style/ProfileMenuItemStyle"
+                android:text="Pusat Bantuan"
+                app:drawableStartCompat="@drawable/ic_help" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:backgroundTint="@color/tuku_accent"
+                android:layout_marginTop="32dp"
                 android:text="Keluar"
-                android:textColor="@android:color/white"
+                android:textColor="@color/red"
                 android:textStyle="bold"
-                android:padding="12dp" />
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                app:strokeColor="@color/red"
+                app:strokeWidth="1dp"
+                app:cornerRadius="8dp"
+                android:paddingVertical="12dp"/>
+
         </LinearLayout>
-    </ScrollView>
-</RelativeLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

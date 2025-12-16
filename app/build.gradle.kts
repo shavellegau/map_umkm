@@ -66,6 +66,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("androidx.activity:activity-ktx:1.9.3")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
     implementation("com.airbnb.android:lottie:6.3.0")
 
@@ -101,6 +102,8 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.firebase:firebase-analytics")
+
+
 
     // Networking & Other
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

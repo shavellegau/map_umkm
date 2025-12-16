@@ -1,125 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/tuku_bg"
     android:fillViewport="true">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
         android:padding="32dp">
 
-        <!-- Logo Tuku / Gambar Kopi -->
         <ImageView
             android:id="@+id/imgLogo"
             android:layout_width="120dp"
             android:layout_height="120dp"
+            android:layout_marginTop="40dp"
+            android:contentDescription="Logo Tuku"
             android:src="@drawable/logo_tuku_rill"
-            android:layout_marginBottom="24dp"
-            android:contentDescription="Logo" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Judul -->
         <TextView
-            android:id="@+id/txtTitle"
+            android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome to Tuku"
+            android:layout_marginTop="24dp"
+            android:text="Welcome Back!"
             android:textColor="@color/tuku_dark"
+            android:textSize="28sp"
             android:textStyle="bold"
-            android:textSize="24sp"
-            android:layout_marginBottom="8dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imgLogo" />
 
         <TextView
-            android:id="@+id/txtSubtitle"
+            android:id="@+id/tvSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Enjoy your favorite coffee!"
+            android:layout_marginTop="8dp"
+            android:text="Silakan masuk untuk melanjutkan"
             android:textColor="@color/text_secondary"
             android:textSize="14sp"
-            android:layout_marginBottom="24dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
-        <!-- Email -->
-        <RelativeLayout
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutEmail"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp">
+            android:layout_marginTop="32dp"
+            android:hint="Email Address"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="@color/tuku_primary"
+            app:hintTextColor="@color/tuku_primary"
+            app:layout_constraintTop_toBottomOf="@id/tvSubtitle"
+            app:startIconDrawable="@drawable/ic_email"
+            app:startIconTint="@color/tuku_primary">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Email"
+                android:background="@null"
                 android:inputType="textEmailAddress"
-                android:background="@drawable/bg_edittext"
-                android:paddingStart="48dp"
-                android:padding="14dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary" />
+                android:textColor="@color/text_primary" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <ImageView
-                android:id="@+id/iconEmail"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_email"
-                android:tint="@color/tuku_dark"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="16dp"/>
-        </RelativeLayout>
-
-        <!-- Password -->
-        <RelativeLayout
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutPassword"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp">
+            android:layout_marginTop="16dp"
+            android:hint="Password"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="@color/tuku_primary"
+            app:endIconMode="password_toggle"
+            app:endIconTint="@color/tuku_primary"
+            app:hintTextColor="@color/tuku_primary"
+            app:layout_constraintTop_toBottomOf="@id/layoutEmail"
+            app:startIconDrawable="@drawable/ic_lock"
+            app:startIconTint="@color/tuku_primary">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Password"
+                android:background="@null"
                 android:inputType="textPassword"
-                android:background="@drawable/bg_edittext"
-                android:paddingStart="48dp"
-                android:padding="14dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary" />
+                android:textColor="@color/text_primary" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <ImageView
-                android:id="@+id/iconLock"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_lock"
-                android:tint="@color/tuku_dark"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="16dp"/>
-        </RelativeLayout>
-
-        <!-- Tombol Login -->
         <Button
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Login"
+            android:layout_height="60dp"
+            android:layout_marginTop="32dp"
             android:backgroundTint="@color/tuku_primary"
-            android:textColor="@android:color/white"
-            android:padding="14dp"
+            android:text="LOGIN"
+            android:textColor="@color/white"
+            android:textSize="16sp"
             android:textStyle="bold"
-            android:layout_marginBottom="12dp" />
+            app:cornerRadius="12dp"
+            app:layout_constraintTop_toBottomOf="@id/layoutPassword" />
 
-        <!-- Tombol Register -->
-        <Button
-            android:id="@+id/btnRegister"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Register"
-            android:backgroundTint="@color/tuku_dark"
-            android:textColor="@android:color/white"
-            android:padding="14dp" />
+            android:layout_marginTop="24dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnLogin">
 
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Belum punya akun? "
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/btnRegister"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="Daftar Disini"
+                android:textColor="@color/tuku_primary"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -5,7 +5,7 @@
       "category": "WHITE-MILK",
       "name": "MINI KST",
       "description": "espresso + susu + krimer + gula aren",
-      "image": "mini_kst",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/mini_kst.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 14000,
       "price_iced": 15000
@@ -15,7 +15,7 @@
       "category": "WHITE-MILK",
       "name": "MOCHA",
       "description": "espresso + chocolate powder + milk",
-      "image": "mocha",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/mocha.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 28000,
       "price_iced": 31000
@@ -25,7 +25,7 @@
       "category": "WHITE-MILK",
       "name": "CARAMEL",
       "description": "espresso + milk + caramel sauce (+ creamer for iced)",
-      "image": "caramel",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/caramel.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 31000,
       "price_iced": 34000
@@ -35,7 +35,7 @@
       "category": "WHITE-MILK",
       "name": "LATTE",
       "description": "espresso + coffee shot + milk (mild creamy)",
-      "image": "latte",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/latte.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 28000,
       "price_iced": 31000
@@ -45,7 +45,7 @@
       "category": "WHITE-MILK",
       "name": "CAPPUCINO",
       "description": "double ristretto + coffee shot + milk (double shot espresso for iced)",
-      "image": "cappucino",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/cappucino.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 28000,
       "price_iced": 31000
@@ -55,7 +55,7 @@
       "category": "WHITE-MILK",
       "name": "KST NABATI",
       "description": "espresso + oatmilk + arenga sugar (+ coconut creamer + coconut milk for iced)",
-      "image": "kst_nabati",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/kst_nabati.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 30000,
       "price_iced": 35000
@@ -65,7 +65,7 @@
       "category": "WHITE-MILK",
       "name": "KOPI SUSU TETANGGA",
       "description": "espresso + milk + arenga sugar (+ creamer for iced)",
-      "image": "kopi_susu_tetangga",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/kopi_susu_tetangga.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 20000,
       "price_iced": 23000
@@ -75,7 +75,7 @@
       "category": "BLACK",
       "name": "KOPI HITAM TETANGGA",
       "description": "double shot of tetangga blend + water",
-      "image": "kopi_hitam_tetangga",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/kopi_hitam_tetangga.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 18000,
       "price_iced": 20000
@@ -85,7 +85,7 @@
       "category": "BLACK",
       "name": "LONG BLACK",
       "description": "double shot of tetangga blend + coffee shot + water",
-      "image": "long_black",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/long_black.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 25000,
       "price_iced": 28000
@@ -95,7 +95,7 @@
       "category": "BLACK",
       "name": "ESPRESSO",
       "description": "double shot of tetangga blend",
-      "image": "espresso",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/espresso.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 18000,
       "price_iced": null
@@ -105,7 +105,7 @@
       "category": "BLACK",
       "name": "KOPI FILTER PAGI",
       "description": "80% washed 20% natural hint of chocolate, hand brewed with hot water",
-      "image": "kopi_filter_pagi",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/kopi_filter_pagi.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 22000,
       "price_iced": 22000
@@ -115,7 +115,7 @@
       "category": "BLACK",
       "name": "KOPI FILTER SORE",
       "description": "50% washed 50% natural hint of fruits, hand brewed with hot water",
-      "image": "kopi_filter_sore",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/kopi_filter_pagi.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 25000,
       "price_iced": 25000
@@ -125,7 +125,7 @@
       "category": "BLACK",
       "name": "COLD DRIP SANTAI KELAPA JERUK",
       "description": "coffee shot + santai series",
-      "image": "cold_drip",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/cold_drip.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": null,
       "price_iced": 30000
@@ -135,7 +135,7 @@
       "category": "BLACK",
       "name": "COLD DRIP SANTAI REMON",
       "description": "coffee shot + santai series",
-      "image": "remon",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/remon.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": null,
       "price_iced": 30000
@@ -145,7 +145,7 @@
       "category": "NON-COFFEE",
       "name": "CHOCOLATE",
       "description": "chocolate + milk + sugar (for iced served without ice cubes)",
-      "image": "chocolate",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/chocolate.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 30000,
       "price_iced": 30000
@@ -155,7 +155,7 @@
       "category": "NON-COFFEE",
       "name": "EARL GREY MILK TEA",
       "description": "earl grey tea + milk + milk tea powder + creamer (for iced served without ice cubes)",
-      "image": "earl_grey_milk",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/earl_grey_milk.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 28000,
       "price_iced": 28000
@@ -165,7 +165,7 @@
       "category": "NON-COFFEE",
       "name": "REMON",
       "description": "java tea + lemongrass + sugar + lemon + lime",
-      "image": "remon_noncoffe",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/remon_noncoffe.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 23000,
       "price_iced": 25000
@@ -175,7 +175,7 @@
       "category": "NON-COFFEE",
       "name": "S.K.M.J",
       "description": "milk + arenga sugar (suitable for TetanggaTukuKecil)",
-      "image": "skmj",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/skmj.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 23000,
       "price_iced": 25000
@@ -185,7 +185,7 @@
       "category": "NON-COFFEE",
       "name": "GO-ES",
       "description": "coconut water + honey + lime",
-      "image": "go_es",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/go_es.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 23000,
       "price_iced": 25000
@@ -195,7 +195,7 @@
       "category": "NON-COFFEE",
       "name": "TEH JAWA",
       "description": "java tea + pandan sugar",
-      "image": "teh_jawa",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/teh_jawa.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 20000,
       "price_iced": 23000
@@ -205,7 +205,7 @@
       "category": "NON-COFFEE",
       "name": "KELAPA JERUK",
       "description": "coconut water + orange juice + lime",
-      "image": "kelapa_jeruk",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/kelapa_jeruk.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 23000,
       "price_iced": 25000
@@ -215,7 +215,7 @@
       "category": "TUKUDAPAN",
       "name": "DONAT KAMPOENG",
       "description": "Donat Kampoeng yang dibaluri gula putih.",
-      "image": "donat_kampoeng",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/donat_kampoeng.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 8000,
       "price_iced": null
@@ -225,7 +225,7 @@
       "category": "TUKUDAPAN",
       "name": "LUMPIA AYAM",
       "description": "Gorengan Lumpia berisi sayuran dan ayam cincang.",
-      "image": "lumpia_ayam",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/lumpia_ayam.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 8000,
       "price_iced": null
@@ -235,7 +235,7 @@
       "category": "TUKUDAPAN",
       "name": "TAHU SCHOTEL",
       "description": "Gorengan tahu schotel yang dibalut dengan tepung krispi. Cocok dinikmati dengan minuman favorit Tetangga Tuku!",
-      "image": "tahu_schotel",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/tahu_schotel.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 8000,
       "price_iced": null
@@ -245,7 +245,7 @@
       "category": "TUKUDAPAN",
       "name": "DONAT COKELAT",
       "description": "Donat lembut dengan selai dan taburan cokelat di atasnya.",
-      "image": "donut_coklat",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/donut_coklat.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 11000,
       "price_iced": null
@@ -255,7 +255,7 @@
       "category": "TUKUDAPAN",
       "name": "BOLU COKELAT",
       "description": "Bolu Cokelat lembut favorit Tetangga Tuku! Cocok dinikmati bareng kopi hitam.",
-      "image": "bolu_cokelat",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/bolu_cokelat.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 13000,
       "price_iced": null
@@ -265,7 +265,7 @@
       "category": "TUKUDAPAN",
       "name": "BOLU WORTEL",
       "description": "Bolu Wortel yang lembut dengan cream cheese di atasnya!",
-      "image": "bolu_wortel",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/bolu_wortel.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 13000,
       "price_iced": null
@@ -275,7 +275,7 @@
       "category": "TUKUDAPAN",
       "name": "MARTABAK COKELAT KACANG",
       "description": "Martabak gulung mini berisi cokelat dan kacang.",
-      "image": "martabak_cokelat_kacang",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/martabak_cokelat_kacang.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 15000,
       "price_iced": null
@@ -285,7 +285,7 @@
       "category": "TUKUDAPAN",
       "name": "MARTABAK KEJU GULA JAWA",
       "description": "Martabak gulung mini berisi keju dan gula jawa.",
-      "image": "martabak_keju",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/martabak_keju.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 15000,
       "price_iced": null
@@ -295,7 +295,7 @@
       "category": "TUKUDAPAN",
       "name": "KUKIS OATMEAL",
       "description": "Camilan manis untuk si Tetangga Tuku Kecil! Kukis yang terbuat dari oatmeal dan cokelat.",
-      "image": "kukis_oatmeal",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/kukis_oatmeal.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 15000,
       "price_iced": null
@@ -305,7 +305,7 @@
       "category": "TUKUDAPAN",
       "name": "BOLU GULA AREN",
       "description": "Bolu Gula Aren yang lembut dan cocok dinikmati dengan minuman favorit Tetangga Tuku!",
-      "image": "bolu_gula_aren",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/bolu_gula_aren.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 13000,
       "price_iced": null
@@ -315,7 +315,7 @@
       "category": "TUKUDAPAN",
       "name": "ONIGIRI TUNA MAYO",
       "description": "Onigiri khas Jepang dengan kearifan lokal! Berisi suwiran ikan tuna dan mayonnaise.",
-      "image": "tuna_mayo",
+      "image": "https://rklpzuwdgeymsrsfygct.supabase.co/storage/v1/object/public/map_umkm/tuna_mayo.webp",
       "created_at": "2025-09-27 11:31:46",
       "price_hot": 17000,
       "price_iced": null

@@ -1,18 +1,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Theme.Map_umkm" parent="Theme.Material3.DayNight.NoActionBar">
 
-    <!-- Customize your light theme here. -->
         <item name="colorPrimary">@color/tuku_primary</item>
         <item name="colorPrimaryVariant">@color/tuku_dark</item>
         <item name="colorOnPrimary">@color/white</item>
 
-        <!-- Membuat status bar transparan -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
 
-    <!-- [FIXED] Style yang hilang ditambahkan di sini -->
     <style name="ToolbarTitleAppearance" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
@@ -20,10 +16,9 @@
 
     <style name="RoundedImageView" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">16dp</item> <!-- Anda bisa sesuaikan radiusnya -->
+        <item name="cornerSize">16dp</item>
     </style>
 
-    <!-- Style ini sudah ada sebelumnya, biarkan saja -->
     <style name="ShapeAppearanceOverlay.App.CornerSize10Percent" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">10%</item>
@@ -32,6 +27,25 @@
     <style name="CustomCorners" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">10dp</item>
+    </style>
+
+    <style name="ProfileMenuItemStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingVertical">16dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/tuku_dark</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:drawablePadding">16dp</item>
+        <item name="android:drawableTint">@color/tuku_primary</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="drawableEndCompat">@drawable/ic_arrow_forward</item>
+    </style>
+
+    <style name="DividerStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">#EEEEEE</item>
     </style>
 
 </resources>

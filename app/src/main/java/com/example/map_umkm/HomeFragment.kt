@@ -67,50 +67,32 @@ class HomeFragment : Fragment() {
 
         displayUserGreeting()
         setupBannerCarousel()
-
-        // Panggilan untuk menu terbaru (menggantikan JSON lokal)
-        // Jika Anda memutuskan menggunakan Firestore, ganti nama fungsi ini.
-        // Jika Anda memutuskan tetap pakai JSON, gunakan loadNewestMenuFromJson()
         loadNewestMenuFromJson()
 
         setupListeners()
 
-        // MUAT LOKASI TERSIMPAN SAAT FRAGMENT DIBUAT
         loadSavedLocation()
 
-        // 🔥 Fitur: Hitung voucher dan notifikasi 🔥
         getVoucherCount()
         getUnreadNotificationCount()
     }
 
     override fun onResume() {
         super.onResume()
-        // MUAT ULANG DATA SAAT FRAGMENT KEMBALI AKTIF
         loadSavedLocation()
         getVoucherCount()
         getUnreadNotificationCount()
 
         val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
         binding.tvUserGreeting.text = "Hi, ${prefs.getString("userName", "User")}!"
-        // ================================
     }
 
-    // =================================================================
-    // START: FITUR & DATA UTAMA
-    // =================================================================
-
-    /**
-     * Memuat lokasi cabang yang tersimpan dari SharedPreferences dan menampilkannya.
-     */
     private fun loadSavedLocation() {
         val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
         val savedBranchName = prefs.getString("selectedBranchName", "Pilih Cabang")
         binding.tvCurrentLocation.text = savedBranchName
     }
 
-    /**
-     * Mengambil nama pengguna dari SharedPreferences dan menampilkannya di header.
-     */
     private fun displayUserGreeting() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
@@ -129,14 +111,9 @@ class HomeFragment : Fragment() {
     }
 
 
-
-    /**
-     * Menghitung jumlah voucher publik aktif dari Firestore.
-     */
     private fun getVoucherCount() {
         val db = FirebaseFirestore.getInstance()
 
-        // Query disinkronkan dengan VoucherSayaFragment (menghitung voucher publik aktif)
         db.collection("vouchers")
             .whereEqualTo("isActive", true)
             .get()
@@ -150,9 +127,7 @@ class HomeFragment : Fragment() {
             }
     }
 
-    /**
-     * Memperbarui TextView badge voucher.
-     */
+
     private fun updateVoucherCountUI(count: Int) {
         if (_binding != null) {
             // Tampilkan jumlah voucher dengan label "Voucher"
@@ -160,9 +135,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    /**
-     * Mengambil dan menampilkan jumlah notifikasi yang belum dibaca.
-     */
     private fun getUnreadNotificationCount() {
         val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
         val userEmail = prefs.getString("userEmail", null)
@@ -171,7 +143,6 @@ class HomeFragment : Fragment() {
 
         val db = FirebaseFirestore.getInstance()
 
-        // Asumsi: Koleksi "notifications" memiliki field "isRead" dan "userEmail"
         db.collection("notifications")
             .whereEqualTo("userEmail", userEmail)
             .whereEqualTo("isRead", false)
@@ -186,9 +157,7 @@ class HomeFragment : Fragment() {
             }
     }
 
-    /**
-     * Memperbarui TextView badge notifikasi.
-     */
+
     private fun updateNotificationBadge(count: Int) {
         if (_binding != null) {
             if (count > 0) {
@@ -201,23 +170,17 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // =================================================================
-    // END: FITUR & DATA UTAMA
-    // =================================================================
-
-
-    // =================================================================
-    // START: SETUP UI & LISTENER
-    // =================================================================
-
     private fun setupListeners() {
         binding.locationCard.setOnClickListener {
             val intent = Intent(requireActivity(), PilihCabangActivity::class.java)
             pilihCabangLauncher.launch(intent)
         }
-
         binding.btnNotification.setOnClickListener {
             findNavController().navigate(R.id.action_nav_home_to_notificationFragment)
+        }
+
+        binding.btnTukuPoint.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_home_to_tetanggaTukuFragment)
         }
 
         binding.ivTukuPoint.setOnClickListener {
@@ -303,7 +266,6 @@ class HomeFragment : Fragment() {
         }, 3000, 3000)
     }
 
-    // Menggunakan JSON lokal karena pertimbangan biaya storage.
     private fun loadNewestMenuFromJson() {
         try {
             val inputStream = context?.assets?.open("menu_items.json")
@@ -321,17 +283,14 @@ class HomeFragment : Fragment() {
                 val priceIced = newestMenuItem.price_iced?.let { "Iced: Rp $it" } ?: ""
                 binding.tvNewestMenuPrice.text = listOf(priceHot, priceIced).filter { it.isNotEmpty() }.joinToString(" / ")
 
-                // Pemuatan Gambar Lokal/Drawable berdasarkan nama file di JSON
                 newestMenuItem.image?.let { imageName ->
                     val context = requireContext()
-                    // Mencari ID resource Drawable
                     val imageResId = context.resources.getIdentifier(
                         imageName,
                         "drawable",
                         context.packageName
                     )
 
-                    // Gunakan Glide untuk memuat Resource ID jika ditemukan, jika tidak, gunakan placeholder
                     val source = if (imageResId != 0) imageResId else R.drawable.placeholder_image
 
                     Glide.with(this).load(source).into(binding.ivNewestMenuImage)
@@ -361,9 +320,4 @@ class HomeFragment : Fragment() {
         updateRunnable = null
         _binding = null
     }
-
-
-    // =================================================================
-    // END: SETUP UI & LISTENER
-    // =================================================================
 }
