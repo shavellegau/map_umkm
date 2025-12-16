@@ -1,9 +1,9 @@
 package com.example.map_umkm.service
 
 import com.example.map_umkm.model.Reward
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.Timestamp
 
 object PointService {
     private val db = FirebaseFirestore.getInstance()
@@ -18,24 +18,34 @@ object PointService {
 
         db.runTransaction { trx ->
             val snapshot = trx.get(userDoc)
-            val currentPoints = snapshot.getLong("points") ?: 0
+            // Nama field di database firebase harus konsisten (misal: "tukuPoints")
+            val currentPoints = snapshot.getLong("tukuPoints") ?: 0
 
-            if (currentPoints < reward.points) {
-                throw Exception("Point tidak cukup!")
+            // [FIX] Gunakan reward.point (Singular) sesuai model Anda
+            if (currentPoints < reward.point) {
+                throw Exception("Poin tidak cukup!")
             }
 
-            trx.update(userDoc, "points", currentPoints - reward.points)
+            // Kurangi poin user
+            trx.update(userDoc, "tukuPoints", currentPoints - reward.point)
 
-            trx.set(
-                userDoc.collection("histories").document(),
-                mapOf(
-                    "title" to reward.name,
-                    "points" to reward.points,
-                    "type" to "redeem",
-                    "timestamp" to Timestamp.now()
-                )
+            // Simpan history
+            val newHistoryRef = userDoc.collection("point_history").document()
+
+            // [FIX] Map keys disesuaikan dengan model History Anda
+            val historyData = mapOf(
+                "title" to reward.title,   // Sesuai model: title
+                "point" to reward.point,   // Sesuai model: point
+                "type" to "redeem",
+                "timestamp" to Timestamp.now()
             )
-        }.addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { e -> onFail(e.message ?: "Error!") }
+
+            trx.set(newHistoryRef, historyData)
+
+        }.addOnSuccessListener {
+            onSuccess()
+        }.addOnFailureListener { e ->
+            onFail(e.message ?: "Terjadi kesalahan saat penukaran")
+        }
     }
 }

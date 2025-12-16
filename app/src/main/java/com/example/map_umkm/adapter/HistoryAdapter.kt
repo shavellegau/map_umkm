@@ -1,4 +1,3 @@
-// File: HistoryAdapter.kt (Perbaikan)
 package com.example.map_umkm.adapter
 
 import android.view.LayoutInflater
@@ -11,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.R
 import com.example.map_umkm.model.History
 
-class HistoryAdapter(private var historyList: MutableList<History>) :
+class HistoryAdapter(private var historyList: MutableList<History> = mutableListOf()) :
     RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>() {
 
     class HistoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -21,23 +20,31 @@ class HistoryAdapter(private var historyList: MutableList<History>) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
-        // PERBAIKAN: Menggunakan nama file layout yang benar
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_history_sample, parent, false) // Menggunakan item_history_sample
+            .inflate(R.layout.item_history_sample, parent, false)
         return HistoryViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
         val item = historyList[position]
+
+        // 1. Gunakan 'title' sesuai model Anda
         holder.tvTitle.text = item.title
 
-        val prefix = if (item.amount < 0) "" else "+"
-        holder.tvAmount.text = "$prefix${item.amount}"
+        // 2. Cek tipe transaksi untuk warna & simbol
+        val isEarn = item.type == "earn"
+        val prefix = if (isEarn) "+" else "-"
 
-        val colorRes = if (item.amount < 0) R.color.terracotta_error else R.color.tuku_primary
+        // 3. Gunakan 'point' sesuai model Anda (bukan amount/points)
+        holder.tvAmount.text = "$prefix${item.point} Pts"
+
+        // 4. Atur Warna
+        val colorRes = if (isEarn) R.color.tuku_primary else android.R.color.holo_red_dark
         holder.tvAmount.setTextColor(ContextCompat.getColor(holder.itemView.context, colorRes))
 
-        holder.imgIcon.setImageResource(item.imageRes)
+        // 5. Atur Gambar (Manual logic karena Firestore tidak simpan Int ID)
+        val iconRes = if (isEarn) R.drawable.ic_point else R.drawable.ic_voucher
+        holder.imgIcon.setImageResource(iconRes)
     }
 
     override fun getItemCount() = historyList.size

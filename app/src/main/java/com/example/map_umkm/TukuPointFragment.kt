@@ -1,4 +1,3 @@
-// File: TukuPointFragment.kt (Perbaikan Final & Definitif)
 package com.example.map_umkm
 
 import android.os.Bundle
@@ -17,7 +16,6 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 
 class TukuPointFragment : Fragment() {
-
 
     private var _binding: FragmentTukuPointBinding? = null
     private val binding get() = _binding!!
@@ -62,10 +60,7 @@ class TukuPointFragment : Fragment() {
 
         userPointsListener = db.collection("users").document(userId)
             .addSnapshotListener { snapshot, e ->
-                if (_binding == null) {
-                    Log.w("TukuPointFragment", "Points updated but fragment view is null.")
-                    return@addSnapshotListener
-                }
+                if (_binding == null) return@addSnapshotListener
 
                 if (e != null) {
                     Log.e("TukuPointFragment", "Error loading points", e)
@@ -73,11 +68,10 @@ class TukuPointFragment : Fragment() {
                 }
 
                 if (snapshot != null && snapshot.exists()) {
+                    // Pastikan field di firestore adalah "tukuPoints" (sesuai service)
                     val points = snapshot.getLong("tukuPoints") ?: 0
-                    // PERBAIKAN FINAL: Menggunakan ID yang benar "tvTotalPoint" dari file XML
                     binding.tvTotalPoint.text = points.toString()
                 } else {
-                    // PERBAIKAN FINAL: Menggunakan ID yang benar "tvTotalPoint"
                     binding.tvTotalPoint.text = "0"
                 }
             }
@@ -88,15 +82,13 @@ class TukuPointFragment : Fragment() {
 
         historyListener?.remove()
 
+        // Pastikan nama collection sesuai dengan yang ada di PointService ("point_history")
         historyListener = db.collection("users").document(userId)
             .collection("point_history")
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .limit(10)
             .addSnapshotListener { snapshots, e ->
-                if (_binding == null) {
-                    Log.w("TukuPointFragment", "History updated but fragment view is null.")
-                    return@addSnapshotListener
-                }
+                if (_binding == null) return@addSnapshotListener
 
                 if (e != null) {
                     Log.e("TukuPointFragment", "Error loading history", e)
@@ -106,18 +98,30 @@ class TukuPointFragment : Fragment() {
                 val historyList = mutableListOf<History>()
                 snapshots?.forEach { doc ->
                     val title = doc.getString("title") ?: "Transaksi"
-                    val amount = doc.getLong("amount") ?: 0
+                    // Ambil 'point' atau 'amount', mana yang ada
+                    val amount = doc.getLong("point") ?: doc.getLong("amount") ?: 0
                     val type = doc.getString("type") ?: "redeem"
 
-                    val imageRes = if (type == "earn") R.drawable.ic_earn_point else R.drawable.ic_redeem_point
-                    historyList.add(History(title, amount.toInt(), imageRes))
+                    // Tentukan gambar berdasarkan tipe
+                    val imageRes = if (type == "earn") R.drawable.ic_point else R.drawable.ic_voucher
+
+                    // [FIX] Menggunakan Named Arguments agar aman & variabel 'imageRes' yang benar
+                    historyList.add(
+                        History(
+                            title = title,
+                            point = amount.toInt(),
+                            type = type,
+                            imageResId = imageRes // Di sini pakai variabel 'imageRes' yang didefinisikan di atas
+                        )
+                    )
                 }
+
+                // Update Adapter
                 (binding.rvHistory.adapter as? HistoryAdapter)?.updateData(historyList)
             }
     }
 
     private fun setupRecyclerView() {
-        // Asumsi RecyclerView di layout Anda untuk riwayat poin memiliki ID "rvHistory"
         binding.rvHistory.layoutManager = LinearLayoutManager(context)
         binding.rvHistory.adapter = HistoryAdapter(mutableListOf())
     }

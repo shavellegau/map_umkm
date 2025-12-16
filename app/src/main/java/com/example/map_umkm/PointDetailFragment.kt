@@ -1,6 +1,7 @@
 package com.example.map_umkm
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.map_umkm.adapter.HistoryAdapter
 import com.example.map_umkm.databinding.FragmentPointDetailBinding
-import com.example.map_umkm.model.HistoryModel
+import com.example.map_umkm.model.History
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -32,7 +33,7 @@ class PointDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // pakai HistoryAdapter() yang ListAdapter
+        // Inisialisasi Adapter
         historyAdapter = HistoryAdapter()
 
         binding.rvPointDetail.apply {
@@ -53,13 +54,21 @@ class PointDetailFragment : Fragment() {
         FirebaseFirestore.getInstance()
             .collection("users")
             .document(uid)
-            .collection("histories")
+            .collection("point_history") // Pastikan nama collection konsisten
             .orderBy("timestamp", Query.Direction.DESCENDING)
-            .addSnapshotListener { snap, _ ->
-                if (!isAdded) return@addSnapshotListener
+            .addSnapshotListener { snap, e ->
+                if (e != null) {
+                    Log.e("PointDetail", "Listen failed.", e)
+                    return@addSnapshotListener
+                }
 
-                val data = snap?.toObjects(HistoryModel::class.java) ?: emptyList()
-                historyAdapter.submitList(data)
+                if (_binding == null || !isAdded) return@addSnapshotListener
+
+                // Konversi data Firestore ke model History Anda
+                val data = snap?.toObjects(History::class.java) ?: emptyList()
+
+                // Update adapter
+                historyAdapter.updateData(data)
             }
     }
 
