@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/tuku_bg"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:paddingBottom="100dp"
+    android:clipToPadding="false">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -14,9 +16,10 @@
         <View
             android:id="@+id/header_bg"
             android:layout_width="match_parent"
-            android:layout_height="380dp"
+            android:layout_height="0dp"
             android:background="@drawable/bg_header_tuku"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/barrier_header" />
 
         <ImageView
             android:id="@+id/btn_back"
@@ -51,18 +54,44 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <ProgressBar
-            android:id="@+id/progress_xp"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="150dp"
-            android:layout_height="6dp"
-            android:layout_marginTop="8dp"
-            android:progress="0"
-            android:progressTint="@color/tuku_primary_light"
-            android:progressBackgroundTint="@color/tuku_dark_grey"
-            app:layout_constraintEnd_toEndOf="parent"
+        <LinearLayout
+            android:id="@+id/container_progress_xp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="24dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/vp_tier_carousel"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/vp_tier_carousel" />
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <ImageView
+                android:id="@+id/img_current_tier_icon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_tier_bronze"
+                tools:ignore="ContentDescription" />
+
+            <ProgressBar
+                android:id="@+id/progress_xp"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp"
+                android:layout_height="8dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="12dp"
+                android:progress="0"
+                android:progressTint="@color/tuku_primary_light"
+                android:progressBackgroundTint="@color/tuku_dark_grey" />
+
+            <ImageView
+                android:id="@+id/img_next_tier_icon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_tier_silver"
+                tools:ignore="ContentDescription" />
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tv_xp_status"
@@ -74,24 +103,25 @@
             android:layout_marginTop="4dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/progress_xp" />
+            app:layout_constraintTop_toBottomOf="@id/container_progress_xp" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/card_points"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="24dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="8dp"
             app:cardBackgroundColor="@color/white"
-            app:layout_constraintBottom_toBottomOf="@id/header_bg"
-            app:layout_constraintTop_toBottomOf="@id/header_bg">
+            app:layout_constraintTop_toBottomOf="@id/tv_xp_status"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="20dp">
-
                 <TextView
                     android:id="@+id/label_point"
                     android:layout_width="wrap_content"
@@ -102,7 +132,6 @@
                     android:textSize="14sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
-
                 <ImageView
                     android:id="@+id/ic_coin"
                     android:layout_width="24dp"
@@ -112,7 +141,6 @@
                     app:tint="@color/tuku_primary"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/label_point" />
-
                 <TextView
                     android:id="@+id/label_point_value"
                     android:layout_width="wrap_content"
@@ -125,7 +153,6 @@
                     app:layout_constraintBottom_toBottomOf="@id/ic_coin"
                     app:layout_constraintStart_toEndOf="@id/ic_coin"
                     app:layout_constraintTop_toTopOf="@id/ic_coin" />
-
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
@@ -137,9 +164,16 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
-
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="card_points"
+            app:barrierMargin="-50dp"/>
 
         <ImageView
             android:id="@+id/ic_gift"
@@ -172,7 +206,6 @@
             android:orientation="vertical"
             android:paddingHorizontal="24dp"
             android:layout_marginTop="16dp"
-            android:layout_marginBottom="32dp"
             app:layout_constraintTop_toBottomOf="@id/label_rewards"
             app:layout_constraintBottom_toBottomOf="parent" />
 

@@ -32,7 +32,7 @@ class TierAdapter(private val tierList: List<TierModel>) :
     override fun onBindViewHolder(holder: TierViewHolder, position: Int) {
         val tier = tierList[position]
         holder.tvName.text = tier.name
-        holder.imgIcon.setImageResource(tier.iconRes)
+        holder.imgIcon.setImageResource(tier.imageResId)
     }
 
     override fun getItemCount(): Int = tierList.size
