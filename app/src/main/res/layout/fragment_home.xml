@@ -55,6 +55,7 @@
                         android:layout_marginHorizontal="16dp"
                         android:gravity="center_vertical"
                         android:weightSum="3">
+
                         <LinearLayout
                             android:id="@+id/btn_tuku_point"
                             android:layout_width="0dp"
@@ -63,6 +64,7 @@
                             android:orientation="vertical"
                             android:gravity="center_horizontal"
                             android:paddingHorizontal="4dp">
+
                             <ImageView
                                 android:layout_width="55dp"
                                 android:layout_height="55dp"
@@ -70,18 +72,35 @@
                                 android:background="@drawable/circle_brown_bg"
                                 android:padding="8dp"
                                 android:contentDescription="Belahan Jiwa"/>
+
                             <TextView
+                                android:id="@+id/tvLevelValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Tetangga Tuku"
+                                android:text="Bronze"
                                 android:textSize="12sp"
                                 android:layout_marginTop="4dp"
+                                android:textStyle="bold"
                                 android:textColor="@color/tuku_dark"/>
+
+                            <ProgressBar
+                                android:id="@+id/progressBarExp"
+                                style="?android:attr/progressBarStyleHorizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="4dp"
+                                android:layout_marginHorizontal="8dp"
+                                android:layout_marginTop="2dp"
+                                android:progressTint="#D4AF37"
+                                android:progress="0"
+                                android:max="100"/>
+
                             <TextView
+                                android:id="@+id/tvExpValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="520/1.000 XP"
-                                android:textSize="10sp"
+                                android:text="0/100 XP"
+                                android:textSize="9sp"
+                                android:layout_marginTop="2dp"
                                 android:textColor="@color/text_bantuan"/>
                         </LinearLayout>
                         <LinearLayout
@@ -142,7 +161,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Tukarkan Kode Disini"
+                                android:text="Tukarkan Kode"
                                 android:textSize="10sp"
                                 android:textColor="@color/text_bantuan"/>
                         </LinearLayout>
@@ -232,7 +251,7 @@
                                     <TextView
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="Undang Temanmu"
+                                        android:text="Undang Teman"
                                         android:textColor="@color/text_bantuan"
                                         android:textSize="12sp" />
                                 </LinearLayout>
@@ -362,64 +381,113 @@
                         </androidx.cardview.widget.CardView>
                     </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/tv_newest_menu_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="16dp"
-                        android:layout_marginTop="24dp"
-                        android:text="Menu Terbaru"
-                        android:textColor="@color/tuku_dark"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
                     <androidx.cardview.widget.CardView
-                        android:id="@+id/newest_menu_card"
+                        android:id="@+id/cardBudgetOptimizer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="16dp"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="24dp"
                         app:cardCornerRadius="12dp"
-                        app:cardElevation="4dp">
-                        <androidx.constraintlayout.widget.ConstraintLayout
+                        app:cardElevation="4dp"
+                        app:cardBackgroundColor="#FFFFFF">
+
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-                            <ImageView
-                                android:id="@+id/iv_newest_menu_image"
-                                android:layout_width="0dp"
-                                android:layout_height="180dp"
-                                android:contentDescription="Newest Menu Image"
-                                android:scaleType="centerCrop"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent"
-                                tools:src="@tools:sample/backgrounds/scenic" />
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
                             <TextView
-                                android:id="@+id/tv_newest_menu_name"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginHorizontal="16dp"
-                                android:layout_marginTop="12dp"
-                                android:textColor="@color/tuku_dark"
+                                android:text="🤖 Cari Menu Sesuai Kantong"
                                 android:textSize="16sp"
                                 android:textStyle="bold"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/iv_newest_menu_image"
-                                tools:text="Kopi Susu Tetangga" />
+                                android:textColor="#3E2723"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
                             <TextView
-                                android:id="@+id/tv_newest_menu_price"
-                                android:layout_width="0dp"
+                                android:text="Mau jajan berapa hari ini?"
+                                android:textSize="12sp"
+                                android:layout_marginTop="4dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <TextView
+                                android:id="@+id/tvBudgetDisplay"
+                                android:text="Rp 20.000"
+                                android:textSize="24sp"
+                                android:textStyle="bold"
+                                android:textColor="#3E2723"
+                                android:layout_marginTop="8dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <com.google.android.material.slider.Slider
+                                android:id="@+id/sliderBudget"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginHorizontal="16dp"
-                                android:layout_marginBottom="12dp"
-                                android:textColor="@color/text_bantuan"
-                                android:textSize="14sp"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/tv_newest_menu_name"
-                                tools:text="Iced: Rp 20.000" />
-                        </androidx.constraintlayout.widget.ConstraintLayout>
+                                android:valueFrom="5000"
+                                android:valueTo="50000"
+                                android:stepSize="1000"
+                                android:value="20000"/>
+
+                            <Button
+                                android:id="@+id/btnCariRekomendasi"
+                                android:text="CARI REKOMENDASI TERBAIK"
+                                android:backgroundTint="#3E2723"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"/>
+
+                            <LinearLayout
+                                android:id="@+id/layoutResultML"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginTop="16dp"
+                                android:padding="10dp"
+                                android:background="#F5F5F5"
+                                android:visibility="gone"
+                                android:gravity="center_vertical">
+
+                                <ImageView
+                                    android:id="@+id/ivResultImage"
+                                    android:layout_width="70dp"
+                                    android:layout_height="70dp"
+                                    android:scaleType="centerCrop"
+                                    android:src="@drawable/placeholder_image"
+                                    android:layout_marginEnd="12dp"/>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:text="✨ AI Top Pick ✨"
+                                        android:textSize="10sp"
+                                        android:textStyle="bold"
+                                        android:textColor="#FFC107"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"/>
+
+                                    <TextView
+                                        android:id="@+id/tvResultName"
+                                        android:text="Nama Menu"
+                                        android:textStyle="bold"
+                                        android:textSize="16sp"
+                                        android:textColor="@color/black"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"/>
+
+                                    <TextView
+                                        android:id="@+id/tvResultPrice"
+                                        android:text="Rp 0"
+                                        android:textSize="14sp"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"/>
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
                     <TextView
@@ -476,7 +544,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Hi, Abdul !"
+                        android:text="Hi, User !"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="@color/tuku_dark"/>

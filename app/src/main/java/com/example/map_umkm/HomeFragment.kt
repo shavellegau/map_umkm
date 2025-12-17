@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -24,31 +23,38 @@ import com.bumptech.glide.Glide
 import com.example.map_umkm.adapter.BannerAdapter
 import com.example.map_umkm.databinding.FragmentHomeBinding
 import com.example.map_umkm.model.MenuData
+import com.example.map_umkm.model.MenuItem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import org.tensorflow.lite.Interpreter
+import java.io.FileInputStream
 import java.io.InputStreamReader
+import java.nio.channels.FileChannel
+import java.nio.FloatBuffer
+import java.text.NumberFormat
 import java.util.*
-
-//private val .uid: Any
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private var userListener: ListenerRegistration? = null
 
+    // Listener Firestore agar data User update Real-time
+    private var userListener: ListenerRegistration? = null
 
     private val handler = Handler(Looper.getMainLooper())
     private var timer: Timer? = null
     private var updateRunnable: Runnable? = null
 
+    // Data Menu dari JSON
+    private var allRealMenus: List<MenuItem> = emptyList()
+
     private val pilihCabangLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        // Muat lokasi jika PilihCabangActivity sukses (RESULT_OK)
         if (result.resultCode == Activity.RESULT_OK) {
             loadSavedLocation()
         }
@@ -65,16 +71,189 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        displayUserGreeting()
+        // 1. Load Data Menu (JSON)
+        loadMenuFromJson()
+
+        // 2. Setup Listener User (Nama, Poin, XP, Tier)
+        setupUserDataListener()
+
+        // 3. Setup UI Lainnya
         setupBannerCarousel()
-        loadNewestMenuFromJson()
-
         setupListeners()
-
         loadSavedLocation()
-
         getVoucherCount()
         getUnreadNotificationCount()
+
+        // 4. Setup AI (Budget Optimizer)
+        setupBudgetOptimizer()
+    }
+
+    // --- FUNGSI UTAMA: REAL-TIME USER DATA ---
+    private fun setupUserDataListener() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        userListener = db.collection("users").document(uid)
+            .addSnapshotListener { document, error ->
+                if (error != null) {
+                    Log.e("HomeFragment", "Listen failed.", error)
+                    return@addSnapshotListener
+                }
+
+                if (document != null && document.exists()) {
+                    // A. Update Nama
+                    val name = document.getString("name") ?: "Pengguna"
+                    binding.tvUserGreeting.text = "Hi, $name!"
+
+                    // B. Update Poin (Baca field 'tukuPoints' sesuai TukuPointFragment)
+                    val points = document.getLong("tukuPoints")?.toInt() ?: 0
+                    val formattedPoints = NumberFormat.getNumberInstance(Locale("id", "ID")).format(points)
+                    binding.tvTukuPointValue.text = "$formattedPoints Poin"
+
+                    // C. Update XP & Tier (Baca field 'currentXp' sesuai TetanggaTukuFragment)
+                    val currentXp = document.getLong("currentXp")?.toInt() ?: 0
+
+                    // Logika Tier Manual (Sama persis dengan TetanggaTukuFragment)
+                    // Batas: Bronze (0), Silver (100), Gold (250), Platinum (500), Diamond (1000)
+
+                    val tierName: String
+                    val nextTargetXp: Int
+
+                    when {
+                        currentXp >= 1000 -> {
+                            tierName = "Diamond"
+                            nextTargetXp = 1000 // Max Level
+                        }
+                        currentXp >= 500 -> {
+                            tierName = "Platinum"
+                            nextTargetXp = 1000
+                        }
+                        currentXp >= 250 -> {
+                            tierName = "Gold"
+                            nextTargetXp = 500
+                        }
+                        currentXp >= 100 -> {
+                            tierName = "Silver"
+                            nextTargetXp = 250
+                        }
+                        else -> {
+                            tierName = "Bronze"
+                            nextTargetXp = 100
+                        }
+                    }
+
+                    // Update UI Tier & Progress Bar di Home
+                    // Pastikan ID di XML kamu sesuai (tvLevelValue, tvExpValue, progressBarExp)
+                    if (binding.tvLevelValue != null) {
+                        binding.tvLevelValue.text = tierName
+
+                        if (tierName == "Diamond") {
+                            binding.tvExpValue.text = "MAX Level"
+                            binding.progressBarExp.max = 100
+                            binding.progressBarExp.progress = 100
+                        } else {
+                            binding.tvExpValue.text = "$currentXp / $nextTargetXp XP"
+                            binding.progressBarExp.max = nextTargetXp
+                            binding.progressBarExp.progress = currentXp
+                        }
+                    }
+                }
+            }
+    }
+
+    private fun loadMenuFromJson() {
+        try {
+            val inputStream = requireContext().assets.open("menu_items.json")
+            val reader = InputStreamReader(inputStream)
+            val menuDataType = object : TypeToken<MenuData>() {}.type
+            val data: MenuData = Gson().fromJson(reader, menuDataType)
+            allRealMenus = data.menu
+        } catch (e: Exception) {
+            Log.e("HomeFragment", "JSON Error: ${e.message}")
+            allRealMenus = emptyList()
+        }
+    }
+
+    private fun setupBudgetOptimizer() {
+        binding.sliderBudget.addOnChangeListener { _, value, _ ->
+            binding.tvBudgetDisplay.text = "Rp ${value.toInt()}"
+        }
+
+        binding.btnCariRekomendasi.setOnClickListener {
+            val budget = binding.sliderBudget.value
+            try {
+                // 1. Prediksi AI
+                val classifier = BudgetClassifier(requireContext(), "budget_tuku_v2.tflite")
+                val normalizedBudget = budget / 100000.0f
+                val resultIndex = classifier.predict(normalizedBudget)
+
+                // 2. Filter Data Asli
+                val filteredRealData = when(resultIndex) {
+                    0 -> allRealMenus.filter { getValidPrice(it) < 18000 }
+                    1 -> allRealMenus.filter { getValidPrice(it) in 18000..32000 }
+                    2 -> allRealMenus.filter { getValidPrice(it) > 32000 }
+                    else -> emptyList()
+                }
+
+                // 3. Pilih Menu (Random Asli atau Dummy Fallback)
+                val selectedMenu: MenuItem = if (filteredRealData.isNotEmpty()) {
+                    filteredRealData.random()
+                } else {
+                    getDummyFallback(resultIndex)
+                }
+
+                // 4. Tampilkan Hasil
+                binding.layoutResultML.visibility = View.VISIBLE
+                binding.tvResultName.text = selectedMenu.name
+                binding.tvResultPrice.text = "Rp ${getValidPrice(selectedMenu)}"
+
+                Glide.with(this)
+                    .load(selectedMenu.image)
+                    .placeholder(R.drawable.placeholder_image)
+                    .into(binding.ivResultImage)
+
+                // 5. Navigasi ke Detail
+                binding.layoutResultML.setOnClickListener {
+                    try {
+                        val bundle = Bundle()
+                        bundle.putParcelable("product", selectedMenu)
+                        findNavController().navigate(R.id.action_nav_home_to_productDetailFragment, bundle)
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Gagal membuka detail", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                Toast.makeText(context, "Rekomendasi ditemukan!", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(context, "Gagal memuat AI", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // Helper functions
+    private fun getValidPrice(menu: MenuItem): Int {
+        return menu.price_iced ?: menu.price_hot ?: 0
+    }
+
+    private fun getDummyFallback(categoryIndex: Int): MenuItem {
+        return when(categoryIndex) {
+            0 -> createDummyMenu("Donat Kampoeng", "Donat gula halus.", 8000, "")
+            1 -> createDummyMenu("Kopi Susu Tetangga", "Kopi susu gula aren.", 20000, "")
+            2 -> createDummyMenu("TUKUCUR 1 Liter", "Stok kopi.", 85000, "")
+            else -> createDummyMenu("Menu Spesial", "Rekomendasi.", 20000, "")
+        }
+    }
+
+    private fun createDummyMenu(name: String, desc: String, price: Int, img: String): MenuItem {
+        return MenuItem(
+            id = (1000..9999).random(),
+            category = "Recommendation",
+            name = name,
+            description = desc,
+            image = img,
+            createdAt = null,
+            price_hot = price,
+            price_iced = price
+        )
     }
 
     override fun onResume() {
@@ -82,9 +261,6 @@ class HomeFragment : Fragment() {
         loadSavedLocation()
         getVoucherCount()
         getUnreadNotificationCount()
-
-        val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
-        binding.tvUserGreeting.text = "Hi, ${prefs.getString("userName", "User")}!"
     }
 
     private fun loadSavedLocation() {
@@ -93,164 +269,67 @@ class HomeFragment : Fragment() {
         binding.tvCurrentLocation.text = savedBranchName
     }
 
-    private fun displayUserGreeting() {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-        userListener = db.collection("users")
-            .document(uid)
-            .addSnapshotListener { doc, error ->
-                if (error != null) {
-                    Log.e("HomeFragment", "listener error: ${error.message}")
-                    return@addSnapshotListener
-                }
-                val newName = doc?.getString("name") ?: "Pengguna"
-                if (_binding != null) {
-                    binding.tvUserGreeting.text = "Hi, $newName!"
-                }
-            }
-    }
-
-
     private fun getVoucherCount() {
         val db = FirebaseFirestore.getInstance()
-
-        db.collection("vouchers")
-            .whereEqualTo("isActive", true)
-            .get()
-            .addOnSuccessListener { documents ->
-                val count = documents.size()
-                updateVoucherCountUI(count)
-            }
-            .addOnFailureListener { e ->
-                Log.e("HomeFragment", "Gagal menghitung voucher publik: ${e.message}")
-                updateVoucherCountUI(0)
-            }
+        db.collection("vouchers").whereEqualTo("isActive", true).get().addOnSuccessListener {
+            updateVoucherCountUI(it.size())
+        }
     }
 
-
     private fun updateVoucherCountUI(count: Int) {
-        if (_binding != null) {
-            // Tampilkan jumlah voucher dengan label "Voucher"
-            binding.tvVoucherCount.text = "$count Voucher"
-        }
+        if (_binding != null) binding.tvVoucherCount.text = "$count Voucher"
     }
 
     private fun getUnreadNotificationCount() {
         val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
-        val userEmail = prefs.getString("userEmail", null)
-
-        if (userEmail == null) return
-
+        val userEmail = prefs.getString("userEmail", null) ?: return
         val db = FirebaseFirestore.getInstance()
-
-        db.collection("notifications")
-            .whereEqualTo("userEmail", userEmail)
-            .whereEqualTo("isRead", false)
-            .get()
-            .addOnSuccessListener { documents ->
-                val count = documents.size()
-                updateNotificationBadge(count)
-            }
-            .addOnFailureListener { e ->
-                Log.e("HomeFragment", "Gagal mengambil jumlah notifikasi: ${e.message}")
-                updateNotificationBadge(0)
-            }
+        db.collection("notifications").whereEqualTo("userEmail", userEmail).whereEqualTo("isRead", false).get().addOnSuccessListener {
+            updateNotificationBadge(it.size())
+        }
     }
-
 
     private fun updateNotificationBadge(count: Int) {
         if (_binding != null) {
-            if (count > 0) {
-                // Tampilkan angka, batasi hingga "9+"
-                binding.tvNotificationCount.text = if (count > 9) "9+" else count.toString()
-                binding.tvNotificationCount.visibility = View.VISIBLE
-            } else {
-                binding.tvNotificationCount.visibility = View.GONE
-            }
+            binding.tvNotificationCount.text = if (count > 9) "9+" else count.toString()
+            binding.tvNotificationCount.visibility = if (count > 0) View.VISIBLE else View.GONE
         }
     }
 
     private fun setupListeners() {
-        binding.locationCard.setOnClickListener {
-            val intent = Intent(requireActivity(), PilihCabangActivity::class.java)
-            pilihCabangLauncher.launch(intent)
-        }
-        binding.btnNotification.setOnClickListener {
-            findNavController().navigate(R.id.action_nav_home_to_notificationFragment)
-        }
-
-        binding.btnTukuPoint.setOnClickListener {
-            findNavController().navigate(R.id.action_nav_home_to_tetanggaTukuFragment)
-        }
-
-        binding.ivTukuPoint.setOnClickListener {
-            findNavController().navigate(R.id.action_nav_home_to_tukuPointFragment)
-        }
-
-        binding.referralCard.setOnClickListener {
-            findNavController().navigate(R.id.action_nav_home_to_referralFragment)
-        }
-
-        binding.voucherCard.setOnClickListener {
-            findNavController().navigate(R.id.action_nav_home_to_voucherSayaFragment)
-        }
-
-        binding.tukuCareCard.setOnClickListener {
-            findNavController().navigate(R.id.action_nav_home_to_bantuanFragment)
-        }
-
-        binding.ivKodeRedeem.setOnClickListener {
-            showRedeemDialog()
-        }
-
-        val changeTabToMenu = {
-            if (activity is MainActivity) {
-                (activity as MainActivity).bottomNavigationView.selectedItemId = R.id.nav_cart
-            }
-        }
-
-        binding.takeAwayCard.setOnClickListener {
-            changeTabToMenu()
-        }
-
-        binding.deliveryCard.setOnClickListener {
-            changeTabToMenu()
-        }
+        binding.locationCard.setOnClickListener { pilihCabangLauncher.launch(Intent(requireActivity(), PilihCabangActivity::class.java)) }
+        binding.btnNotification.setOnClickListener { findNavController().navigate(R.id.action_nav_home_to_notificationFragment) }
+        binding.btnTukuPoint.setOnClickListener { findNavController().navigate(R.id.action_nav_home_to_tetanggaTukuFragment) }
+        binding.ivTukuPoint.setOnClickListener { findNavController().navigate(R.id.action_nav_home_to_tukuPointFragment) }
+        binding.referralCard.setOnClickListener { findNavController().navigate(R.id.action_nav_home_to_referralFragment) }
+        binding.voucherCard.setOnClickListener { findNavController().navigate(R.id.action_nav_home_to_voucherSayaFragment) }
+        binding.tukuCareCard.setOnClickListener { findNavController().navigate(R.id.action_nav_home_to_bantuanFragment) }
+        binding.ivKodeRedeem.setOnClickListener { showRedeemDialog() }
+        val changeTabToMenu = { if (activity is MainActivity) (activity as MainActivity).bottomNavigationView.selectedItemId = R.id.nav_cart }
+        binding.takeAwayCard.setOnClickListener { changeTabToMenu() }
+        binding.deliveryCard.setOnClickListener { changeTabToMenu() }
     }
 
     private fun showRedeemDialog() {
         val dialog = Dialog(requireContext())
         dialog.setContentView(R.layout.dialog_redeem_code)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-
         val width = (resources.displayMetrics.widthPixels * 0.90).toInt()
         dialog.window?.setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
-
         val etCode = dialog.findViewById<EditText>(R.id.et_redeem_code)
-        val btnCancel = dialog.findViewById<Button>(R.id.btn_cancel_redeem)
-        val btnApply = dialog.findViewById<Button>(R.id.btn_apply_redeem)
-
-        btnCancel.setOnClickListener {
-            dialog.dismiss()
-        }
-
-        btnApply.setOnClickListener {
-            val code = etCode.text.toString().trim()
-            if (code.isNotEmpty()) {
-                Toast.makeText(requireContext(), "Kode '$code' sedang diproses...", Toast.LENGTH_SHORT).show()
+        dialog.findViewById<Button>(R.id.btn_cancel_redeem).setOnClickListener { dialog.dismiss() }
+        dialog.findViewById<Button>(R.id.btn_apply_redeem).setOnClickListener {
+            if (etCode.text.toString().trim().isNotEmpty()) {
+                Toast.makeText(requireContext(), "Kode diproses...", Toast.LENGTH_SHORT).show()
                 dialog.dismiss()
-            } else {
-                Toast.makeText(requireContext(), "Kode tidak boleh kosong", Toast.LENGTH_SHORT).show()
             }
         }
-
         dialog.show()
     }
 
     private fun setupBannerCarousel() {
         val bannerImages = listOf(R.drawable.banner_tuku_hut, R.drawable.tuku_banner, R.drawable.banner_tuku_mrt)
-        val bannerAdapter = BannerAdapter(bannerImages)
-        binding.bannerViewPager.adapter = bannerAdapter
+        binding.bannerViewPager.adapter = BannerAdapter(bannerImages)
         var currentPage = 0
         updateRunnable = Runnable {
             if (isAdded && _binding != null) {
@@ -260,64 +339,41 @@ class HomeFragment : Fragment() {
         }
         timer = Timer()
         timer?.schedule(object : TimerTask() {
-            override fun run() {
-                updateRunnable?.let { handler.post(it) }
-            }
+            override fun run() { updateRunnable?.let { handler.post(it) } }
         }, 3000, 3000)
-    }
-
-    private fun loadNewestMenuFromJson() {
-        try {
-            val inputStream = context?.assets?.open("menu_items.json")
-            val reader = InputStreamReader(inputStream)
-            val menuDataType = object : TypeToken<MenuData>() {}.type
-            val menuData: MenuData = Gson().fromJson(reader, menuDataType)
-
-            // Mengambil item dengan createdAt terbaru dari JSON lokal
-            val newestMenuItem = menuData.menu.filter { !it.createdAt.isNullOrEmpty() }.maxByOrNull { it.createdAt!! }
-
-            if (newestMenuItem != null) {
-                binding.newestMenuCard.visibility = View.VISIBLE
-                binding.tvNewestMenuName.text = newestMenuItem.name
-                val priceHot = newestMenuItem.price_hot?.let { "Hot: Rp $it" } ?: ""
-                val priceIced = newestMenuItem.price_iced?.let { "Iced: Rp $it" } ?: ""
-                binding.tvNewestMenuPrice.text = listOf(priceHot, priceIced).filter { it.isNotEmpty() }.joinToString(" / ")
-
-                newestMenuItem.image?.let { imageName ->
-                    val context = requireContext()
-                    val imageResId = context.resources.getIdentifier(
-                        imageName,
-                        "drawable",
-                        context.packageName
-                    )
-
-                    val source = if (imageResId != 0) imageResId else R.drawable.placeholder_image
-
-                    Glide.with(this).load(source).into(binding.ivNewestMenuImage)
-                }
-
-                binding.newestMenuCard.setOnClickListener {
-                    Toast.makeText(requireContext(), "Clicked on ${newestMenuItem.name}", Toast.LENGTH_SHORT).show()
-                }
-
-            } else {
-                binding.newestMenuCard.visibility = View.GONE
-            }
-        } catch (e: Exception) {
-            Log.e("HomeFragment", "Error loading JSON: ${e.message}")
-            binding.newestMenuCard.visibility = View.GONE
-        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         userListener?.remove()
-        userListener = null
-
         timer?.cancel()
-        timer = null
-        updateRunnable?.let { handler.removeCallbacks(it) }
-        updateRunnable = null
         _binding = null
+    }
+}
+
+// CLASS HELPER TFLITE (Tetap Sama)
+class BudgetClassifier(context: Context, fileName: String) {
+    private var interpreter: Interpreter? = null
+    init {
+        try {
+            val assetManager = context.assets
+            val descriptor = assetManager.openFd(fileName)
+            val inputStream = FileInputStream(descriptor.fileDescriptor)
+            val fileChannel = inputStream.channel
+            val startOffset = descriptor.startOffset
+            val declaredLength = descriptor.declaredLength
+            val modelBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
+            interpreter = Interpreter(modelBuffer)
+        } catch (e: Exception) { e.printStackTrace() }
+    }
+    fun predict(budget: Float): Int {
+        if (interpreter == null) return -1
+        val input = FloatBuffer.allocate(1).apply { put(budget); rewind() }
+        val output = Array(1) { FloatArray(3) }
+        interpreter?.run(input, output)
+        val probs = output[0]
+        var maxIndex = 0
+        for (i in 1 until probs.size) { if (probs[i] > probs[maxIndex]) maxIndex = i }
+        return maxIndex
     }
 }

@@ -1,6 +1,8 @@
 package com.example.map_umkm.model
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
 // [MODIFIKASI] Tambahkan 'orders' di sini
 data class MenuData(
@@ -13,6 +15,7 @@ data class MenuData(
     var orders: MutableList<Order> // <-- TAMBAHKAN INI
 )
 // [PERBAIKAN] Ubah semua 'val' menjadi 'var' di sini agar nilainya bisa diedit
+@Parcelize
 data class MenuItem(
     @SerializedName("id")
     var id: Int,
@@ -37,4 +40,4 @@ data class MenuItem(
 
     @SerializedName("price_iced")
     var price_iced: Int?
-)
+) : Parcelable

@@ -38,18 +38,43 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
 
-                    <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/imgProfile"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:src="@drawable/ic_launcher_foreground"
-                        android:background="@android:color/white"
-                        android:scaleType="centerCrop"
-                        android:padding="2dp"
-                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
-                        app:strokeColor="@color/tuku_accent"
-                        app:strokeWidth="2dp" />
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
 
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/ivProfile"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:src="@drawable/ic_launcher_foreground"
+                            android:background="@android:color/white"
+                            android:scaleType="centerCrop"
+                            android:padding="2dp"
+                            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                            app:strokeColor="@color/tuku_accent"
+                            app:strokeWidth="2dp"
+                            android:clickable="true"
+                            android:focusable="true"/>
+
+                        <ProgressBar
+                            android:id="@+id/progressBarProfile"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_gravity="center"
+                            android:indeterminateTint="@color/tuku_primary"
+                            android:elevation="4dp"
+                            android:visibility="gone"/>
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_edit"
+                            android:background="@drawable/circle_brown_bg"
+                            android:padding="5dp"
+                            android:layout_gravity="bottom|end"
+                            android:elevation="4dp"
+                            app:tint="@android:color/white"/>
+                    </FrameLayout>
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -61,7 +86,7 @@
                             android:id="@+id/txtName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Budi Santoso"
+                            android:text="Nama Pengguna"
                             android:textSize="22sp"
                             android:textStyle="bold"
                             android:textColor="@android:color/white"
@@ -71,7 +96,7 @@
                             android:id="@+id/tvEmail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="budi@example.com"
+                            android:text="email@example.com"
                             android:textSize="14sp"
                             android:textColor="#E0E0E0"
                             android:layout_marginTop="2dp"/>
@@ -118,7 +143,7 @@
                                 android:id="@+id/tvMemberPoints"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="5,480 Pts"
+                                android:text="0 Pts"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
                                 android:textColor="@color/tuku_dark" />
@@ -147,7 +172,7 @@
                                 android:id="@+id/tvMemberStatus"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Gold Member"
+                                android:text="Member"
                                 android:textStyle="bold"
                                 android:textColor="@color/tuku_primary"
                                 android:textSize="14sp"/>
@@ -341,14 +366,16 @@
             android:orientation="vertical"
             android:paddingHorizontal="24dp"
             android:paddingTop="24dp"
-            android:paddingBottom="120dp"> <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pengaturan"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="@color/tuku_dark"
-            android:layout_marginBottom="16dp"/>
+            android:paddingBottom="120dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pengaturan"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@color/tuku_dark"
+                android:layout_marginBottom="16dp"/>
 
             <TextView
                 android:id="@+id/menuAlamat"

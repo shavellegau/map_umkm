@@ -1,142 +1,171 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#FAF4EB">
+    android:background="#6D4C41"> <ImageView
+    android:id="@+id/btnBack"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:layout_marginTop="16dp"
+    android:layout_marginStart="16dp"
+    android:padding="8dp"
+    android:src="@drawable/ic_arrow_back"
+    app:tint="#FFFFFF"
+    android:background="?attr/selectableItemBackgroundBorderless"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- HEADER PRIMARY -->
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tvHeaderTitle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp"
-        android:background="#6D4C41">
+        android:text="Tuku Point"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btnBack"
+        app:layout_constraintBottom_toBottomOf="@+id/btnBack" />
 
-        <!-- Back + Title -->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/labelTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total Point Kamu"
+        android:textColor="#CCFFFFFF"
+        android:textSize="12sp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@+id/tvHeaderTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-            <ImageView
-                android:id="@+id/btnBack"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_arrow_back"
-                android:tint="#FFFFFF"
-                android:contentDescription="back" />
+    <LinearLayout
+        android:id="@+id/layoutPointDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="4dp"
+        app:layout_constraintTop_toBottomOf="@+id/labelTotal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Histori Tuku Point"
-                android:textColor="#FFFFFF"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:layout_centerHorizontal="true" />
-        </RelativeLayout>
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_coin"
+            android:layout_marginEnd="8dp"/>
 
-        <!-- Total Point -->
         <TextView
-            android:text="Total Point"
-            android:textColor="#FFFFFF"
-            android:textSize="12sp"
+            android:id="@+id/tvTotalPoint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:layout_marginTop="4dp"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:src="@drawable/ic_coin"
-             />
-
-            <TextView
-                android:id="@+id/tvTotalPoint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="1136"
-                android:textColor="#FFFFFF"
-                android:textSize="32sp"
-                android:textStyle="bold"
-                android:layout_marginStart="8dp" />
-        </LinearLayout>
-
-        <!-- Expire Info -->
-        <TextView
-            android:id="@+id/tvExpireInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Point akan hangus pada 31 Desember 2026"
-            android:textSize="12sp"
+            android:text="0"
             android:textColor="#FFFFFF"
-            android:background="#33FFFFFF"
-            android:gravity="center"
-            android:layout_marginTop="12dp"
-            android:padding="8dp" />
-
+            android:textSize="40sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- CONTENT -->
     <LinearLayout
+        android:id="@+id/layoutExpire"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_rounded_white_small"
+        android:backgroundTint="#33FFFFFF"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:layout_marginTop="12dp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toBottomOf="@+id/layoutPointDisplay"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:src="@drawable/ic_info"
+            app:tint="#FFFFFF"
+            android:layout_marginEnd="6dp"/>
+
+        <TextView
+            android:id="@+id/tvExpireInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hangus pada 31 Des 2026"
+            android:textSize="11sp"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#FFFFFF"
-        android:orientation="vertical"
-        android:padding="14dp"
-        android:elevation="4dp"
-        android:clipToPadding="false">
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_sheet_top_rounded"
+        android:elevation="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/layoutExpire"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Tabs -->
         <LinearLayout
             android:id="@+id/tabContainer"
             android:layout_width="match_parent"
-            android:layout_height="42dp"
-            android:background="#DDC8B5"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_tab_segment_container"
             android:padding="4dp"
+            android:orientation="horizontal"
             android:weightSum="2"
-            android:elevation="3dp"
-            android:orientation="horizontal">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <TextView
                 android:id="@+id/tabDidapat"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="Point Didapat"
+                android:text="Didapat"
                 android:gravity="center"
                 android:textColor="#3E2723"
+                android:textSize="13sp"
                 android:textStyle="bold"
-                android:background="#FFFFFF"
-                android:padding="8dp" />
+                android:background="@drawable/bg_tab_indicator_active"
+                android:elevation="2dp"/>
 
             <TextView
                 android:id="@+id/tabTerpakai"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="Point Terpakai"
+                android:text="Terpakai"
                 android:gravity="center"
-                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textColor="#8D6E63"
                 android:textStyle="bold"
-                android:background="#3E2723"
-                android:padding="8dp" />
+                android:background="@android:color/transparent"/>
         </LinearLayout>
 
-        <!-- RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvHistory"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="12dp"
-            android:overScrollMode="never" />
-    </LinearLayout>
-</LinearLayout>
+            android:layout_height="0dp"
+            android:layout_marginTop="16dp"
+            android:paddingBottom="16dp"
+            android:clipToPadding="false"
+            android:overScrollMode="never"
+            app:layout_constraintTop_toBottomOf="@+id/tabContainer"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

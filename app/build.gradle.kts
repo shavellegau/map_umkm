@@ -98,8 +98,7 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.firebase:firebase-analytics")
-
-
+    implementation("com.google.firebase:firebase-storage-ktx")
 
     // Networking & Other
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
