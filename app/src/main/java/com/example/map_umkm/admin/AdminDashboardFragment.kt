@@ -9,17 +9,18 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.google.android.material.tabs.TabLayoutMediator
+
+// --- IMPORT FRAGMENT (Pastikan Package Sesuai Lokasi File Anda) ---
 import com.example.map_umkm.AdminMenuFragment
 import com.example.map_umkm.AdminOrdersFragment
 import com.example.map_umkm.AdminVoucherFragment
-import com.example.map_umkm.admin.AdminNotificationFragment // TAMBAHAN: Import Fragment Notifikasi
-import com.example.map_umkm.admin.AdminCabangFragment
+import com.example.map_umkm.admin.AdminNotificationFragment
+import com.example.map_umkm.admin.AdminCabangFragment // Ini yang tadi kita fix
 import com.example.map_umkm.LoginActivity
 import com.example.map_umkm.R
 import com.example.map_umkm.databinding.FragmentAdminDashboardBinding
-import com.google.android.material.tabs.TabLayoutMediator
 
 class AdminDashboardFragment : Fragment() {
 
@@ -42,32 +43,39 @@ class AdminDashboardFragment : Fragment() {
     }
 
     private fun setupTabs() {
-        // TAMBAHAN: Masukkan AdminNotificationFragment ke dalam list fragments
+        // Daftar Fragment untuk setiap Tab
         val fragments = listOf(
             AdminOrdersFragment(),
             AdminMenuFragment(),
             AdminVoucherFragment(),
-            AdminCabangFragment(),
-            AdminNotificationFragment() // Tab ke-5: Notifikasi Broadcast
+            AdminCabangFragment(),     // Tab Cabang (Sudah diperbaiki)
+            AdminNotificationFragment() // Tab Broadcast
         )
 
-        // TAMBAHAN: Masukkan Judul Tab "Broadcast" atau "Notifikasi"
+        // Judul Tab
         val titles = listOf(
-            "Konfirmasi Pesanan",
-            "Manajemen Menu",
-            "Tambah Voucher",
-            "Tambah Cabang",
-            "Broadcast Promo" // Judul untuk Tab ke-5
+            "Pesanan",    // Disingkat agar muat di layar HP
+            "Menu",
+            "Voucher",
+            "Cabang",
+            "Broadcast"
         )
 
-        val adapter = object : FragmentStateAdapter(this) {
+        val adapter = object : FragmentStateAdapter(childFragmentManager, viewLifecycleOwner.lifecycle) {
             override fun getItemCount() = fragments.size
             override fun createFragment(position: Int) = fragments[position]
         }
 
-        binding.adminViewPager.adapter = adapter
+        binding.adminViewPager.apply {
+            this.adapter = adapter
 
-        // Menghubungkan Tab Layout dengan ViewPager
+            // OPTIMASI PENTING:
+            // Menyimpan state 4 halaman di kiri/kanan agar tidak reload data saat digeser.
+            // Menghemat kuota Firebase dan membuat aplikasi terasa cepat.
+            offscreenPageLimit = fragments.size
+        }
+
+        // Hubungkan Tab Layout dengan ViewPager
         TabLayoutMediator(binding.adminTabLayout, binding.adminViewPager) { tab, position ->
             tab.text = titles[position]
         }.attach()
@@ -80,13 +88,16 @@ class AdminDashboardFragment : Fragment() {
     }
 
     private fun showCustomLogoutDialog() {
+        // Pastikan layout 'dialog_logout_confirm' benar-benar ada di folder res/layout
         val customView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_logout_confirm, null)
 
         val dialog = AlertDialog.Builder(requireContext())
             .setView(customView)
+            .setCancelable(true) // Bisa ditutup dengan klik area luar
             .create()
 
+        // Pastikan ID tombol di XML dialog_logout_confirm sesuai
         val btnConfirm = customView.findViewById<Button>(R.id.btnLogout)
         val btnCancel = customView.findViewById<Button>(R.id.btnCancel)
 
@@ -113,6 +124,8 @@ class AdminDashboardFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        // Hapus adapter agar tidak memory leak saat view dihancurkan
+        binding.adminViewPager.adapter = null
         super.onDestroyView()
         _binding = null
     }

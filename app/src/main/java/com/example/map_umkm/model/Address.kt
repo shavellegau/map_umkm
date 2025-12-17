@@ -4,28 +4,26 @@ import android.os.Parcelable
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.Exclude
 import kotlinx.parcelize.IgnoredOnParcel
-// [FIXED] 'import kotlinx.parcelize.Parcelize' dipindahkan ke baris baru
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Address(
     var id: String = "",
-    val uid: String = "",
+    val uid: String = "", // Nanti diisi dengan User ID dari Firebase Auth
     val label: String = "",
     val recipientName: String = "",
     val phoneNumber: String = "",
-    val fullAddress: String = "",
+    val fullAddress: String = "", // Ini yang akan diisi otomatis dari Peta + Edit manual
     val notes: String? = null,
     var isPrimary: Boolean = false,
 
-    // Field untuk menyimpan koordinat
+    // Koordinat dari Google Maps
     val latitude: Double? = null,
     val longitude: Double? = null
 ) : Parcelable {
 
-    // Helper untuk mengubah lat/lng menjadi objek LatLng dengan mudah
     @IgnoredOnParcel
-    @get:Exclude // Agar tidak disimpan lagi oleh Firestore
+    @get:Exclude
     val latLng: LatLng?
         get() = if (latitude != null && longitude != null) {
             LatLng(latitude, longitude)

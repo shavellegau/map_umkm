@@ -42,7 +42,14 @@
         android:id="@+id/nav_tetangga_tuku"
         android:name="com.example.map_umkm.TetanggaTukuFragment"
         android:label="Tetangga Tuku"
-        tools:layout="@layout/fragment_tetangga_tuku" />
+        tools:layout="@layout/fragment_tetangga_tuku">
+
+        <action
+            android:id="@+id/action_tetanggaTukuFragment_to_nav_home"
+            app:destination="@id/nav_home"
+            app:popUpTo="@id/nav_home"
+            app:popUpToInclusive="true" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_cart"

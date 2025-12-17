@@ -12,8 +12,9 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.map_umkm.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.messaging.FirebaseMessaging
+// Import Fragment Admin kamu (sesuaikan jika perlu)
 import com.example.map_umkm.admin.AdminNotificationFragment
-import com.example.map_umkm.AdminOrdersFragment
+// import com.example.map_umkm.AdminOrdersFragment // (Uncomment jika package benar)
 
 class MainActivity : AppCompatActivity() {
 
@@ -53,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView.setupWithNavController(navController)
 
         // ======================================================
-        // 🔥 PERBAIKAN: LOGIKA MENYEMBUNYIKAN NAVBAR 🔥
+        // LOGIKA MENYEMBUNYIKAN NAVBAR
         // ======================================================
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
@@ -63,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.qrisFragment,
                 R.id.productDetailFragment,
                 R.id.adminDashboardFragment,
-                R.id.adminOrdersFragment,      // Tambahkan fragment admin lain jika ada
+                R.id.adminOrdersFragment,
                 R.id.adminNotificationFragment,
                 R.id.adminMenuFragment -> {
                     bottomNavigationView.visibility = View.GONE
@@ -76,23 +77,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         // ======================================================
-        // 3. Admin Mode → buka fragment admin dashboard
+        // 3. Admin Mode
         // ======================================================
         val openAdmin = intent.getBooleanExtra("openAdmin", false)
         if (openAdmin) {
             navController.navigate(R.id.adminDashboardFragment)
-            // Admin tidak butuh bottom nav (sudah dihandle listener di atas, tapi ini untuk safety)
             bottomNavigationView.visibility = View.GONE
         }
 
         // ======================================================
-        // 4. Save Token FCM
+        // 4. Save Token FCM & Subscribe
         // ======================================================
         saveUserFCMToken()
 
-        // ======================================================
-        // 5. Subscribe ke topik promo
-        // ======================================================
         FirebaseMessaging.getInstance().subscribeToTopic("promo")
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -101,6 +98,10 @@ class MainActivity : AppCompatActivity() {
                     Log.e("FCM_SUB", "Gagal subscribe", task.exception)
                 }
             }
+
+
+
+
     }
 
     // ======================================================

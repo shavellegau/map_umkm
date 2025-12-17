@@ -1,152 +1,172 @@
 package com.example.map_umkm
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.map_umkm.databinding.FragmentAddEditAddressBinding
 import com.example.map_umkm.model.Address
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.android.gms.maps.model.LatLng
 
 class AddEditAddressFragment : Fragment() {
 
-    private var _binding: FragmentAddEditAddressBinding? = null
-    private val binding get() = _binding!!
+    // View components
+    private lateinit var etLabel: EditText
+    private lateinit var etName: EditText
+    private lateinit var etPhone: EditText
+    private lateinit var etFullAddress: EditText
+    private lateinit var btnPilihPeta: Button
+    private lateinit var cbPrimary: CheckBox
+    private lateinit var btnSave: Button
+    private lateinit var toolbar: MaterialToolbar
 
-    private val db = FirebaseFirestore.getInstance()
-    private val user = FirebaseAuth.getInstance().currentUser
+    // Variables
+    private var tempLatitude: Double? = null
+    private var tempLongitude: Double? = null
+    private var addressId: String? = null // Untuk mode edit
 
-    private var addressId: String? = null
-    private var isEditMode = false
+    // =========================================================================
+    // 1. LAUNCHER ANTI-CRASH (Inilah Kuncinya)
+    // =========================================================================
+    private val mapResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        // Cek apakah Fragment masih aktif di layar
+        if (!isAdded) return@registerForActivityResult
 
-    // [BARU] Variabel untuk menyimpan koordinat yang dipilih dari peta
-    private var selectedLatitude: Double? = null
-    private var selectedLongitude: Double? = null
+        try {
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data
+                if (data != null) {
+                    val lat = data.getDoubleExtra("LATITUDE", 0.0)
+                    val lng = data.getDoubleExtra("LONGITUDE", 0.0)
+                    val addressStr = data.getStringExtra("ALAMAT") ?: ""
+
+                    // Simpan koordinat ke variabel
+                    tempLatitude = lat
+                    tempLongitude = lng
+
+                    // [PENTING] Cek apakah EditText sudah siap sebelum diisi
+                    // Ini yang mencegah aplikasi mental ke Ringkasan Pesanan
+                    if (::etFullAddress.isInitialized) {
+                        etFullAddress.setText(addressStr)
+                        // Taruh kursor di akhir teks
+                        if (etFullAddress.text.isNotEmpty()) {
+                            etFullAddress.setSelection(etFullAddress.text.length)
+                        }
+                    } else {
+                        Log.w("AddAddress", "View belum siap, alamat disimpan di variabel saja.")
+                    }
+
+                    Toast.makeText(context, "Lokasi berhasil dipilih!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Tangkap error agar aplikasi TIDAK restart
+            Toast.makeText(context, "Gagal memuat lokasi, silakan ketik manual.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentAddEditAddressBinding.inflate(inflater, container, false)
-        return binding.root
+    ): View? {
+        return inflater.inflate(R.layout.fragment_add_edit_address, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        addressId = arguments?.getString("addressId")
-        isEditMode = addressId != null
+        // Ambil argumen dari navigasi (jika ada ID untuk edit)
+        arguments?.let {
+            addressId = it.getString("addressId") // Sesuaikan dengan nav_graph kamu
+        }
 
-        setupToolbar()
-        if (isEditMode) loadExistingAddress()
+        // Init View
+        etLabel = view.findViewById(R.id.etAddressLabel)
+        etName = view.findViewById(R.id.etRecipientName)
+        etPhone = view.findViewById(R.id.etPhoneNumber)
+        etFullAddress = view.findViewById(R.id.etFullAddress)
+        btnPilihPeta = view.findViewById(R.id.btn_pilih_di_peta)
+        cbPrimary = view.findViewById(R.id.cbSetAsPrimary)
+        btnSave = view.findViewById(R.id.btnSaveAddress)
+        toolbar = view.findViewById(R.id.toolbar)
 
-        setupMapInteraction()
+        // Setup Toolbar
+        toolbar.setNavigationOnClickListener {
+            findNavController().popBackStack()
+        }
 
-        binding.btnSaveAddress.setOnClickListener {
+        // Event Tombol Peta
+        btnPilihPeta.setOnClickListener {
+            val intent = Intent(requireContext(), PetaPilihLokasiActivity::class.java)
+            mapResultLauncher.launch(intent)
+        }
+
+        // Event Tombol Simpan
+        btnSave.setOnClickListener {
             saveAddress()
         }
     }
 
-    private fun setupMapInteraction() {
-        // [MODIFIKASI] Terima objek Address parsial dari peta
-        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Address>("selectedLocation")
-            ?.observe(viewLifecycleOwner) { partialAddress ->
-                binding.etFullAddress.setText(partialAddress.fullAddress)
-                // Simpan koordinatnya
-                selectedLatitude = partialAddress.latitude
-                selectedLongitude = partialAddress.longitude
-                // Hapus agar tidak terpanggil lagi
-                findNavController().currentBackStackEntry?.savedStateHandle?.remove<Address>("selectedLocation")
-            }
-
-        binding.btnPilihDiPeta.setOnClickListener {
-            findNavController().navigate(R.id.action_addEditAddressFragment_to_pilihLokasiFragment)
-        }
-    }
-
-    private fun setupToolbar() {
-        binding.toolbar.setNavigationOnClickListener {
-            findNavController().popBackStack()
-        }
-        binding.toolbar.title = if (isEditMode) "Edit Alamat" else "Tambah Alamat Baru"
-    }
-
-    private fun loadExistingAddress() {
-        val uid = user?.uid ?: return
-        db.collection("users").document(uid).collection("addresses").document(addressId!!)
-            .get()
-            .addOnSuccessListener { doc ->
-                if (doc.exists()) {
-                    val address = doc.toObject(Address::class.java)
-                    binding.etAddressLabel.setText(address?.label ?: "")
-                    binding.etRecipientName.setText(address?.recipientName ?: "")
-                    binding.etPhoneNumber.setText(address?.phoneNumber ?: "")
-                    binding.etFullAddress.setText(address?.fullAddress ?: "")
-                    binding.cbSetAsPrimary.isChecked = address?.isPrimary ?: false
-                    // [BARU] Muat juga koordinat yang sudah ada
-                    selectedLatitude = address?.latitude
-                    selectedLongitude = address?.longitude
-                }
-            }
-    }
-
     private fun saveAddress() {
-        val uid = user?.uid ?: return
+        val label = etLabel.text.toString().trim()
+        val name = etName.text.toString().trim()
+        val phone = etPhone.text.toString().trim()
+        val finalAddressText = etFullAddress.text.toString().trim()
+        val isPrimary = cbPrimary.isChecked
 
-        val label = binding.etAddressLabel.text.toString().trim()
-        val recipient = binding.etRecipientName.text.toString().trim()
-        val phone = binding.etPhoneNumber.text.toString().trim()
-        val fullAddress = binding.etFullAddress.text.toString().trim()
-        val isPrimary = binding.cbSetAsPrimary.isChecked
-
-        if (label.isEmpty() || recipient.isEmpty() || phone.isEmpty() || fullAddress.isEmpty()) {
-            Toast.makeText(requireContext(), "Semua field wajib diisi", Toast.LENGTH_SHORT).show()
+        if (label.isEmpty() || name.isEmpty() || phone.isEmpty() || finalAddressText.isEmpty()) {
+            Toast.makeText(context, "Mohon lengkapi semua data", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // [MODIFIKASI] Tambahkan latitude dan longitude ke data yang disimpan
-        val addressData = mapOf(
-            "uid" to uid,
-            "label" to label,
-            "recipientName" to recipient,
-            "phoneNumber" to phone,
-            "fullAddress" to fullAddress,
-            "isPrimary" to isPrimary,
-            "latitude" to selectedLatitude,
-            "longitude" to selectedLongitude
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            Toast.makeText(context, "Sesi habis, login ulang.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Buat ID baru jika addressId null, atau gunakan yg lama jika edit
+        val db = FirebaseFirestore.getInstance()
+        val docRef = if (addressId.isNullOrEmpty()) {
+            db.collection("users").document(uid).collection("addresses").document()
+        } else {
+            db.collection("users").document(uid).collection("addresses").document(addressId!!)
+        }
+
+        val newAddress = Address(
+            id = docRef.id,
+            uid = uid,
+            label = label,
+            recipientName = name,
+            phoneNumber = phone,
+            fullAddress = finalAddressText,
+            isPrimary = isPrimary,
+            latitude = tempLatitude,
+            longitude = tempLongitude
         )
 
-        val collection = db.collection("users").document(uid).collection("addresses")
-
-        if (isPrimary) {
-            collection.whereEqualTo("isPrimary", true).get().addOnSuccessListener { snapshot ->
-                val batch = db.batch()
-                snapshot.documents.forEach { doc ->
-                    batch.update(doc.reference, "isPrimary", false)
-                }
-                val docRef = if (isEditMode) collection.document(addressId!!) else collection.document()
-                batch.set(docRef, addressData)
-                batch.commit().addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Alamat berhasil disimpan", Toast.LENGTH_SHORT).show()
-                    findNavController().popBackStack()
-                }
+        // Simpan ke Firestore
+        docRef.set(newAddress)
+            .addOnSuccessListener {
+                Toast.makeText(context, "Alamat berhasil disimpan", Toast.LENGTH_SHORT).show()
+                findNavController().popBackStack() // Kembali ke list alamat
             }
-        } else {
-            val docRef = if (isEditMode) collection.document(addressId!!) else collection.document()
-            docRef.set(addressData).addOnSuccessListener {
-                Toast.makeText(requireContext(), "Alamat berhasil disimpan", Toast.LENGTH_SHORT).show()
-                findNavController().popBackStack()
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Gagal menyimpan: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

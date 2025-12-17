@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true" android:color="@color/tuku_brown"/>
+
+    <item android:color="@color/gray"/>
+</selector>
+
+<!--ini untuk mengatur warna bulatan pada toggle on off saat menggunakan point. coklat dan abu-->

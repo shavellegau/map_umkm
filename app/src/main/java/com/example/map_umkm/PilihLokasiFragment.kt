@@ -1,9 +1,11 @@
 package com.example.map_umkm
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.location.Address as GeocoderAddress
 import android.location.Geocoder
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,6 +18,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.map_umkm.databinding.FragmentPilihLokasiBinding
+import com.example.map_umkm.model.Address
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -24,6 +27,8 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
@@ -40,20 +45,27 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
     private val binding get() = _binding!!
 
     private var googleMap: GoogleMap? = null
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    private val fusedLocationProviderClient: FusedLocationProviderClient by lazy {
+        LocationServices.getFusedLocationProviderClient(requireActivity())
+    }
+
     private lateinit var geocoder: Geocoder
 
     private var selectedLatLng: LatLng? = null
     private var selectedAddress: String? = null
+    private var currentLocationMarker: Marker? = null
+    private var isMapMovementFromAutocomplete: Boolean = false
 
-    private var isMapMovementFromAutocomplete = false
-
+    // --- FIX UTAMA: Definisi Launcher Tanpa Referensi Diri Sendiri ---
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
-                getMyLastLocation()
+                getLastLocation()
             } else {
-                Toast.makeText(requireContext(), "Izin lokasi diperlukan.", Toast.LENGTH_LONG).show()
+                // Jika ditolak, jangan langsung panggil launcher lagi di sini.
+                // Panggil fungsi terpisah untuk menampilkan dialog.
+                showPermissionRationaleDialog()
             }
         }
 
@@ -68,24 +80,27 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         geocoder = Geocoder(requireContext(), Locale.getDefault())
 
-        // Setup Map
         val mapFragment = childFragmentManager.findFragmentById(binding.map.id) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         setupAutocompleteFragment()
 
-        // Tombol Simpan
         binding.btnSimpanLokasi.setOnClickListener {
-            if (selectedLatLng != null && selectedAddress != null) {
-                val partialAddress = com.example.map_umkm.model.Address(
-                    fullAddress = selectedAddress!!,
-                    latitude = selectedLatLng!!.latitude,
-                    longitude = selectedLatLng!!.longitude
+            val currentLatLng = selectedLatLng
+            val currentAddr = selectedAddress
+
+            if (currentLatLng != null && currentAddr != null) {
+                val newAddress = Address(
+                    recipientName = "",
+                    phoneNumber = "",
+                    fullAddress = currentAddr,
+                    latitude = currentLatLng.latitude,
+                    longitude = currentLatLng.longitude,
+                    isPrimary = false
                 )
-                findNavController().previousBackStackEntry?.savedStateHandle?.set("selectedLocation", partialAddress)
+                findNavController().previousBackStackEntry?.savedStateHandle?.set("selectedLocation", newAddress)
                 findNavController().popBackStack()
             } else {
                 Toast.makeText(requireContext(), "Lokasi terpilih tidak valid", Toast.LENGTH_SHORT).show()
@@ -95,14 +110,126 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
 
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
-        checkLocationPermission()
         setupMapListeners()
+
+        checkAndRequestPermission()
+    }
+
+    // --- Fungsi Helper untuk Izin ---
+
+    private fun checkAndRequestPermission() {
+        when {
+            hasLocationPermission() -> {
+                getLastLocation()
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
+                showPermissionRationaleDialog()
+            }
+            else -> {
+                // Panggil launcher dari sini aman karena launcher sudah dibuat sebelumnya
+                requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+        }
+    }
+
+    private fun showPermissionRationaleDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Izin Lokasi")
+            .setMessage("Aplikasi ini memerlukan akses lokasi Anda untuk memilih lokasi pengiriman yang akurat.")
+            .setPositiveButton("Izinkan") { _, _ ->
+                // Panggil launcher di sini aman
+                requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+            .setNegativeButton("Batal") { dialog, _ ->
+                dialog.dismiss()
+                setDefaultLocation()
+            }
+            .create().show()
+    }
+
+    private fun hasLocationPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
+    }
+
+    @Throws(SecurityException::class)
+    private fun getLastLocation() {
+        if (hasLocationPermission()) {
+            googleMap?.isMyLocationEnabled = true
+            try {
+                fusedLocationProviderClient.lastLocation
+                    .addOnSuccessListener { location: Location? ->
+                        if (location != null) {
+                            val userLocation = LatLng(location.latitude, location.longitude)
+                            updateMapLocation(userLocation)
+                            addMarkerAtLocation(userLocation, "Lokasi Anda")
+                            reverseGeocodeAndUpdateUI(userLocation)
+                        } else {
+                            setDefaultLocation()
+                            Toast.makeText(requireContext(), "Tidak dapat mendeteksi lokasi terakhir.", Toast.LENGTH_LONG).show()
+                        }
+                    }
+            } catch (e: SecurityException) {
+                Log.e("MapsActivity", "SecurityException: ${e.message}")
+            }
+        }
+    }
+
+    private fun setDefaultLocation() {
+        // Monas sebagai default jika izin ditolak atau lokasi null
+        val defaultLoc = LatLng(-6.175392, 106.827153)
+        googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLoc, 12f))
+    }
+
+    private fun updateMapLocation(location: LatLng) {
+        googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 17f))
+    }
+
+    private fun addMarkerAtLocation(location: LatLng, title: String) {
+        currentLocationMarker?.remove()
+        currentLocationMarker = googleMap?.addMarker(MarkerOptions().title(title).position(location))
+    }
+
+    private fun reverseGeocodeAndUpdateUI(latLng: LatLng) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            val resultText: String = withContext(Dispatchers.IO) {
+                var addrString = "Alamat tidak ditemukan"
+                try {
+                    val addresses: List<GeocoderAddress>? = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+                    if (addresses != null && addresses.isNotEmpty()) {
+                        val firstAddress: GeocoderAddress = addresses[0]
+                        val line: String? = firstAddress.getAddressLine(0)
+                        if (line != null) {
+                            addrString = line
+                        }
+                    }
+                } catch (e: IOException) {
+                    Log.e("Geocoder", "Error network", e)
+                    addrString = "Layanan alamat tidak tersedia"
+                } catch (e: Exception) {
+                    Log.e("Geocoder", "Error lain", e)
+                }
+                addrString
+            }
+            updateUI(latLng, resultText)
+        }
     }
 
     private fun setupAutocompleteFragment() {
         if (!Places.isInitialized()) {
-            // Pastikan API Key ini valid dan memiliki akses Places API & Maps SDK
-            Places.initialize(requireContext(), "AIzaSyDIrN5Cr4dSpkpWwM4dbyt7DTaPf-2PLrw")
+            try {
+                val appInfo = requireContext().packageManager.getApplicationInfo(
+                    requireContext().packageName,
+                    PackageManager.GET_META_DATA
+                )
+                val apiKey = appInfo.metaData.getString("com.google.android.geo.API_KEY")
+
+                if (!apiKey.isNullOrEmpty()) {
+                    Places.initialize(requireContext(), apiKey)
+                }
+            } catch (e: Exception) {
+                Log.e("Places", "Gagal init places")
+            }
         }
 
         val autocompleteFragment =
@@ -116,15 +243,14 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
                 val location = place.latLng
                 val address = place.address
 
-                location?.let {
-                    googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(it, 17f))
+                if (location != null) {
+                    googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 17f))
+                    updateUI(location, address)
                 }
-                updateUI(location, address)
             }
 
             override fun onError(status: Status) {
-                Log.e("Places", "An error occurred: $status")
-                Toast.makeText(requireContext(), "Gagal mencari lokasi", Toast.LENGTH_SHORT).show()
+                Log.e("Places", "Error: $status")
                 updateUI(null, null)
             }
         })
@@ -134,25 +260,8 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
         googleMap?.setOnCameraIdleListener {
             if (!isMapMovementFromAutocomplete) {
                 val centerMap = googleMap?.cameraPosition?.target
-                centerMap?.let {
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        try {
-                            val addresses: List<GeocoderAddress>? = geocoder.getFromLocation(it.latitude, it.longitude, 1)
-                            val addressText = if (!addresses.isNullOrEmpty()) {
-                                addresses[0].getAddressLine(0)
-                            } else {
-                                "Alamat tidak ditemukan di lokasi ini"
-                            }
-                            withContext(Dispatchers.Main) {
-                                updateUI(it, addressText)
-                            }
-                        } catch (e: IOException) {
-                            Log.e("Geocoder", "Layanan Geocoder tidak tersedia", e)
-                            withContext(Dispatchers.Main) {
-                                updateUI(it, "Layanan alamat tidak tersedia")
-                            }
-                        }
-                    }
+                if (centerMap != null) {
+                    reverseGeocodeAndUpdateUI(centerMap)
                 }
             }
             isMapMovementFromAutocomplete = false
@@ -163,37 +272,17 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
         selectedLatLng = location
         selectedAddress = address
 
-        val isAddressValid = address != null &&
-                !address.contains("tidak ditemukan", ignoreCase = true) &&
-                !address.contains("tidak tersedia", ignoreCase = true)
+        val safeAddress = address ?: ""
+        val isValid = safeAddress.isNotEmpty() &&
+                !safeAddress.contains("tidak ditemukan", ignoreCase = true) &&
+                !safeAddress.contains("tidak tersedia", ignoreCase = true)
 
-        if (isAddressValid) {
-            binding.tvAlamatTerdeteksi.text = address
+        if (isValid) {
+            binding.tvAlamatTerdeteksi.text = safeAddress
             binding.btnSimpanLokasi.isEnabled = true
         } else {
-            binding.tvAlamatTerdeteksi.text = address ?: "Geser peta untuk mencari alamat"
+            binding.tvAlamatTerdeteksi.text = if (safeAddress.isNotEmpty()) safeAddress else "Geser peta untuk mencari alamat"
             binding.btnSimpanLokasi.isEnabled = false
-        }
-    }
-
-    private fun checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            getMyLastLocation()
-        } else {
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-    }
-
-    @Throws(SecurityException::class)
-    private fun getMyLastLocation() {
-        googleMap?.isMyLocationEnabled = true
-        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            if (location != null) {
-                val myLatLng = LatLng(location.latitude, location.longitude)
-                googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, 17f))
-            } else {
-                googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(-6.2088, 106.8456), 12f))
-            }
         }
     }
 

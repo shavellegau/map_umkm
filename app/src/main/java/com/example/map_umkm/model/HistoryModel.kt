@@ -1,8 +1,11 @@
 package com.example.map_umkm.model
 
+import com.google.firebase.Timestamp
+
 data class HistoryModel(
-    var title: String = "",
-    var points: Int = 0,
-    var type: String = "", // earn atau redeem
-    var timestamp: Long = 0
+    val title: String? = null,
+    val points: Int? = 0,      // Menggunakan 'points' sesuai error log
+    val point: Int? = 0,       // Cadangan jika di database tertulis 'point'
+    val type: String? = null,
+    val timestamp: Timestamp? = null
 )

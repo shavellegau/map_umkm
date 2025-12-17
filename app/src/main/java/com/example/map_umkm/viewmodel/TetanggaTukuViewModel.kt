@@ -9,7 +9,6 @@ import com.example.map_umkm.utils.TierCalculator
 import com.example.map_umkm.utils.TierInfo
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import java.util.Calendar
 import java.util.Date
 
 class TetanggaTukuViewModel : ViewModel() {
@@ -23,34 +22,34 @@ class TetanggaTukuViewModel : ViewModel() {
     private val _tierInfo = MutableLiveData<TierInfo>()
     val tierInfo: LiveData<TierInfo> = _tierInfo
 
-    // LiveData untuk List Rewards
     private val _rewards = MutableLiveData<List<MembershipReward>>()
     val rewards: LiveData<List<MembershipReward>> = _rewards
 
     fun loadData() {
-        val userId = auth.currentUser?.uid ?: return // Pastikan user login
+        val userId = auth.currentUser?.uid ?: return
 
-        // 1. Ambil Data User
-        db.collection("users").document(userId).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
+        // 1. Ambil Data User secara REAL-TIME (Snapshot Listener)
+        db.collection("users").document(userId)
+            .addSnapshotListener { document, error ->
+                if (error != null) return@addSnapshotListener
+
+                if (document != null && document.exists()) {
                     var user = document.toObject(UserData::class.java)
 
                     if (user != null) {
-                        // LOGIKA POINT DECAY (BERKURANG)
-                        // Cek apakah sudah lebih dari 30 hari sejak transaksi terakhir?
+                        // Cek pengurangan poin (opsional jika diperlukan real-time)
                         user = checkAndApplyPointDecay(user, userId)
 
                         _userData.value = user!!
 
-                        // Hitung Tier berdasarkan XP saat ini
+                        // Hitung Tier Langsung saat ada perubahan data
                         val currentTier = TierCalculator.calculateTier(user.currentXp)
                         _tierInfo.value = currentTier
                     }
                 }
             }
 
-        // 2. Ambil Data Rewards
+        // 2. Ambil Data Rewards (Sekali panggil cukup, kecuali mau real-time juga)
         db.collection("rewards").get()
             .addOnSuccessListener { result ->
                 val list = result.toObjects(MembershipReward::class.java)
@@ -60,20 +59,13 @@ class TetanggaTukuViewModel : ViewModel() {
 
     private fun checkAndApplyPointDecay(user: UserData, userId: String): UserData {
         val lastDate = user.lastTransactionDate?.toDate() ?: return user
-
-        // Hitung selisih hari
         val diff = Date().time - lastDate.time
         val days = (diff / (1000 * 60 * 60 * 24)).toInt()
 
         if (days > 30 && user.currentPoints > 0) {
-            // Logika: Kurangi 10% point jika > 30 hari tidak aktif
             val newPoints = (user.currentPoints * 0.9).toInt()
-
-            // Update ke Firebase
-            db.collection("users").document(userId)
-                .update("currentPoints", newPoints)
-
-            // Return data baru untuk update UI langsung
+            // Update Firestore diam-diam
+            db.collection("users").document(userId).update("currentPoints", newPoints)
             return user.copy(currentPoints = newPoints)
         }
         return user

@@ -8,7 +8,19 @@
       android:fillColor="#CD7F32"
       android:pathData="M12,1L3,5v6c0,5.55 3.84,10.74 9,12c5.16,-1.26 9,-6.45 9,-12V5L12,1z"/>
 
-  <path
-      android:fillColor="#FFFFFF"
-      android:pathData="M12,7l1.5,4.5h4.5l-3.5,2.5l1.5,4.5l-4,-3l-4,3l1.5,-4.5l-3.5,-2.5h4.5z"/>
-</vector>
+  <group
+      android:pivotX="12"
+      android:pivotY="12"
+      android:scaleX="0.6"
+      android:scaleY="0.6">
+
+    <path
+        android:pathData="M6.264,20.192C10.36,23.06 14.866,20.111 17.734,16.015C20.602,11.92 21.831,6.677 17.736,3.809C13.64,0.941 9.134,3.889 6.266,7.985C3.398,12.081 2.168,17.324 6.264,20.192Z"
+        android:strokeWidth="2"
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"/>
+
+    <path
+        android:pathData="M16.589,5.447C15.196,5.693 11.263,7.822 11.181,11.427C11.098,15.031 8.394,18.021 7.411,18.553C9.214,18.595 12.737,16.178 12.819,12.574C12.902,8.969 15.605,5.979 16.589,5.447Z"
+        android:fillColor="#FFFFFF"/>
+  </group></vector>
