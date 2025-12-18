@@ -154,6 +154,7 @@
                     app:layout_constraintStart_toEndOf="@id/ic_coin"
                     app:layout_constraintTop_toTopOf="@id/ic_coin" />
                 <Button
+                    android:id="@+id/btn_history"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:text="History"

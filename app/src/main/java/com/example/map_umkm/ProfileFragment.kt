@@ -29,6 +29,7 @@ import java.io.File
 import java.text.NumberFormat
 import java.util.Locale
 
+
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
@@ -37,17 +38,14 @@ class ProfileFragment : Fragment() {
     private lateinit var ivProfile: ImageView
     private lateinit var progressBar: ProgressBar
 
-    // Variabel URI Sementara
     private var tempImageUri: Uri? = null
 
-    // 1. Launcher Galeri
     private val galleryLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         if (uri != null) uploadImageToStorage(uri)
     }
 
-    // 2. Launcher Kamera
     private val cameraLauncher = registerForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { isSuccess ->
@@ -56,7 +54,6 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    // 3. Launcher Izin Kamera (Permission)
     private val requestCameraPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -92,7 +89,6 @@ class ProfileFragment : Fragment() {
 
         val uid = currentUser.uid
 
-        // Set Data Awal
         binding.txtName.text = currentUser.displayName ?: prefs.getString("userName", "Pengguna")
         binding.tvEmail.text = currentUser.email ?: prefs.getString("userEmail", "-")
         binding.tvMemberPoints.text = "0 Pts"
@@ -103,12 +99,10 @@ class ProfileFragment : Fragment() {
             Glide.with(this).load(currentPhotoUrl).into(ivProfile)
         }
 
-        // KLIK FOTO
         ivProfile.setOnClickListener {
             showImagePickerOptions()
         }
 
-        // Realtime Listener
         FirebaseFirestore.getInstance().collection("users")
             .document(uid)
             .addSnapshotListener { doc, _ ->
@@ -164,7 +158,6 @@ class ProfileFragment : Fragment() {
         galleryLauncher.launch("image/*")
     }
 
-    // --- LOGIKA BARU: CEK IZIN SEBELUM BUKA KAMERA ---
     private fun checkCameraPermissionAndOpen() {
         when {
             ContextCompat.checkSelfPermission(
@@ -175,7 +168,6 @@ class ProfileFragment : Fragment() {
                 openCamera()
             }
             else -> {
-                // Belum ada izin, minta dulu
                 requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             }
         }
@@ -183,14 +175,11 @@ class ProfileFragment : Fragment() {
 
     private fun openCamera() {
         try {
-            // 1. Buat File Kosong di Cache
             val tmpFile = File.createTempFile("tmp_photo", ".jpg", requireContext().cacheDir).apply {
                 createNewFile()
                 deleteOnExit()
             }
 
-            // 2. Dapatkan URI menggunakan Authority yang PASTI BENAR (BuildConfig.APPLICATION_ID)
-            // Pastikan di AndroidManifest.xml authority-nya: ${applicationId}.fileprovider
             val authority = "${requireContext().packageName}.fileprovider"
 
             tempImageUri = FileProvider.getUriForFile(
@@ -199,7 +188,6 @@ class ProfileFragment : Fragment() {
                 tmpFile
             )
 
-            // 3. Buka Kamera
             cameraLauncher.launch(tempImageUri)
 
         } catch (e: Exception) {
@@ -211,23 +199,27 @@ class ProfileFragment : Fragment() {
     private fun uploadImageToStorage(fileUri: Uri) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-        progressBar.visibility = View.VISIBLE
-        ivProfile.alpha = 0.5f
-        ivProfile.isEnabled = false
+        binding.progressBarProfile.visibility = View.VISIBLE
+        binding.ivProfile.alpha = 0.5f
+        binding.ivProfile.isEnabled = false
 
         val storageRef = FirebaseStorage.getInstance().reference.child("profile_images/$uid.jpg")
 
         storageRef.putFile(fileUri)
             .addOnSuccessListener {
                 storageRef.downloadUrl.addOnSuccessListener { uri ->
-                    saveUrlToDatabase(uri.toString())
+                    if (_binding != null) {
+                        saveUrlToDatabase(uri.toString())
+                    }
                 }
             }
             .addOnFailureListener { e ->
-                progressBar.visibility = View.GONE
-                ivProfile.alpha = 1.0f
-                ivProfile.isEnabled = true
-                Toast.makeText(context, "Gagal upload: ${e.message}", Toast.LENGTH_SHORT).show()
+                _binding?.let {
+                    it.progressBarProfile.visibility = View.GONE
+                    it.ivProfile.alpha = 1.0f
+                    it.ivProfile.isEnabled = true
+                    Toast.makeText(requireContext(), "Gagal upload: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             }
     }
 
@@ -255,7 +247,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupNavigation() {
-        binding.cardPesanan.setOnClickListener { findNavController().navigate(R.id.action_nav_profile_to_historyOrdersFragment) }
+        binding.cardExp.setOnClickListener { findNavController().navigate(R.id.action_nav_profile_to_tetanggaTukuFragment) }
         binding.cardTukuPoint.setOnClickListener { findNavController().navigate(R.id.action_nav_profile_to_tukuPointFragment) }
         binding.cardWishlist.setOnClickListener { findNavController().navigate(R.id.action_nav_profile_to_wishlistFragment) }
         binding.cardVoucher.setOnClickListener { findNavController().navigate(R.id.action_nav_profile_to_voucherSayaFragment) }

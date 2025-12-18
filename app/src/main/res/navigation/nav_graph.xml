@@ -49,6 +49,16 @@
             app:destination="@id/nav_home"
             app:popUpTo="@id/nav_home"
             app:popUpToInclusive="true" />
+
+        <action
+            android:id="@+id/action_tetanggaTukuFragment_to_tukuPointFragment"
+            app:destination="@id/tukuPointFragment" />
+
+        <action
+            android:id="@+id/action_tetanggaTukuFragment_to_nav_profile"
+            app:destination="@id/nav_profile"
+            app:popUpTo="@id/nav_profile"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -85,8 +95,8 @@
             android:id="@+id/action_nav_profile_to_voucherSayaFragment"
             app:destination="@id/voucherSayaFragment" />
         <action
-            android:id="@+id/action_nav_profile_to_historyOrdersFragment"
-            app:destination="@id/historyOrdersFragment" />
+            android:id="@+id/action_nav_profile_to_tetanggaTukuFragment"
+            app:destination="@id/nav_tetangga_tuku" />
         <action
             android:id="@+id/action_nav_profile_to_wishlistFragment"
             app:destination="@id/wishlistFragment" />
