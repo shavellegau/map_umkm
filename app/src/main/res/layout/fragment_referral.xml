@@ -8,7 +8,6 @@
     android:background="@color/tuku_primary"
     tools:context="ReferralFragment">
 
-    <!-- ================= HEADER ================= -->
     <ImageButton
         android:id="@+id/btn_back"
         android:layout_width="40dp"
@@ -52,7 +51,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <!-- ================= IMAGE BIG ================= -->
     <ImageView
         android:id="@+id/iv_promo_image"
         android:layout_width="362dp"
@@ -66,7 +64,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_fragment_title" />
 
-    <!-- ================= CONTENT BUBBLE ================= -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/content_container"
         android:layout_width="match_parent"
@@ -107,7 +104,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_discount_label" />
 
-        <!-- Bagikan -->
         <TextView
             android:id="@+id/tv_share_title"
             android:layout_width="wrap_content"
@@ -121,7 +117,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_promo_desc" />
 
-        <!-- Kode Referral Oval -->
         <LinearLayout
             android:id="@+id/referral_code_container"
             android:layout_width="wrap_content"
@@ -155,7 +150,6 @@
                 app:tint="@color/tuku_dark" />
         </LinearLayout>
 
-        <!-- Button Share -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_share_referral"
             android:layout_width="0dp"

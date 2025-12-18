@@ -7,7 +7,6 @@
     android:background="@drawable/bg_dialog_rounded"
     android:padding="20dp">
 
-    <!-- Judul -->
     <TextView
         android:id="@+id/tvDialogTitle"
         android:layout_width="match_parent"
@@ -19,7 +18,6 @@
         android:gravity="center"
         android:layout_marginBottom="8dp" />
 
-    <!-- Pesan -->
     <TextView
         android:id="@+id/tvDialogMessage"
         android:layout_width="match_parent"
@@ -30,7 +28,6 @@
         android:gravity="center"
         android:layout_marginBottom="16dp" />
 
-    <!-- Tombol -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

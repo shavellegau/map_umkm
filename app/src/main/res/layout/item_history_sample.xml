@@ -9,7 +9,6 @@
     android:paddingVertical="12dp"
     android:background="?attr/selectableItemBackground">
 
-    <!-- ID ini cocok dengan yang ada di Adapter -->
     <ImageView
         android:id="@+id/img_history_icon"
         android:layout_width="40dp"
@@ -20,9 +19,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/tuku_primary"
-        tools:src="@drawable/ic_redeem_point" /> <!-- Contoh Ikon -->
+        tools:src="@drawable/ic_redeem_point" />
 
-    <!-- ID ini cocok dengan yang ada di Adapter -->
     <TextView
         android:id="@+id/tv_history_title"
         android:layout_width="0dp"
@@ -37,7 +35,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         tools:text="Tukar Poin Jadi Voucher" />
 
-    <!-- ID ini cocok dengan yang ada di Adapter -->
     <TextView
         android:id="@+id/tv_history_amount"
         android:layout_width="wrap_content"

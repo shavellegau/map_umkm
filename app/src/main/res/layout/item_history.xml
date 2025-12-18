@@ -10,7 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Title -->
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
@@ -20,7 +19,6 @@
             android:textStyle="bold"
             android:textSize="14sp" />
 
-        <!-- Point (warna tergantung earn/redeem) -->
         <TextView
             android:id="@+id/tvPoint"
             android:layout_width="wrap_content"
@@ -32,7 +30,6 @@
             android:textColor="#388E3C" />
     </RelativeLayout>
 
-    <!-- Date -->
     <TextView
         android:id="@+id/tvDate"
         android:layout_width="wrap_content"
@@ -42,7 +39,6 @@
         android:textColor="#6D4C41"
         android:layout_marginTop="4dp" />
 
-    <!-- Divider -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"

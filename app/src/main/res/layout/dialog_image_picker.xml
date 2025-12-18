@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="24dp"
-    android:background="@drawable/bg_dialog_rounded"> <!-- Kita akan buat drawable ini -->
+    android:background="@drawable/bg_dialog_rounded">
 
     <TextView
         android:layout_width="wrap_content"
@@ -23,7 +23,6 @@
         android:orientation="horizontal"
         android:gravity="center">
 
-        <!-- Opsi Kamera -->
         <LinearLayout
             android:id="@+id/option_camera"
             android:layout_width="0dp"
@@ -49,7 +48,6 @@
                 android:layout_marginTop="8dp"/>
         </LinearLayout>
 
-        <!-- Opsi Galeri -->
         <LinearLayout
             android:id="@+id/option_gallery"
             android:layout_width="0dp"

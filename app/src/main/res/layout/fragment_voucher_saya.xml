@@ -8,7 +8,6 @@
     android:padding="16dp"
     tools:context=".VoucherSayaFragment">
 
-    <!-- Header -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -37,7 +36,6 @@
             android:textColor="#3E2723" />
     </RelativeLayout>
 
-    <!-- Daftar Voucher -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvVoucher"
         android:layout_width="match_parent"

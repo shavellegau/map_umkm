@@ -16,7 +16,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Kiri: Gambar Produk -->
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivProductImage"
             android:layout_width="80dp"
@@ -29,7 +28,6 @@
             app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium"
             tools:src="@drawable/logo_tuku" />
 
-        <!-- Kanan: Tombol Aksi -->
         <ImageButton
             android:id="@+id/btnDelete"
             android:layout_width="48dp"
@@ -54,7 +52,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/tuku_text_secondary" />
 
-        <!-- Tengah: Judul dan Harga -->
         <TextView
             android:id="@+id/tvProductName"
             android:layout_width="0dp"

@@ -15,7 +15,6 @@
         android:padding="8dp"
         android:background="@color/tuku_bg">
 
-        <!-- Gambar produk -->
         <ImageView
             android:id="@+id/ivProductImage"
             android:layout_width="match_parent"
@@ -23,7 +22,6 @@
             android:scaleType="centerCrop"
             android:src="@drawable/banner_kopi" />
 
-        <!-- Nama produk -->
         <TextView
             android:id="@+id/tvProductName"
             android:layout_width="wrap_content"
@@ -34,7 +32,6 @@
             android:textStyle="bold"
             android:textColor="@color/tuku_dark" />
 
-        <!-- Harga produk -->
         <TextView
             android:id="@+id/tvProductPrice"
             android:layout_width="wrap_content"
@@ -43,7 +40,6 @@
             android:textColor="@color/tuku_primary"
             android:textSize="14sp" />
 
-        <!-- Tombol tambah ke keranjang -->
         <ImageButton
             android:id="@+id/btnAddToCart"
             android:layout_width="40dp"
@@ -54,7 +50,6 @@
             android:src="@drawable/ic_add"
             app:tint="@android:color/white" />
 
-        <!-- Tombol favorit -->
         <ImageButton
             android:id="@+id/btnFavorite"
             android:layout_width="24dp"

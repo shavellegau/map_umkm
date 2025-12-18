@@ -7,7 +7,6 @@
     android:background="@color/tuku_bg"
     tools:context=".AdminMenuFragment">
 
-    <!-- Content Container -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -15,7 +14,6 @@
         android:paddingHorizontal="20dp"
         android:paddingTop="16dp">
 
-        <!-- Page Title -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -25,7 +23,6 @@
             android:textColor="@color/tuku_dark"
             android:paddingBottom="4dp"/>
 
-        <!-- Subtitle -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -34,7 +31,6 @@
             android:textSize="14sp"
             android:paddingBottom="18dp"/>
 
-        <!-- Search bar (Future-proof UI) -->
         <EditText
             android:id="@+id/et_search_admin"
             android:layout_width="match_parent"
@@ -48,7 +44,6 @@
             android:drawablePadding="10dp"
             android:layout_marginBottom="18dp"/>
 
-        <!-- RecyclerView Card Style -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_admin_products"
             android:layout_width="match_parent"
@@ -58,7 +53,6 @@
             android:clipToPadding="false"
             tools:listitem="@layout/item_admin_product"/>
 
-        <!-- EMPTY STATE -->
         <LinearLayout
             android:id="@+id/empty_state_container"
             android:layout_width="match_parent"
@@ -98,7 +92,6 @@
 
     </LinearLayout>
 
-    <!-- Loading Overlay -->
     <ProgressBar
         android:id="@+id/progress_bar_admin"
         android:layout_width="48dp"

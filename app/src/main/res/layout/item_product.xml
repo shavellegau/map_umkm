@@ -15,7 +15,6 @@
         android:padding="8dp"
         android:background="@color/tuku_bg">
 
-        <!-- Gambar produk -->
         <ImageView
             android:id="@+id/ivProduct"
             android:layout_width="match_parent"
@@ -24,7 +23,6 @@
             android:background="@android:color/white"
             android:contentDescription="@string/app_name" />
 
-        <!-- Nama produk -->
         <TextView
             android:id="@+id/tvName"
             android:layout_width="wrap_content"
@@ -35,7 +33,6 @@
             android:paddingTop="6dp"
             android:textColor="@color/tuku_dark" />
 
-        <!-- Harga + tombol tambah -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -43,14 +40,12 @@
             android:paddingTop="4dp"
             android:gravity="center_vertical">
 
-            <!-- Harga (baru & lama) -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_weight="1">
 
-                <!-- Harga baru -->
                 <TextView
                     android:id="@+id/tvPrice"
                     android:layout_width="wrap_content"
@@ -60,7 +55,6 @@
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
-                <!-- Harga lama -->
                 <TextView
                     android:id="@+id/tvOldPrice"
                     android:layout_width="wrap_content"
@@ -70,7 +64,6 @@
                     android:textSize="12sp" />
             </LinearLayout>
 
-            <!-- Tombol tambah (+) -->
             <ImageView
                 android:id="@+id/btnAdd"
                 android:layout_width="32dp"
@@ -81,7 +74,6 @@
                 android:background="@drawable/bg_circle_red"
                 android:layout_gravity="center_vertical" />
 
-            <!-- Tombol favorit -->
             <ImageView
                 android:id="@+id/btnFavorite"
                 android:layout_width="24dp"

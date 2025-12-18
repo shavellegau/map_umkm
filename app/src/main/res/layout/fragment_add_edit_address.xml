@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- [FIXED] Sintaks xmlns:app diperbaiki dengan menambahkan spasi dan menghapus '<' yang salah -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -89,7 +88,6 @@
                 android:minLines="3"
                 android:inputType="textMultiLine"/>
 
-            <!-- TOMBOL BARU UNTUK GOOGLE MAPS -->
             <Button
                 android:id="@+id/btn_pilih_di_peta"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"

@@ -8,7 +8,6 @@
     android:padding="16dp"
     tools:context=".WishlistFragment">
 
-    <!-- Header -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,7 +35,6 @@
             android:textSize="25sp" />
     </RelativeLayout>
 
-    <!-- View jika wishlist kosong -->
     <TextView
         android:id="@+id/emptyView"
         android:layout_width="match_parent"
@@ -49,7 +47,6 @@
         android:visibility="gone"
         tools:visibility="visible" />
 
-    <!-- Daftar produk favorit -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerWishlist"
         android:layout_width="match_parent"

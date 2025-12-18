@@ -17,7 +17,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <!-- [BARU] Tampilan Total Pembayaran -->
     <TextView
         android:id="@+id/tvTotalPayment"
         android:layout_width="wrap_content"

@@ -8,7 +8,6 @@
     android:padding="16dp"
     tools:context=".HistoryOrdersFragment">
 
-    <!-- Header -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,7 +35,6 @@
             android:textSize="25sp" />
     </RelativeLayout>
 
-    <!-- View jika kosong -->
     <TextView
         android:id="@+id/tv_empty_history"
         android:layout_width="match_parent"
@@ -49,7 +47,6 @@
         android:visibility="gone"
         tools:visibility="visible" />
 
-    <!-- RecyclerView daftar pesanan -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_history_orders"
         android:layout_width="match_parent"

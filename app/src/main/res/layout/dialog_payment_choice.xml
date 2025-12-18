@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="24dp"
-    android:background="@drawable/bg_dialog_rounded"> <!-- Menggunakan background yang sudah ada -->
+    android:background="@drawable/bg_dialog_rounded">
 
     <TextView
         android:layout_width="wrap_content"
@@ -17,7 +17,6 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="24dp"/>
 
-    <!-- Opsi Bayar dengan QRIS -->
     <Button
         android:id="@+id/btnPayWithQris"
         style="@style/Widget.MaterialComponents.Button"
@@ -30,7 +29,6 @@
         android:layout_marginBottom="12dp"
         android:padding="12dp"/>
 
-    <!-- Opsi Bayar Tunai (Cash) -->
     <Button
         android:id="@+id/btnPayWithCash"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
