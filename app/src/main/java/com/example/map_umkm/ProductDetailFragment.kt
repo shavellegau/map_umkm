@@ -1,5 +1,6 @@
 package com.example.map_umkm
 
+import android.os.Build // Tambahan untuk versi Android baru
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,8 +10,9 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
+// import androidx.navigation.fragment.navArgs // Matikan ini biar ga crash
 import com.bumptech.glide.Glide
+import com.example.map_umkm.model.MenuItem // Tambahan: Import MenuItem
 import com.example.map_umkm.model.Product
 import com.example.map_umkm.viewmodel.CartViewModel
 import com.example.map_umkm.viewmodel.FavoriteViewModel
@@ -30,13 +32,12 @@ class ProductDetailFragment : Fragment() {
     private lateinit var rbIced: RadioButton
     private lateinit var btnAddToCart: Button
     private lateinit var etNotes: EditText
-
-    // 🔥 Ganti btnBack jadi Toolbar (sesuai XML baru) 🔥
     private lateinit var toolbar: androidx.appcompat.widget.Toolbar
 
     private val cartViewModel: CartViewModel by activityViewModels()
     private val favoriteViewModel: FavoriteViewModel by activityViewModels()
-    private val args: ProductDetailFragmentArgs by navArgs()
+
+    // private val args: ProductDetailFragmentArgs by navArgs() // HAPUS/KOMENTAR INI (Penyebab Crash)
 
     private lateinit var selectedProduct: Product
     private var currentPrice: Int = 0
@@ -46,11 +47,37 @@ class ProductDetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_product_detail, container, false)
-
         initializeViews(view)
 
-        // Ambil Data Produk
-        selectedProduct = args.product
+        // --- [BAGIAN INI YANG DIPERBAIKI] ---
+        // Mengambil data secara manual (Bundle) untuk menghindari Crash tipe data
+
+        val menuItem = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arguments?.getParcelable("product", MenuItem::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            arguments?.getParcelable("product")
+        }
+
+        if (menuItem != null) {
+            // Konversi dari MenuItem (Home) ke Product (Cart/Detail)
+            selectedProduct = Product(
+                id = menuItem.id.toString(),
+                name = menuItem.name,
+                description = menuItem.description ?: "",
+                category = menuItem.category ?: "Umum",
+                price_hot = menuItem.price_hot,
+                price_iced = menuItem.price_iced,
+                image = menuItem.image ?: "",
+                isFavorite = false
+            )
+        } else {
+            // Fallback jika data gagal diambil
+            Toast.makeText(context, "Gagal memuat produk", Toast.LENGTH_SHORT).show()
+            findNavController().navigateUp()
+            return view
+        }
+        // --- [BATAS PERBAIKAN] ---
 
         // Sync Favorit
         selectedProduct = selectedProduct.copy(isFavorite = favoriteViewModel.isFavorite(selectedProduct.id))
@@ -80,8 +107,6 @@ class ProductDetailFragment : Fragment() {
         rbIced = view.findViewById(R.id.rbIced)
         btnAddToCart = view.findViewById(R.id.btnAddToCart)
         etNotes = view.findViewById(R.id.etNotes)
-
-        // Inisialisasi Toolbar
         toolbar = view.findViewById(R.id.toolbar)
     }
 
@@ -93,20 +118,16 @@ class ProductDetailFragment : Fragment() {
         updateFavoriteIcon(selectedProduct.isFavorite)
         updateUiForProductType(selectedProduct)
 
-        // 🔥 LOGIC IMAGE LOADING: MENGGUNAKAN URL LANGSUNG (Sama seperti Cart) 🔥
-
-        // Cek logcat untuk memastikan URL yang masuk benar
         Log.d("PRODUCT_DETAIL", "Memuat gambar dari URL: ${selectedProduct.image}")
 
         Glide.with(this)
-            .load(selectedProduct.image) // Muat URL langsung
+            .load(selectedProduct.image)
             .placeholder(R.drawable.placeholder_image)
             .error(R.drawable.error_image)
             .into(ivImage)
     }
 
     private fun setupListeners() {
-        // Tombol Kembali via Toolbar
         toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }

@@ -1,6 +1,7 @@
 package com.example.map_umkm
 
 import android.content.Context
+import android.content.res.ColorStateList // PENTING: Untuk ubah warna icon
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -19,9 +20,11 @@ import com.example.map_umkm.adapter.CategoryAdapter
 import com.example.map_umkm.adapter.ProductAdapter
 import com.example.map_umkm.data.JsonHelper
 import com.example.map_umkm.model.Category
+import com.example.map_umkm.model.MenuItem
 import com.example.map_umkm.model.Product
 import com.example.map_umkm.viewmodel.CartViewModel
 import com.example.map_umkm.viewmodel.FavoriteViewModel
+import com.google.android.material.button.MaterialButton
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -39,14 +42,14 @@ class CartFragment : Fragment() {
     private lateinit var btnViewOrder: Button
 
     // Toggle Mode UI
-    private lateinit var btnTakeAway: Button
-    private lateinit var btnDelivery: Button
+    private lateinit var btnTakeAway: MaterialButton
+    private lateinit var btnDelivery: MaterialButton
     private lateinit var toggleSelector: View
     private lateinit var toggleContainer: View
 
     // Branch Selection
     private lateinit var tvSelectedBranch: TextView
-    private lateinit var btnChangeBranch: TextView // Tombol Ubah Cabang
+    private lateinit var btnChangeBranch: TextView
 
     // Data
     private val cartViewModel: CartViewModel by activityViewModels()
@@ -70,7 +73,7 @@ class CartFragment : Fragment() {
 
         setupSearchListener()
         setupBottomBarListener()
-        setupBranchListener() // 🔥 INI PENTING: Agar tombol cabang bisa diklik 🔥
+        setupBranchListener()
         setupProductAdapter()
 
         setupModeAnimation()
@@ -90,6 +93,7 @@ class CartFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         loadSelectedBranch()
+        // Pastikan warna tombol benar saat aplikasi dibuka kembali
         animateMode(currentMode, immediate = true)
     }
 
@@ -104,8 +108,8 @@ class CartFragment : Fragment() {
         tvTax = view.findViewById(R.id.tvTax)
         tvTotalPayment = view.findViewById(R.id.tvTotalPayment)
 
-        btnTakeAway = view.findViewById(R.id.btn_take_away)
-        btnDelivery = view.findViewById(R.id.btn_delivery)
+        btnTakeAway = view.findViewById<MaterialButton>(R.id.btn_take_away)
+        btnDelivery = view.findViewById<MaterialButton>(R.id.btn_delivery)
         toggleSelector = view.findViewById(R.id.view_toggle_selector)
         toggleContainer = view.findViewById(R.id.layout_toggle_container)
 
@@ -113,15 +117,11 @@ class CartFragment : Fragment() {
         btnChangeBranch = view.findViewById(R.id.btn_change_branch)
     }
 
-    // 🔥 LOGIC KLIK TOMBOL CABANG 🔥
     private fun setupBranchListener() {
         btnChangeBranch.setOnClickListener {
-            // Coba navigasi ke halaman Pilih Cabang
             try {
-                // Pastikan ID 'action_nav_cart_to_cabangFragment' ada di nav_graph.xml
                 findNavController().navigate(R.id.action_nav_cart_to_cabangFragment)
             } catch (e: Exception) {
-                // Jika ID salah/belum dibuat, tampilkan pesan error biar tau
                 Toast.makeText(requireContext(), "Error Navigasi: Cek nav_graph.xml", Toast.LENGTH_SHORT).show()
             }
         }
@@ -160,20 +160,34 @@ class CartFragment : Fragment() {
                     .setDuration(250)
                     .start()
             }
+            // Panggil fungsi update warna teks & ikon
             updateToggleTextStyle(mode)
         }
     }
 
+    // 🔥 PERBAIKAN WARNA TEKS & ICON 🔥
     private fun updateToggleTextStyle(mode: String) {
-        val activeColor = ContextCompat.getColor(requireContext(), R.color.tuku_primary)
-        val inactiveColor = ContextCompat.getColor(requireContext(), R.color.text_bantuan)
+        val whiteColor = ContextCompat.getColor(requireContext(), android.R.color.white)
+        // Gunakan warna gelap yg kamu punya (misal tuku_dark atau hitam biasa)
+        val darkColor = ContextCompat.getColor(requireContext(), R.color.tuku_dark)
 
         if (mode == "Take Away") {
-            btnTakeAway.setTextColor(activeColor)
-            btnDelivery.setTextColor(inactiveColor)
+            // Take Away Aktif -> Putih
+            btnTakeAway.setTextColor(whiteColor)
+            btnTakeAway.iconTint = ColorStateList.valueOf(whiteColor)
+
+            // Delivery Mati -> Gelap
+            btnDelivery.setTextColor(darkColor)
+            btnDelivery.iconTint = ColorStateList.valueOf(darkColor)
+
         } else {
-            btnDelivery.setTextColor(activeColor)
-            btnTakeAway.setTextColor(inactiveColor)
+            // Delivery Aktif -> Putih
+            btnDelivery.setTextColor(whiteColor)
+            btnDelivery.iconTint = ColorStateList.valueOf(whiteColor)
+
+            // Take Away Mati -> Gelap
+            btnTakeAway.setTextColor(darkColor)
+            btnTakeAway.iconTint = ColorStateList.valueOf(darkColor)
         }
     }
 
@@ -187,10 +201,7 @@ class CartFragment : Fragment() {
         productAdapter = ProductAdapter(
             products = mutableListOf(),
             onProductClick = { product ->
-                val action = CartFragmentDirections.actionNavCartToProductDetailFragment(product)
-                val bundle = action.arguments
-                bundle.putString("source", "cart")
-                findNavController().navigate(R.id.productDetailFragment, bundle)
+                navigateToDetail(product)
             },
             onFavoriteToggle = { product, isFav ->
                 if (isFav) {
@@ -202,14 +213,34 @@ class CartFragment : Fragment() {
                 }
             },
             onAddToCartClick = { product ->
-                val action = CartFragmentDirections.actionNavCartToProductDetailFragment(product)
-                val bundle = action.arguments
-                bundle.putString("source", "cart")
-                findNavController().navigate(R.id.productDetailFragment, bundle)
+                navigateToDetail(product)
             }
         )
         rvProducts.layoutManager = GridLayoutManager(requireContext(), 2)
         rvProducts.adapter = productAdapter
+    }
+
+    // Helper Navigasi ke Detail (Mengirim MenuItem)
+    private fun navigateToDetail(product: Product) {
+        try {
+            val menuItem = MenuItem(
+                id = product.id.toIntOrNull() ?: 0,
+                name = product.name,
+                description = product.description,
+                category = product.category,
+                image = product.image,
+                createdAt = null,
+                price_hot = product.price_hot,
+                price_iced = product.price_iced
+            )
+
+            val bundle = Bundle()
+            bundle.putParcelable("product", menuItem)
+            findNavController().navigate(R.id.productDetailFragment, bundle)
+
+        } catch (e: Exception) {
+            Toast.makeText(context, "Navigasi Error: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun observeFavorites() {
@@ -220,7 +251,6 @@ class CartFragment : Fragment() {
     }
 
     private fun loadMenu() {
-        // Ambil data (pastikan JSON/API mengembalikan URL gambar yang valid)
         val menu = jsonHelper.getMenuData() ?: return
 
         allProducts = menu.menu.map { m ->
@@ -229,7 +259,7 @@ class CartFragment : Fragment() {
                 name = m.name,
                 category = m.category ?: "Lainnya",
                 description = m.description ?: "",
-                image = m.image, // Ini harus URL Supabase (https://...)
+                image = m.image,
                 price_hot = m.price_hot,
                 price_iced = m.price_iced,
                 isFavorite = favoriteViewModel.isFavorite(m.id.toString())
@@ -237,7 +267,6 @@ class CartFragment : Fragment() {
         }
         productAdapter.updateProducts(allProducts)
 
-        // Setup Kategori
         val categories = allProducts.map { it.category }.distinct().map { Category(it) }
         rvCategory.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         rvCategory.adapter = CategoryAdapter(categories) { selected ->
