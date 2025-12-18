@@ -1,7 +1,7 @@
 package com.example.map_umkm
 
 import android.content.Context
-import android.content.res.ColorStateList // PENTING: Untuk ubah warna icon
+import android.content.res.ColorStateList 
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -30,7 +30,7 @@ import java.util.Locale
 
 class CartFragment : Fragment() {
 
-    // UI Components
+    
     private lateinit var rvCategory: RecyclerView
     private lateinit var rvProducts: RecyclerView
     private lateinit var tvTotal: TextView
@@ -41,17 +41,17 @@ class CartFragment : Fragment() {
     private lateinit var bottomBar: View
     private lateinit var btnViewOrder: Button
 
-    // Toggle Mode UI
+    
     private lateinit var btnTakeAway: MaterialButton
     private lateinit var btnDelivery: MaterialButton
     private lateinit var toggleSelector: View
     private lateinit var toggleContainer: View
 
-    // Branch Selection
+    
     private lateinit var tvSelectedBranch: TextView
     private lateinit var btnChangeBranch: TextView
 
-    // Data
+    
     private val cartViewModel: CartViewModel by activityViewModels()
     private val favoriteViewModel: FavoriteViewModel by activityViewModels()
 
@@ -93,7 +93,7 @@ class CartFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         loadSelectedBranch()
-        // Pastikan warna tombol benar saat aplikasi dibuka kembali
+        
         animateMode(currentMode, immediate = true)
     }
 
@@ -160,32 +160,32 @@ class CartFragment : Fragment() {
                     .setDuration(250)
                     .start()
             }
-            // Panggil fungsi update warna teks & ikon
+            
             updateToggleTextStyle(mode)
         }
     }
 
-    // 🔥 PERBAIKAN WARNA TEKS & ICON 🔥
+    
     private fun updateToggleTextStyle(mode: String) {
         val whiteColor = ContextCompat.getColor(requireContext(), android.R.color.white)
-        // Gunakan warna gelap yg kamu punya (misal tuku_dark atau hitam biasa)
+        
         val darkColor = ContextCompat.getColor(requireContext(), R.color.tuku_dark)
 
         if (mode == "Take Away") {
-            // Take Away Aktif -> Putih
+            
             btnTakeAway.setTextColor(whiteColor)
             btnTakeAway.iconTint = ColorStateList.valueOf(whiteColor)
 
-            // Delivery Mati -> Gelap
+            
             btnDelivery.setTextColor(darkColor)
             btnDelivery.iconTint = ColorStateList.valueOf(darkColor)
 
         } else {
-            // Delivery Aktif -> Putih
+            
             btnDelivery.setTextColor(whiteColor)
             btnDelivery.iconTint = ColorStateList.valueOf(whiteColor)
 
-            // Take Away Mati -> Gelap
+            
             btnTakeAway.setTextColor(darkColor)
             btnTakeAway.iconTint = ColorStateList.valueOf(darkColor)
         }
@@ -220,7 +220,7 @@ class CartFragment : Fragment() {
         rvProducts.adapter = productAdapter
     }
 
-    // Helper Navigasi ke Detail (Mengirim MenuItem)
+    
     private fun navigateToDetail(product: Product) {
         try {
             val menuItem = MenuItem(

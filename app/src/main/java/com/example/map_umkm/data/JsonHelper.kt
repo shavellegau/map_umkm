@@ -19,13 +19,13 @@ class JsonHelper(private val context: Context) {
             val jsonString = if (internalFile.exists()) {
                 internalFile.readText()
             } else {
-                // Salin dari assets jika belum ada di internal storage
+                
                 val textFromAssets = context.assets.open(MENU_FILE_NAME).bufferedReader().use { it.readText() }
                 internalFile.writeText(textFromAssets)
                 textFromAssets
             }
 
-            // Inisialisasi list 'orders' jika null saat parsing
+            
             val menuData = gson.fromJson(jsonString, MenuData::class.java)
             if (menuData.orders == null) {
                 menuData.orders = mutableListOf()
@@ -49,11 +49,11 @@ class JsonHelper(private val context: Context) {
         }
     }
 
-    // FUNGSI BARU: Untuk menyimpan pesanan baru
+    
     fun addOrder(newOrder: com.example.map_umkm.model.Order): Boolean {
         return try {
             val menuData = getMenuData() ?: return false
-            menuData.orders.add(0, newOrder) // Tambah di awal list agar pesanan baru di atas
+            menuData.orders.add(0, newOrder) 
             saveMenuData(menuData)
             true
         } catch (e: Exception) {
@@ -62,7 +62,7 @@ class JsonHelper(private val context: Context) {
         }
     }
 
-    // FUNGSI BARU: Untuk memperbarui status pesanan
+    
     fun updateOrderStatus(orderId: String, newStatus: String): Boolean {
         return try {
             val menuData = getMenuData() ?: return false

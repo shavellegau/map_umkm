@@ -28,21 +28,21 @@ class HistoryAdapter(private var historyList: MutableList<History> = mutableList
     override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
         val item = historyList[position]
 
-        // 1. Gunakan 'title' sesuai model Anda
+        
         holder.tvTitle.text = item.title
 
-        // 2. Cek tipe transaksi untuk warna & simbol
+        
         val isEarn = item.type == "earn"
         val prefix = if (isEarn) "+" else "-"
 
-        // 3. Gunakan 'point' sesuai model Anda (bukan amount/points)
+        
         holder.tvAmount.text = "$prefix${item.point} Pts"
 
-        // 4. Atur Warna
+        
         val colorRes = if (isEarn) R.color.tuku_primary else android.R.color.holo_red_dark
         holder.tvAmount.setTextColor(ContextCompat.getColor(holder.itemView.context, colorRes))
 
-        // 5. Atur Gambar (Manual logic karena Firestore tidak simpan Int ID)
+        
         val iconRes = if (isEarn) R.drawable.ic_point else R.drawable.ic_voucher
         holder.imgIcon.setImageResource(iconRes)
     }

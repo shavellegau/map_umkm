@@ -36,7 +36,7 @@ class WishlistAdapter(
             )
 
             itemView.setOnClickListener {
-                onProductClick(product) // ✅ klik card → buka detail
+                onProductClick(product) 
             }
 
             ivFavorite.setOnClickListener {

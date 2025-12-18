@@ -9,11 +9,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.R
 import com.example.map_umkm.model.PoinHistory
 
-// Ubah constructor menjadi var agar bisa diupdate
+
 class PoinHistoryAdapter(private var historyList: List<PoinHistory> = listOf()) :
     RecyclerView.Adapter<PoinHistoryAdapter.HistoryViewHolder>() {
 
-    // [SOLUSI ERROR submitList] Tambahkan fungsi ini manual
+    
     fun updateData(newList: List<PoinHistory>) {
         historyList = newList
         notifyDataSetChanged()
@@ -38,9 +38,9 @@ class PoinHistoryAdapter(private var historyList: List<PoinHistory> = listOf()) 
         holder.tvAmount.text = item.amount
         holder.tvDate.text = item.date
 
-        // Logika warna: Hijau jika ada tanda "+", Merah jika tidak
+        
         if (item.amount.contains("+")) {
-            holder.tvAmount.setTextColor(Color.parseColor("#008577")) // Hijau Teal
+            holder.tvAmount.setTextColor(Color.parseColor("#008577")) 
         } else {
             holder.tvAmount.setTextColor(Color.RED)
         }

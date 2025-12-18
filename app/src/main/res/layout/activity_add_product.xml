@@ -13,7 +13,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Toolbar -->
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar_edit_product"
             android:layout_width="match_parent"
@@ -30,7 +29,6 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Preview gambar -->
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/iv_product_preview"
                 android:layout_width="150dp"
@@ -51,7 +49,6 @@
                 android:textColor="@color/tuku_primary"
                 android:textSize="14sp" />
 
-            <!-- Nama Produk -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -70,7 +67,6 @@
                 android:textColor="@color/text_primary"
                 android:textColorHint="@color/text_secondary" />
 
-            <!-- Harga Hot & Iced -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -128,7 +124,6 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Kategori -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -153,7 +148,6 @@
                 android:visibility="gone"
                 android:textColor="@color/text_secondary" />
 
-            <!-- Deskripsi -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -174,7 +168,6 @@
                 android:textColor="@color/text_primary"
                 android:textColorHint="@color/text_secondary" />
 
-            <!-- Tombol Simpan -->
             <Button
                 android:id="@+id/btn_save_product"
                 android:layout_width="match_parent"

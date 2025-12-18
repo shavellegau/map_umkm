@@ -5,17 +5,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
-import android.widget.TextView // Pastikan ini ada
+import android.widget.TextView 
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.textfield.TextInputEditText // [PENTING] Tambahkan ini untuk layout baru
+import com.google.android.material.textfield.TextInputEditText 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 
 class LoginActivity : AppCompatActivity() {
 
-    // [UBAH DISINI] Gunakan TextInputEditText agar sesuai dengan XML Material Design
+    
     private lateinit var etEmail: TextInputEditText
     private lateinit var etPassword: TextInputEditText
 
@@ -29,13 +29,13 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // Inisialisasi View
+        
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
         btnLogin = findViewById(R.id.btnLogin)
         btnRegister = findViewById(R.id.btnRegister)
 
-        // Inisialisasi Firebase
+        
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
@@ -61,7 +61,7 @@ class LoginActivity : AppCompatActivity() {
             .addOnSuccessListener { authResult ->
                 val uid = authResult.user?.uid
                 if (uid != null) {
-                    // Ambil data user dari Firestore
+                    
                     db.collection("users").document(uid).get()
                         .addOnSuccessListener { documentSnapshot ->
                             if (documentSnapshot.exists()) {

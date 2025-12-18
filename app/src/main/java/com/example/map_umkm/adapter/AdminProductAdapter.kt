@@ -20,7 +20,6 @@ class AdminProductAdapter(
 ) : RecyclerView.Adapter<AdminProductAdapter.AdminProductViewHolder>() {
 
     inner class AdminProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // Pastikan ID ini SAMA PERSIS dengan di file item_admin_product.xml
         val productImage: ImageView = itemView.findViewById(R.id.ivProductImage)
         val productName: TextView = itemView.findViewById(R.id.tvProductName)
         val productPrice: TextView = itemView.findViewById(R.id.tvProductPrice)
@@ -39,21 +38,17 @@ class AdminProductAdapter(
 
         holder.productName.text = product.name
 
-        // Format harga ke Rupiah
         val format = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
         val priceToShow = product.price_hot ?: product.price_iced ?: 0
         holder.productPrice.text = format.format(priceToShow)
 
-        // --- PERBAIKAN GLIDE (Load URL Langsung) ---
-        // Hapus kode getIdentifier, langsung load String URL dari model
         Glide.with(holder.itemView.context)
-            .load(product.image) // Ini berisi "https://..."
-            .placeholder(R.drawable.logo_tuku) // Gambar loading
-            .error(R.drawable.error_image)     // Gambar jika URL rusak/kosong
-            .centerCrop() // Agar gambar rapi memenuhi kotak
+            .load(product.image)
+            .placeholder(R.drawable.logo_tuku)
+            .error(R.drawable.error_image)
+            .centerCrop()
             .into(holder.productImage)
 
-        // Listener Tombol
         holder.deleteButton.setOnClickListener {
             onDeleteClick(product)
         }

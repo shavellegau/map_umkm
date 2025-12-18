@@ -58,7 +58,7 @@ class ProfileFragment : Fragment() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            openCamera() // Kalau diizinkan, langsung buka kamera
+            openCamera()
         } else {
             Toast.makeText(context, "Izin kamera diperlukan untuk mengambil foto", Toast.LENGTH_SHORT).show()
         }
@@ -147,7 +147,7 @@ class ProfileFragment : Fragment() {
         builder.setTitle("Ganti Foto Profil")
         builder.setItems(options) { _, which ->
             when (which) {
-                0 -> checkCameraPermissionAndOpen() // Cek Izin dulu
+                0 -> checkCameraPermissionAndOpen() 
                 1 -> openGallery()
             }
         }
@@ -164,7 +164,7 @@ class ProfileFragment : Fragment() {
                 requireContext(),
                 Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED -> {
-                // Izin sudah ada, langsung buka
+                
                 openCamera()
             }
             else -> {

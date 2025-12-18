@@ -1,6 +1,6 @@
 package com.example.map_umkm
 
-import android.os.Build // Tambahan untuk versi Android baru
+import android.os.Build 
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,9 +10,9 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-// import androidx.navigation.fragment.navArgs // Matikan ini biar ga crash
+
 import com.bumptech.glide.Glide
-import com.example.map_umkm.model.MenuItem // Tambahan: Import MenuItem
+import com.example.map_umkm.model.MenuItem 
 import com.example.map_umkm.model.Product
 import com.example.map_umkm.viewmodel.CartViewModel
 import com.example.map_umkm.viewmodel.FavoriteViewModel
@@ -37,7 +37,7 @@ class ProductDetailFragment : Fragment() {
     private val cartViewModel: CartViewModel by activityViewModels()
     private val favoriteViewModel: FavoriteViewModel by activityViewModels()
 
-    // private val args: ProductDetailFragmentArgs by navArgs() // HAPUS/KOMENTAR INI (Penyebab Crash)
+    
 
     private lateinit var selectedProduct: Product
     private var currentPrice: Int = 0
@@ -49,8 +49,8 @@ class ProductDetailFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_product_detail, container, false)
         initializeViews(view)
 
-        // --- [BAGIAN INI YANG DIPERBAIKI] ---
-        // Mengambil data secara manual (Bundle) untuk menghindari Crash tipe data
+        
+        
 
         val menuItem = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arguments?.getParcelable("product", MenuItem::class.java)
@@ -60,7 +60,7 @@ class ProductDetailFragment : Fragment() {
         }
 
         if (menuItem != null) {
-            // Konversi dari MenuItem (Home) ke Product (Cart/Detail)
+            
             selectedProduct = Product(
                 id = menuItem.id.toString(),
                 name = menuItem.name,
@@ -72,20 +72,20 @@ class ProductDetailFragment : Fragment() {
                 isFavorite = false
             )
         } else {
-            // Fallback jika data gagal diambil
+            
             Toast.makeText(context, "Gagal memuat produk", Toast.LENGTH_SHORT).show()
             findNavController().navigateUp()
             return view
         }
-        // --- [BATAS PERBAIKAN] ---
+        
 
-        // Sync Favorit
+        
         selectedProduct = selectedProduct.copy(isFavorite = favoriteViewModel.isFavorite(selectedProduct.id))
 
         setupUI()
         setupListeners()
 
-        // Observe LiveData Favorit
+        
         favoriteViewModel.favoriteProducts.observe(viewLifecycleOwner) { favorites ->
             val isFav = favorites.any { it.id == selectedProduct.id }
             selectedProduct = selectedProduct.copy(isFavorite = isFav)

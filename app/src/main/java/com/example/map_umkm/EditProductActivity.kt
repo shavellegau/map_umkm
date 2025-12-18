@@ -16,7 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.bumptech.glide.Glide
 import com.example.map_umkm.data.JsonHelper
-// [PENTING] Gunakan MenuItem karena JsonHelper Anda mengembalikan ini
+
 import com.example.map_umkm.model.MenuItem
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
@@ -25,8 +25,6 @@ import java.io.File
 class EditProductActivity : AppCompatActivity() {
 
     private lateinit var jsonHelper: JsonHelper
-
-    // View Components
     private lateinit var etName: TextInputEditText
     private lateinit var etPriceHot: TextInputEditText
     private lateinit var etPriceIced: TextInputEditText
@@ -35,14 +33,12 @@ class EditProductActivity : AppCompatActivity() {
     private lateinit var etImageUrl: EditText
     private lateinit var btnSave: Button
     private lateinit var ivProductPreview: ImageView
-
-    // [FIXED] Gunakan MenuItem, bukan Product
     private var currentMenuItem: MenuItem? = null
     private var tempImageUri: Uri? = null
 
     private val categories = listOf("WHITE-MILK", "BLACK", "NON-COFFEE", "TUKUDAPAN")
 
-    // --- Launcher Galeri & Kamera ---
+    
     private val galleryLauncher =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
             uri?.let {
@@ -80,7 +76,7 @@ class EditProductActivity : AppCompatActivity() {
         initializeViews()
         setupUI()
 
-        // Ambil ID dari Intent (Int)
+        
         val productId = intent.getIntExtra("PRODUCT_ID", -1)
         if (productId == -1) {
             Toast.makeText(this, "ID Produk tidak valid.", Toast.LENGTH_SHORT).show()
@@ -90,7 +86,7 @@ class EditProductActivity : AppCompatActivity() {
 
         val menuData = jsonHelper.getMenuData()
 
-        // [FIXED] Bandingkan Int dengan Int (hapus .toString())
+        
         currentMenuItem = menuData?.menu?.find { it.id == productId }
 
         if (currentMenuItem == null) {
@@ -112,7 +108,7 @@ class EditProductActivity : AppCompatActivity() {
         btnSave = findViewById(R.id.btn_save_product)
         val toolbar: MaterialToolbar = findViewById(R.id.toolbar_edit_product)
 
-        // Setup Toolbar
+        
         toolbar.setNavigationOnClickListener { finish() }
 
         ivProductPreview = findViewById(R.id.iv_product_preview)
@@ -133,7 +129,7 @@ class EditProductActivity : AppCompatActivity() {
         currentMenuItem?.let { product ->
             etName.setText(product.name)
 
-            // Konversi angka ke string untuk ditampilkan
+            
             etPriceHot.setText(product.price_hot?.toString() ?: "0")
             etPriceIced.setText(product.price_iced?.toString() ?: "0")
             etDescription.setText(product.description ?: "")
@@ -157,7 +153,7 @@ class EditProductActivity : AppCompatActivity() {
 
         val name = etName.text.toString().trim()
 
-        // [FIXED] Gunakan toIntOrNull() karena model Anda menggunakan Int (Bukan Double)
+        
         val priceHot = etPriceHot.text.toString().toIntOrNull() ?: 0
         val priceIced = etPriceIced.text.toString().toIntOrNull() ?: 0
 
@@ -172,23 +168,23 @@ class EditProductActivity : AppCompatActivity() {
 
         val menuData = jsonHelper.getMenuData() ?: return
 
-        // Cari item di list asli
+        
         val index = menuData.menu.indexOfFirst { it.id == menuItemToUpdate.id }
 
         if (index != -1) {
             val oldItem = menuData.menu[index]
 
-            // [FIXED] Gunakan .copy() dan pastikan tipe data sesuai MenuItem (Int)
+            
             val updatedItem = oldItem.copy(
                 name = name,
-                price_hot = priceHot,   // Int
-                price_iced = priceIced, // Int
+                price_hot = priceHot,   
+                price_iced = priceIced, 
                 category = category,
                 image = if (imageUrl.isNotEmpty()) imageUrl else null,
                 description = description
             )
 
-            // Simpan perubahan ke list
+            
             (menuData.menu as MutableList)[index] = updatedItem
             jsonHelper.saveMenuData(menuData)
 

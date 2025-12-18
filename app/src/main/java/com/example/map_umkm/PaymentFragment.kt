@@ -37,25 +37,25 @@ class PaymentFragment : Fragment() {
 
     private val cartViewModel: CartViewModel by activityViewModels()
 
-    // --- View Components ---
+    
     private lateinit var rvOrderList: RecyclerView
     private lateinit var tvSubtotal: TextView
     private lateinit var tvTax: TextView
     private lateinit var tvTotalPayment: TextView
     private lateinit var btnPay: Button
 
-    // --- Voucher Components ---
+    
     private lateinit var layoutVoucherSelect: LinearLayout
     private lateinit var tvSelectedVoucherName: TextView
     private lateinit var btnRemoveVoucher: ImageView
     private lateinit var layoutDiscountInfo: RelativeLayout
     private lateinit var tvDiscountInfo: TextView
 
-    // --- Point Components ---
+    
     private lateinit var switchPoint: SwitchMaterial
     private lateinit var tvUserPoints: TextView
 
-    // --- Delivery Components ---
+    
     private lateinit var rgOrderType: RadioGroup
     private lateinit var rbDelivery: RadioButton
     private lateinit var rbTakeAway: RadioButton
@@ -70,21 +70,21 @@ class PaymentFragment : Fragment() {
 
     private lateinit var cartAdapter: CartItemAdapter
 
-    // --- Logic Variables ---
+    
     private var voucherDiscountAmount: Double = 0.0
     private var pointDiscountAmount: Double = 0.0
     private var finalTotalAmount: Double = 0.0
     private var shippingCost: Double = 0.0
-    private var pointsUsedForTransaction: Long = 0 // Menyimpan berapa poin yg akan dipotong
+    private var pointsUsedForTransaction: Long = 0 
 
-    // Status
+    
     private var isDelivery = false
     private var isPointUsed = false
 
-    // Data User
+    
     private var userCurrentPoints: Long = 0
 
-    // Koordinat
+    
     private var userLat: Double = 0.0
     private var userLng: Double = 0.0
     private var branchLat: Double = 0.0
@@ -94,7 +94,7 @@ class PaymentFragment : Fragment() {
     private val db by lazy { FirebaseFirestore.getInstance() }
     private val currentUserUid by lazy { FirebaseAuth.getInstance().uid }
 
-    // Launcher Peta
+    
     private val mapLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val data = result.data
@@ -115,14 +115,14 @@ class PaymentFragment : Fragment() {
         initializeViews(view)
         setupRecyclerView()
 
-        // 1. Load Data
+        
         loadBranchData()
         loadUserPoints()
 
-        // 2. Setup Listener
+        
         setupListeners()
 
-        // 3. Observer Voucher
+        
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<String>("selectedVoucherCode")
             ?.observe(viewLifecycleOwner) { code ->
                 if (!code.isNullOrEmpty()) {
@@ -131,13 +131,13 @@ class PaymentFragment : Fragment() {
                 }
             }
 
-        // 4. Observer Keranjang
+        
         cartViewModel.cartList.observe(viewLifecycleOwner) { cart ->
             cartAdapter.updateItems(cart)
             updateTotals()
         }
 
-        // Default: Take Away
+        
         rbTakeAway.isChecked = true
         handleOrderTypeChange(false)
 
@@ -157,11 +157,11 @@ class PaymentFragment : Fragment() {
         if (currentUserUid == null) return
         db.collection("users").document(currentUserUid!!).get()
             .addOnSuccessListener { snapshot ->
-                // Pastikan nama field sesuai database ("tukuPoints" atau "points")
+                
                 userCurrentPoints = snapshot.getLong("tukuPoints") ?: 0L
                 tvUserPoints.text = "Saldo Poin: ${NumberFormat.getInstance(Locale("in", "ID")).format(userCurrentPoints)}"
 
-                // Jika poin 0, matikan switch otomatis
+                
                 if (userCurrentPoints <= 0) {
                     switchPoint.isEnabled = false
                     switchPoint.isChecked = false
@@ -237,12 +237,12 @@ class PaymentFragment : Fragment() {
         btnChangeAddress.setOnClickListener(openMapAction)
         btnAddNewAddress.setOnClickListener(openMapAction)
 
-        // --- LOGIC TOGGLE POIN UPDATE ---
+        
         switchPoint.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 if (userCurrentPoints > 0) {
                     isPointUsed = true
-                    updateTotals() // Hitung ulang diskon di updateTotals
+                    updateTotals() 
                 } else {
                     switchPoint.isChecked = false
                     isPointUsed = false
@@ -309,13 +309,13 @@ class PaymentFragment : Fragment() {
         val tax = subtotal * 0.11
         val currentShipping = if (isDelivery) shippingCost else 0.0
 
-        // 1. Hitung total sebelum dikurangi poin (tapi sudah dikurangi voucher)
+        
         val totalBeforePoint = (subtotal + tax + currentShipping) - voucherDiscountAmount
 
-        // 2. Logika Poin Dinamis (1 Poin = Rp 1)
+        
         if (isPointUsed && totalBeforePoint > 0) {
-            // Jika poin user lebih banyak dari tagihan -> Diskon = Tagihan (Bayar 0)
-            // Jika poin user lebih sedikit -> Diskon = Semua poin user
+            
+            
             if (userCurrentPoints >= totalBeforePoint) {
                 pointDiscountAmount = totalBeforePoint
                 pointsUsedForTransaction = totalBeforePoint.toLong()
@@ -328,29 +328,29 @@ class PaymentFragment : Fragment() {
             pointsUsedForTransaction = 0
         }
 
-        // 3. Hitung Total Akhir
+        
         var total = totalBeforePoint - pointDiscountAmount
         if (total < 0) total = 0.0
         finalTotalAmount = total
 
-        // Update UI Text
+        
         tvSubtotal.text = formatCurrency(subtotal)
         tvTax.text = formatCurrency(tax)
         tvTotalPayment.text = formatCurrency(total)
 
-        // Update Text Button
+        
         if (total == 0.0) {
             btnPay.text = "Bayar Sekarang (Gratis)"
         } else {
             btnPay.text = "Bayar ${formatCurrency(total)}"
         }
 
-        // Update Info Diskon (Gabungan Voucher + Poin)
+        
         val totalDisc = voucherDiscountAmount + pointDiscountAmount
         if (totalDisc > 0) {
             layoutDiscountInfo.visibility = View.VISIBLE
 
-            // Opsional: Detailkan info diskon
+            
             val discTextBuilder = StringBuilder()
             if (voucherDiscountAmount > 0) discTextBuilder.append("Voucher: -${formatCurrency(voucherDiscountAmount)} ")
             if (pointDiscountAmount > 0) discTextBuilder.append("Poin: -${formatCurrency(pointDiscountAmount)}")
@@ -371,7 +371,7 @@ class PaymentFragment : Fragment() {
         return NumberFormat.getCurrencyInstance(Locale("in", "ID")).format(amount)
     }
 
-    // --- LOGIKA VOUCHER ---
+    
     private fun resetVoucher() {
         voucherDiscountAmount = 0.0
         tvSelectedVoucherName.text = "Pilih Voucher / Diskon"
@@ -412,11 +412,11 @@ class PaymentFragment : Fragment() {
             }
     }
 
-    // --- DIALOG PILIH PEMBAYARAN ---
+    
     private fun showPaymentChoiceDialog() {
-        // Jika total 0 (Gratis karena poin), langsung proses tanpa dialog pilih Cash/QRIS
+        
         if (finalTotalAmount == 0.0) {
-            processPaymentSequence(isCashPayment = true) // Anggap Cash tapi 0
+            processPaymentSequence(isCashPayment = true) 
             return
         }
 
@@ -436,15 +436,15 @@ class PaymentFragment : Fragment() {
         }
     }
 
-    // --- PROSES PEMBAYARAN & POTONG POIN ---
+    
     private fun processPaymentSequence(isCashPayment: Boolean) {
         setLoading(true)
 
-        // 1. Cek Apakah Menggunakan Poin?
+        
         if (isPointUsed && pointsUsedForTransaction > 0) {
             deductPointsAndCreateOrder(isCashPayment)
         } else {
-            // Tidak pakai poin, langsung bikin order
+            
             createOrder(isCashPayment)
         }
     }
@@ -464,7 +464,7 @@ class PaymentFragment : Fragment() {
                 throw Exception("Poin tidak cukup saat transaksi diproses!")
             }
         }.addOnSuccessListener {
-            // Poin berhasil dipotong, lanjut simpan order
+            
             createOrder(isCashPayment)
         }.addOnFailureListener { e ->
             setLoading(false)
@@ -479,7 +479,7 @@ class PaymentFragment : Fragment() {
 
         val orderType = if (isDelivery) "Delivery" else "Take Away"
 
-        // Address Object
+        
         val addressData = if (isDelivery) {
             Address(
                 id = "TEMP",
@@ -491,7 +491,7 @@ class PaymentFragment : Fragment() {
             )
         } else null
 
-        // Tentukan status: Jika gratis (Rp 0), langsung "Diproses" atau "Menunggu Konfirmasi"
+        
         val initialStatus = if (finalTotalAmount == 0.0) "Menunggu Konfirmasi"
         else if (isCashPayment) "Menunggu Pembayaran"
         else "Menunggu Konfirmasi"
@@ -514,7 +514,7 @@ class PaymentFragment : Fragment() {
                 setLoading(false)
                 cartViewModel.clearCart()
 
-                // Navigasi
+                
                 val action = if (isCashPayment || finalTotalAmount == 0.0) {
                     PaymentFragmentDirections.actionPaymentFragmentToPaymentSuccessFragment(paymentMethod = "CASH")
                 } else {
@@ -526,8 +526,8 @@ class PaymentFragment : Fragment() {
             .addOnFailureListener { e ->
                 setLoading(false)
                 Toast.makeText(context, "Gagal menyimpan pesanan: ${e.message}", Toast.LENGTH_LONG).show()
-                // NOTE: Jika poin sudah terpotong tapi createOrder gagal,
-                // idealnya perlu logic rollback poin. Untuk simplicity, dibiarkan begini dulu.
+                
+                
             }
     }
 

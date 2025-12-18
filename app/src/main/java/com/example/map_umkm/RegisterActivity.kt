@@ -18,7 +18,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var btnRegister: Button
     private lateinit var tvLogin: TextView
 
-    // [DITAMBAH] Inisialisasi Firebase Authentication dan Firestore
+    
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
@@ -26,7 +26,7 @@ class RegisterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        // [DITAMBAH] Inisialisasi Firebase
+        
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
@@ -37,7 +37,7 @@ class RegisterActivity : AppCompatActivity() {
         tvLogin = findViewById(R.id.tvLogin)
 
         tvLogin.setOnClickListener {
-            // Kembali ke halaman login
+            
             finish()
         }
 
@@ -46,13 +46,13 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    // [DIUBAH TOTAL] Fungsi untuk mendaftar menggunakan Firebase
+    
     private fun handleRegister() {
         val name = etName.text.toString().trim()
         val email = etEmail.text.toString().trim()
         val password = etPassword.text.toString().trim()
 
-        // --- Validasi Input ---
+        
         if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Semua field harus diisi", Toast.LENGTH_SHORT).show()
             return
@@ -66,37 +66,37 @@ class RegisterActivity : AppCompatActivity() {
             return
         }
 
-        // --- Proses Registrasi Firebase ---
+        
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // 1. Registrasi Auth Berhasil
+                    
                     val user = auth.currentUser
                     val uid = user?.uid
 
                     if (uid != null) {
-                        // 2. Simpan Data Tambahan (Nama & Role) ke Firestore
+                        
                         val userMap = hashMapOf(
                             "name" to name,
                             "email" to email,
-                            "role" to "user" // Default role untuk registrasi baru
+                            "role" to "user" 
                         )
 
                         db.collection("users").document(uid).set(userMap)
                             .addOnSuccessListener {
-                                // 3. Pendaftaran Selesai
+                                
                                 Toast.makeText(this, "Registrasi berhasil! Silakan login.", Toast.LENGTH_LONG).show()
-                                finish() // Kembali ke halaman login
+                                finish() 
                             }
                             .addOnFailureListener { e ->
-                                // Gagal menyimpan data ke Firestore. Hapus akun Auth yang sudah dibuat agar tidak jadi akun "hantu".
+                                
                                 user.delete()
                                 Toast.makeText(this, "Gagal menyimpan data user: ${e.message}", Toast.LENGTH_LONG).show()
                             }
                     }
 
                 } else {
-                    // Registrasi Auth Gagal (Email sudah digunakan, dll.)
+                    
                     val errorMessage = task.exception?.message ?: "Registrasi gagal, coba lagi."
                     Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
                 }

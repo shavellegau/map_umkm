@@ -14,8 +14,7 @@ object PointService {
         onFail: (String) -> Unit
     ) {
         val uid = FirebaseAuth.getInstance().uid
-
-        // Cek login
+        
         if (uid == null) {
             onFail("User belum login")
             return
@@ -25,25 +24,25 @@ object PointService {
 
         db.runTransaction { trx ->
             val snapshot = trx.get(userDoc)
-            // Ambil poin user saat ini dari Firestore
+            
             val currentPoints = snapshot.getLong("points") ?: 0
 
-            // [PERBAIKAN] Menggunakan reward.point (sesuai Model Reward)
+            
             if (currentPoints < reward.point) {
                 throw Exception("Poin tidak mencukupi!")
             }
 
-            // [PERBAIKAN] Menggunakan reward.point
+            
             val sisaPoin = currentPoints - reward.point
             trx.update(userDoc, "points", sisaPoin)
 
-            // Catat Riwayat
+            
             val newHistoryRef = userDoc.collection("histories").document()
 
             val historyMap = hashMapOf(
-                // [PERBAIKAN] Menggunakan reward.title (sesuai Model Reward)
+                
                 "title" to "Tukar: ${reward.title}",
-                // [PERBAIKAN] Menggunakan reward.point
+                
                 "points" to reward.point,
                 "type" to "redeem",
                 "timestamp" to Timestamp.now()

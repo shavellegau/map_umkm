@@ -20,14 +20,14 @@ class OrdersFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val viewPager = view.findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.viewPager)
 
-        // Kita hapus variabel tabLayout dan TabLayoutMediator di sini
+        
 
         val adapter = OrdersPagerAdapter(this)
         viewPager.adapter = adapter
     }
 
     class OrdersPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
-        override fun getItemCount(): Int = 1  // Tetap menampilkan 1 fragment
+        override fun getItemCount(): Int = 1  
         override fun createFragment(position: Int): Fragment = OngoingOrdersFragment()
     }
 }

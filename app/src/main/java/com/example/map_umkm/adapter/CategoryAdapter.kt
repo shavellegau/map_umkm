@@ -29,25 +29,20 @@ class CategoryAdapter(
         val category = categories[position]
         holder.tvCategory.text = category.name
 
-        // Highlight kategori terpilih
         holder.tvCategory.setBackgroundResource(
             if (position == selectedPosition) R.drawable.bg_category_selected
             else R.drawable.bg_category_default
         )
 
         holder.itemView.setOnClickListener {
-            // Dapatkan posisi item yang diklik secara aman
             val currentPosition = holder.bindingAdapterPosition
             if (currentPosition != RecyclerView.NO_POSITION) {
-                // Simpan posisi sebelumnya untuk diperbarui
                 val oldSelectedPosition = selectedPosition
                 selectedPosition = currentPosition
 
-                // Beri tahu adapter untuk memperbarui dua item saja, bukan seluruh daftar
                 notifyItemChanged(oldSelectedPosition)
                 notifyItemChanged(selectedPosition)
 
-                // Panggil fungsi klik yang didefinisikan di fragment
                 onClick(categories[currentPosition])
             }
         }
@@ -55,7 +50,6 @@ class CategoryAdapter(
 
     override fun getItemCount() = categories.size
 
-    // Fungsi opsional untuk mengatur posisi terpilih dari luar adapter (misalnya dari fragment)
     fun setSelectedPosition(position: Int) {
         val oldPosition = selectedPosition
         selectedPosition = position

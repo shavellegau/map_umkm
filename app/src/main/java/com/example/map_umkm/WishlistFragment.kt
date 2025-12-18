@@ -32,7 +32,7 @@ class WishlistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        favoriteViewModel.loadFavorites()   // <---- ini WAJIB
+        favoriteViewModel.loadFavorites()
 
         binding.btnBack.setOnClickListener {
             findNavController().popBackStack()
@@ -51,7 +51,7 @@ class WishlistFragment : Fragment() {
                     val action = WishlistFragmentDirections
                         .actionWishlistFragmentToProductDetailFragment(product)
 
-                    // Kirim argumen source manual tanpa error
+
                     val bundle = action.arguments
                     bundle.putString("source", "wishlist")
 
@@ -59,21 +59,37 @@ class WishlistFragment : Fragment() {
 
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(requireContext(), "Gagal membuka detail produk", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Gagal membuka detail produk",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             },
             onFavoriteToggle = { product, isFavorite ->
                 try {
                     if (isFavorite) {
                         favoriteViewModel.addFavorite(product)
-                        Toast.makeText(requireContext(), "${product.name} ditambahkan ke favorit", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            "${product.name} ditambahkan ke favorit",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     } else {
                         favoriteViewModel.removeFavorite(product)
-                        Toast.makeText(requireContext(), "${product.name} dihapus dari favorit", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            "${product.name} dihapus dari favorit",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(requireContext(), "Terjadi kesalahan pada favorit", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        "Terjadi kesalahan pada favorit",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         )
@@ -85,7 +101,8 @@ class WishlistFragment : Fragment() {
     private fun observeFavorites() {
         favoriteViewModel.favoriteProducts.observe(viewLifecycleOwner) { favorites ->
             adapter.updateData(favorites ?: emptyList())
-            binding.emptyView.visibility = if (favorites.isNullOrEmpty()) View.VISIBLE else View.GONE
+            binding.emptyView.visibility =
+                if (favorites.isNullOrEmpty()) View.VISIBLE else View.GONE
         }
     }
 

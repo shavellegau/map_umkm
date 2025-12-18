@@ -32,20 +32,20 @@ class PilihCabangActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pilih_cabang)
 
-        // [FIXED] ID disesuaikan dengan XML kamu (rv_cabang)
+        
         rvCabang = findViewById(R.id.rv_cabang)
-        etSearch = findViewById(R.id.et_search_cabang) // Inisialisasi search bar juga
+        etSearch = findViewById(R.id.et_search_cabang) 
 
         rvCabang.layoutManager = LinearLayoutManager(this)
 
-        // Setup Adapter Awal (Kosong dulu)
+        
         adapter = AdminCabangAdapter(emptyList(),
             onEditClick = { cabang -> pilihCabang(cabang) },
             onDeleteClick = { cabang -> pilihCabang(cabang) }
         )
         rvCabang.adapter = adapter
 
-        // Mulai Cek Lokasi User
+        
         cekLokasiUser()
     }
 
@@ -72,7 +72,7 @@ class PilihCabangActivity : AppCompatActivity() {
                 val lat = doc.getDouble("latitude") ?: 0.0
                 val lng = doc.getDouble("longitude") ?: 0.0
 
-                // Hitung jarak user ke cabang ini
+                
                 var jarakMeter = 0f
                 if (userLat != 0.0) {
                     val res = FloatArray(1)
@@ -80,7 +80,7 @@ class PilihCabangActivity : AppCompatActivity() {
                     jarakMeter = res[0]
                 }
 
-                // [FIXED] Cara inisialisasi Cabang karena jarakHitung ada di luar constructor
+                
                 val itemCabang = Cabang(
                     id = doc.id,
                     nama = doc.getString("nama") ?: "",
@@ -92,16 +92,16 @@ class PilihCabangActivity : AppCompatActivity() {
                     longitude = lng
                 )
 
-                // Set variabel @Exclude secara manual
+                
                 itemCabang.jarakHitung = jarakMeter
 
                 list.add(itemCabang)
             }
 
-            // Urutkan dari yang terdekat
+            
             list.sortBy { it.jarakHitung }
 
-            // Update adapter
+            
             adapter = AdminCabangAdapter(list,
                 onEditClick = { cabang -> showConfirmationDialog(cabang) },
                 onDeleteClick = { }
@@ -126,7 +126,7 @@ class PilihCabangActivity : AppCompatActivity() {
                     putString("selectedBranchId", cabang.id)
                     putString("selectedBranchName", cabang.nama)
 
-                    // Simpan Lat/Lng sebagai String agar aman
+                    
                     putString("selectedBranchLat", cabang.latitude.toString())
                     putString("selectedBranchLng", cabang.longitude.toString())
                     apply()

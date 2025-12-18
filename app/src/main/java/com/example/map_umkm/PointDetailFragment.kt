@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.map_umkm.adapter.PoinHistoryAdapter // Pastikan import ini BENAR
+import com.example.map_umkm.adapter.PoinHistoryAdapter 
 import com.example.map_umkm.databinding.FragmentPointDetailBinding
 import com.example.map_umkm.model.PoinHistory
 import com.google.firebase.auth.FirebaseAuth
@@ -21,7 +21,7 @@ class PointDetailFragment : Fragment() {
     private var _binding: FragmentPointDetailBinding? = null
     private val binding get() = _binding!!
 
-    // Gunakan nama kelas yang benar: PoinHistoryAdapter
+    
     private lateinit var historyAdapter: PoinHistoryAdapter
 
     override fun onCreateView(
@@ -37,14 +37,14 @@ class PointDetailFragment : Fragment() {
         setupRecyclerView()
         loadFullHistory()
 
-        // Tombol kembali (pastikan ID di XML adalah btnBack)
+        
         binding.btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
     }
 
     private fun setupRecyclerView() {
-        // Inisialisasi adapter
+        
         historyAdapter = PoinHistoryAdapter()
 
         binding.rvPointDetail.apply {
@@ -59,7 +59,7 @@ class PointDetailFragment : Fragment() {
         FirebaseFirestore.getInstance()
             .collection("users")
             .document(uid)
-            .collection("histories") // Pastikan nama collection di Firestore sama
+            .collection("histories") 
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
@@ -72,31 +72,31 @@ class PointDetailFragment : Fragment() {
                     val dateFormat = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
 
                     for (document in snapshot.documents) {
-                        // 1. Ambil data mentah dari Firestore
+                        
                         val title = document.getString("title") ?: "Transaksi"
                         val points = document.getLong("points") ?: 0
-                        val type = document.getString("type") ?: "earn" // 'earn' atau 'redeem'
+                        val type = document.getString("type") ?: "earn" 
                         val timestamp = document.getTimestamp("timestamp")
 
-                        // 2. Format Tanggal
+                        
                         val dateStr = if (timestamp != null) {
                             dateFormat.format(timestamp.toDate())
                         } else {
                             "-"
                         }
 
-                        // 3. Format Jumlah Poin (+/-)
+                        
                         val amountStr = if (type == "redeem") {
                             "-$points"
                         } else {
                             "+$points"
                         }
 
-                        // 4. Masukkan ke list UI
+                        
                         listUI.add(PoinHistory(title, amountStr, dateStr))
                     }
 
-                    // 5. Update Adapter (Gunakan updateData, BUKAN submitList)
+                    
                     historyAdapter.updateData(listUI)
                 }
             }

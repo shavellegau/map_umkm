@@ -10,9 +10,8 @@ data class Order(
     @SerializedName("orderId")
     val orderId: String = "",
 
-    // --- TAMBAHKAN BARIS INI ---
     @SerializedName("userId")
-    val userId: String = "", // WAJIB ADA untuk referensi ke dokumen user
+    val userId: String = "", 
 
     @SerializedName("userEmail")
     val userEmail: String = "",

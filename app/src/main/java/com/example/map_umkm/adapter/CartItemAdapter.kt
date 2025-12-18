@@ -44,7 +44,6 @@ class CartItemAdapter(
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val item = items[position]
 
-        // **PERBAIKAN: Hapus logika getIdentifier, muat URL langsung**
         val context = holder.itemView.context
 
         Glide.with(context)
@@ -53,7 +52,6 @@ class CartItemAdapter(
             .error(R.drawable.error_image)
             .into(holder.ivProductImage)
 
-        // --- Sisanya Tetap Sama ---
 
         holder.tvProductName.text = item.name
 

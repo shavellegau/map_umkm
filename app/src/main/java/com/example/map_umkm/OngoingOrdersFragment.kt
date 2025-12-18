@@ -20,7 +20,7 @@ import com.google.firebase.firestore.Query
 
 class OngoingOrdersFragment : Fragment(), UserOrdersAdapter.OnItemClickListener {
 
-    // Tag untuk logging
+    
     private val TAG = "OngoingOrdersFragment"
 
     private lateinit var db: FirebaseFirestore
@@ -34,10 +34,10 @@ class OngoingOrdersFragment : Fragment(), UserOrdersAdapter.OnItemClickListener 
     ): View? {
         val view = inflater.inflate(R.layout.fragment_ongoing_orders, container, false)
 
-        // 1. Inisialisasi Firestore
+        
         db = FirebaseFirestore.getInstance()
 
-        // Inisialisasi view
+        
         rvOrders = view.findViewById(R.id.rv_ongoing_orders)
         tvEmpty = view.findViewById(R.id.tv_empty_ongoing)
 
@@ -49,7 +49,7 @@ class OngoingOrdersFragment : Fragment(), UserOrdersAdapter.OnItemClickListener 
 
     override fun onResume() {
         super.onResume()
-        // Panggil fungsi pemuatan dengan real-time listener
+        
         loadOngoingOrdersFromFirestore()
     }
 
@@ -59,9 +59,6 @@ class OngoingOrdersFragment : Fragment(), UserOrdersAdapter.OnItemClickListener 
         rvOrders.adapter = adapter
     }
 
-    /**
-     * Memuat pesanan yang sedang berjalan dari Firestore menggunakan Real-time Listener.
-     */
     private fun loadOngoingOrdersFromFirestore() {
         val userEmail = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
             .getString("userEmail", null)
@@ -71,20 +68,20 @@ class OngoingOrdersFragment : Fragment(), UserOrdersAdapter.OnItemClickListener 
             return
         }
 
-        // s Kriteria Status Ongoing: Tambahkan semua status yang mungkin terjadi setelah checkout
-        // Misalnya: "Dibuat" atau "Baru"
+        
+        
         val ongoingStatuses = listOf("Menunggu Pembayaran", "Menunggu Konfirmasi", "Diproses", "Dibuat")
 
-        // Buat Query ke collection "orders"
+        
         db.collection("orders")
             .whereEqualTo("userEmail", userEmail)
             .whereIn("status", ongoingStatuses)
             .orderBy("orderDate", Query.Direction.DESCENDING)
-            // Gunakan addSnapshotListener untuk update real-time
+            
             .addSnapshotListener { snapshots, e ->
                 if (e != null) {
                     Log.w(TAG, "Error mendengarkan pesanan: ", e)
-                    // Hapus data lama dan tampilkan pesan error
+                    
                     showEmptyView(true)
                     Toast.makeText(context, "Gagal memuat data real-time.", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
@@ -94,12 +91,12 @@ class OngoingOrdersFragment : Fragment(), UserOrdersAdapter.OnItemClickListener 
                     val myOngoingOrders = mutableListOf<Order>()
                     for (document in snapshots.documents) {
                         try {
-                            // Firebase secara otomatis memetakan field ke properti model Anda.
+                            
                             val order = document.toObject(Order::class.java)
-                            // Hanya tambahkan jika mapping berhasil (order tidak null)
+                            
                             order?.let { myOngoingOrders.add(it) }
                         } catch (e: Exception) {
-                            // Log error jika mapping gagal (biasanya karena perbedaan tipe data field)
+                            
                             Log.e(TAG, "Gagal memetakan dokumen ID ${document.id} ke Order: ${e.message}")
                         }
                     }
@@ -108,7 +105,7 @@ class OngoingOrdersFragment : Fragment(), UserOrdersAdapter.OnItemClickListener 
                         showEmptyView(true)
                     } else {
                         showEmptyView(false)
-                        // Update UI
+                        
                         adapter.updateData(myOngoingOrders)
                     }
                 }
@@ -122,7 +119,7 @@ class OngoingOrdersFragment : Fragment(), UserOrdersAdapter.OnItemClickListener 
 
     override fun onItemClick(order: Order) {
         val intent = Intent(requireContext(), OrderDetailActivity::class.java)
-        // Mengirim objek Order yang sudah diisi diskon (jika ada)
+        
         intent.putExtra("ORDER_DATA", order)
         startActivity(intent)
     }

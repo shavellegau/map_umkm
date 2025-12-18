@@ -23,7 +23,7 @@ class AdminVoucherFragment : Fragment() {
     private lateinit var etDisc: EditText
     private lateinit var etMin: EditText
     private lateinit var etExpiry: EditText
-    private lateinit var etDesc: EditText // 1. Variabel baru untuk Deskripsi
+    private lateinit var etDesc: EditText 
     private lateinit var btnSave: Button
     private lateinit var toolbar: Toolbar
 
@@ -38,13 +38,13 @@ class AdminVoucherFragment : Fragment() {
 
         fcmService = FCMService(requireContext())
 
-        // Binding View dari XML
+        
         etCode = view.findViewById(R.id.et_voucher_code)
         etTitle = view.findViewById(R.id.et_voucher_title)
         etDisc = view.findViewById(R.id.et_voucher_disc)
         etMin = view.findViewById(R.id.et_voucher_min)
         etExpiry = view.findViewById(R.id.et_voucher_expiry)
-        etDesc = view.findViewById(R.id.et_voucher_desc) // 2. Binding ID Deskripsi
+        etDesc = view.findViewById(R.id.et_voucher_desc) 
         btnSave = view.findViewById(R.id.btn_save_voucher)
 
         toolbar = view.findViewById(R.id.toolbar_add_voucher)
@@ -52,18 +52,18 @@ class AdminVoucherFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
 
-        // Setup DatePicker (Klik pada Text Field)
+        
         etExpiry.setOnClickListener {
             showDatePicker()
         }
 
-        // Setup DatePicker (Klik pada Icon Kalender)
+        
         val expiryInputLayout = view.findViewById<TextInputLayout>(R.id.til_voucher_expiry)
         expiryInputLayout.setEndIconOnClickListener {
             showDatePicker()
         }
 
-        // Button Save Listener
+        
         btnSave.setOnClickListener {
             validateAndSave()
         }
@@ -80,7 +80,7 @@ class AdminVoucherFragment : Fragment() {
                 val cal = Calendar.getInstance()
                 cal.set(year, month, dayOfMonth)
 
-                // Format tanggal: 31 Des 2025
+                
                 val format = SimpleDateFormat("dd MMM yyyy", Locale("id", "ID"))
                 etExpiry.setText(format.format(cal.time))
             },
@@ -98,9 +98,9 @@ class AdminVoucherFragment : Fragment() {
         val discStr = etDisc.text.toString().trim()
         val minStr = etMin.text.toString().trim()
         val expiry = etExpiry.text.toString().trim()
-        val desc = etDesc.text.toString().trim() // 3. Ambil teks deskripsi
+        val desc = etDesc.text.toString().trim() 
 
-        // Validasi Input (Deskripsi boleh kosong/opsional, sisanya wajib)
+        
         if (code.isEmpty() || title.isEmpty() || discStr.isEmpty() || minStr.isEmpty() || expiry.isEmpty()) {
             Toast.makeText(context, "Data utama (Kode, Judul, Diskon, Min Belanja, Tanggal) wajib diisi!", Toast.LENGTH_SHORT).show()
             return
@@ -109,7 +109,7 @@ class AdminVoucherFragment : Fragment() {
         val disc = discStr.toDoubleOrNull() ?: 0.0
         val min = minStr.toDoubleOrNull() ?: 0.0
 
-        // 4. Panggil fungsi simpan (tambahkan parameter desc)
+        
         saveToFirestore(code, title, disc, min, expiry, desc)
     }
 
@@ -122,7 +122,7 @@ class AdminVoucherFragment : Fragment() {
             "discountAmount" to disc,
             "minPurchase" to min,
             "expiryDate" to expiry,
-            "description" to desc, // 5. Simpan deskripsi ke Firestore
+            "description" to desc, 
             "isActive" to true,
             "createdAt" to System.currentTimeMillis()
         )
@@ -132,15 +132,15 @@ class AdminVoucherFragment : Fragment() {
             .addOnSuccessListener {
                 Toast.makeText(context, "Voucher Berhasil Dibuat!", Toast.LENGTH_SHORT).show()
 
-                // Reset Form agar bersih kembali
+                
                 etCode.setText("")
                 etTitle.setText("")
                 etDisc.setText("")
                 etMin.setText("")
                 etExpiry.setText("")
-                etDesc.setText("") // 6. Reset field deskripsi
+                etDesc.setText("") 
 
-                // Kirim Notifikasi ke semua user
+                
                 sendPromoNotification(code, title, disc)
             }
             .addOnFailureListener { e ->

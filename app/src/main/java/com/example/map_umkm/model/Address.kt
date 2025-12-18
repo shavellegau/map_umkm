@@ -9,15 +9,15 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Address(
     var id: String = "",
-    val uid: String = "", // Nanti diisi dengan User ID dari Firebase Auth
+    val uid: String = "", 
     val label: String = "",
     val recipientName: String = "",
     val phoneNumber: String = "",
-    val fullAddress: String = "", // Ini yang akan diisi otomatis dari Peta + Edit manual
+    val fullAddress: String = "", 
     val notes: String? = null,
     var isPrimary: Boolean = false,
 
-    // Koordinat dari Google Maps
+    
     val latitude: Double? = null,
     val longitude: Double? = null
 ) : Parcelable {

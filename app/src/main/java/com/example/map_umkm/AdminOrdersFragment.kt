@@ -27,27 +27,27 @@ import java.util.Locale
 class AdminOrdersFragment : Fragment() {
 
 
-    // UI
+    
     private lateinit var rvRecentOrders: RecyclerView
     private lateinit var tvEmpty: TextView
     private lateinit var adapter: AdminOrdersAdapter
     private lateinit var chipGroupFilter: ChipGroup
 
-    // Statistik UI
+    
     private lateinit var tvTotalOrders: TextView
     private lateinit var tvTotalProducts: TextView
     private lateinit var tvTotalUsers: TextView
 
-    // Data & Services
+    
     private lateinit var fcmService: FCMService
     private val db = FirebaseFirestore.getInstance()
     private var orderListener: ListenerRegistration? = null
 
-    // Variabel Filter
+    
     private var allOrderList: List<Order> = emptyList()
     private var currentFilterMode = "ALL"
 
-    // Listener Statistik
+    
     private var statsListener1: ListenerRegistration? = null
     private var statsListener2: ListenerRegistration? = null
     private var statsListener3: ListenerRegistration? = null
@@ -58,7 +58,7 @@ class AdminOrdersFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_admin_orders, container, false)
         fcmService = FCMService(requireContext())
 
-        // Init UI
+        
         rvRecentOrders = view.findViewById(R.id.rvRecentOrders)
         tvEmpty = view.findViewById(R.id.tv_admin_no_orders)
         chipGroupFilter = view.findViewById(R.id.chipGroupFilter)
@@ -86,9 +86,9 @@ class AdminOrdersFragment : Fragment() {
         statsListener3?.remove()
     }
 
-    // 🔥🔥🔥 FUNGSI INI TELAH DIPERBARUI DENGAN LOGIKA POIN YANG BARU 🔥🔥🔥
+    
     private fun completeOrderAndAwardPoints(order: Order) {
-        // Safety check untuk memastikan User ID ada
+        
         if (order.userId.isEmpty()) {
             Toast.makeText(context, "Error: User ID tidak ditemukan pada pesanan ini.", Toast.LENGTH_LONG).show()
             Log.e("TransactionError", "userId is empty for order ${order.orderId}")
@@ -98,41 +98,41 @@ class AdminOrdersFragment : Fragment() {
         val orderRef = db.collection("orders").document(order.orderId)
         val userRef = db.collection("users").document(order.userId)
 
-        // --- ATURAN BISNIS BARU: Poin adalah 10% dari subtotal ---
+        
 
-        // 1. Hitung subtotal dari item di dalam pesanan
+        
         val subtotal = order.items.sumOf { item ->
-            // Gunakan harga yang sesuai (hot/iced) dikalikan kuantitas
+            
             val price = (if (item.selectedType == "iced") item.price_iced else item.price_hot) ?: 0
             price * item.quantity.toDouble()
         }
 
-        // 2. Hitung poin yang didapat (10% dari subtotal)
+        
         val pointsEarned = (subtotal * 0.10).toInt()
-        // --- AKHIR DARI PERUBAHAN LOGIKA POIN ---
+        
 
 
         if (pointsEarned <= 0) {
-            // Jika tidak ada poin yang didapat (misal subtotal 0 atau pesanan gratis),
-            // cukup selesaikan pesanan dan kirim notifikasi tanpa transaksi poin.
+            
+            
             updateStatusAndNotify(order.orderId, "Selesai", order.userToken, "Pesanan Selesai", "Terima kasih sudah memesan!", order.userEmail)
             return
         }
 
         db.runTransaction { transaction ->
-            // 1. Baca data user terbaru di dalam transaksi untuk mencegah race condition
+            
             val userSnapshot = transaction.get(userRef)
             val currentPoints = userSnapshot.getLong("tukuPoints") ?: 0
             val newTotalPoints = currentPoints + pointsEarned
 
-            // 2. Lakukan semua operasi penulisan (write)
-            //  a. Update status pesanan
+            
+            
             transaction.update(orderRef, "status", "Selesai")
 
-            //  b. Update total poin user
+            
             transaction.update(userRef, "tukuPoints", newTotalPoints)
 
-            //  c. Catat riwayat poin di sub-koleksi user
+            
             val pointHistoryRef = userRef.collection("point_history").document()
             val pointHistoryData = hashMapOf(
                 "title" to "Poin dari Pesanan",
@@ -142,12 +142,12 @@ class AdminOrdersFragment : Fragment() {
             )
             transaction.set(pointHistoryRef, pointHistoryData)
 
-            null // Transaksi akan mengembalikan null jika berhasil
+            null 
         }.addOnSuccessListener {
             Log.d("FirestoreTransaction", "Transaksi Selesai & Poin berhasil diberikan untuk order: ${order.orderId}")
             Toast.makeText(context, "Pesanan Selesai & $pointsEarned poin diberikan!", Toast.LENGTH_LONG).show()
 
-            // 3. Kirim notifikasi HANYA SETELAH transaksi sukses
+            
             if (!order.userToken.isNullOrEmpty()) {
                 fcmService.sendNotification(
                     order.userToken,
@@ -163,7 +163,7 @@ class AdminOrdersFragment : Fragment() {
         }
     }
 
-    // ---------------- SETUP & UPDATE UI ------------------
+    
     private fun setupRecyclerView() {
         adapter = AdminOrdersAdapter(
             emptyList(),
@@ -201,7 +201,7 @@ class AdminOrdersFragment : Fragment() {
             }
     }
 
-    // ---------------- LOGIKA FILTER ------------------
+    
     private fun setupFilterListener() {
         chipGroupFilter.check(R.id.chipAll)
         chipGroupFilter.setOnCheckedStateChangeListener { _, checkedIds ->
@@ -240,7 +240,7 @@ class AdminOrdersFragment : Fragment() {
         }
     }
 
-    // ---------------- FIREBASE LOAD ------------------
+    
     private fun startListeningForOrders() {
         orderListener?.remove()
         orderListener = db.collection("orders")
@@ -274,7 +274,7 @@ class AdminOrdersFragment : Fragment() {
             .addSnapshotListener { s, _ -> tvTotalUsers.text = "${s?.size() ?: 0}" }
     }
 
-    // ---------------- HELPER DATE ------------------
+    
     private fun parseDate(dateString: String?): Date? {
         if (dateString == null) return null
         return try {

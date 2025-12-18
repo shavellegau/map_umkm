@@ -7,18 +7,18 @@ object CartManager {
 
     fun getItems(): MutableList<Product> = cartItems
 
-    // 🔹 Tambahkan parameter selectedType dan notes agar sinkron dengan ViewModel
+    
     fun addItem(product: Product, selectedType: String, notes: String? = null) {
         val existing = cartItems.find { it.id == product.id && it.selectedType == selectedType }
 
         if (existing != null) {
             existing.quantity++
-            // 🔹 Update catatan kalau ada input baru
+            
             if (!notes.isNullOrEmpty()) {
                 existing.notes = notes
             }
         } else {
-            // 🔹 Simpan item baru dengan catatan (jika ada)
+            
             val newItem = product.copy(selectedType = selectedType, quantity = 1, notes = notes)
             cartItems.add(newItem)
         }

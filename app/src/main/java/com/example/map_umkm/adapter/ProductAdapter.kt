@@ -47,19 +47,19 @@ class ProductAdapter(
 
         holder.tvProductName.text = product.name
 
-        // ---------- PRICE ----------
+        
         val priceToShow = product.price_hot ?: product.price_iced ?: 0
         holder.tvProductPrice.text = NumberFormat
             .getCurrencyInstance(Locale("in", "ID"))
             .format(priceToShow.toLong())
 
-        // ---------- LOG IMAGE URL (WAJIB) ----------
+        
         Log.d(
             "IMAGE_CHECK",
             "Product: ${product.name}, image = '${product.image}'"
         )
 
-        // ---------- GLIDE IMAGE ----------
+        
         val imageUrl = product.image
 
         if (!imageUrl.isNullOrBlank()) {
@@ -99,7 +99,7 @@ class ProductAdapter(
                 })
                 .into(holder.ivProductImage)
         } else {
-            // IMAGE NULL / KOSONG
+            
             Log.e(
                 "IMAGE_CHECK",
                 "IMAGE NULL/KOSONG -> ${product.name}"
@@ -107,7 +107,7 @@ class ProductAdapter(
             holder.ivProductImage.setImageResource(R.drawable.logo_tuku)
         }
 
-        // ---------- FAVORITE ----------
+        
         val isFav = favoriteIds.contains(product.id) || product.isFavorite
         holder.btnFavorite.setImageResource(
             if (isFav)
@@ -120,12 +120,12 @@ class ProductAdapter(
             onFavoriteToggle(product, !isFav)
         }
 
-        // ---------- CART ----------
+        
         holder.btnAddToCart.setOnClickListener {
             onAddToCartClick(product)
         }
 
-        // ---------- ITEM CLICK ----------
+        
         holder.itemView.setOnClickListener {
             onProductClick(product)
         }

@@ -7,11 +7,11 @@ import androidx.room.RoomDatabase
 import com.example.map_umkm.data.NotificationDao
 import com.example.map_umkm.model.NotificationEntity
 
-// 🔥 PERBAIKAN 1: Naikkan version dari 1 ke 2 (atau angka lebih tinggi jika error berlanjut)
+
 @Database(entities = [NotificationEntity::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
-    // Abstract method untuk mengakses DAO
+    
     abstract fun notificationDao(): NotificationDao
 
     companion object {
@@ -23,9 +23,9 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "umkm_app_database" // Nama file database lokal
+                    "umkm_app_database" 
                 )
-                    // 🔥 PERBAIKAN 2: Tambahkan ini untuk reset database otomatis jika struktur berubah
+                    
                     .fallbackToDestructiveMigration()
                     .build()
 

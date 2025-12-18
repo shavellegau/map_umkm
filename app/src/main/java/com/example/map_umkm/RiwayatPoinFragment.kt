@@ -1,4 +1,4 @@
-// File: com/example/map_umkm/RiwayatPoinFragment.kt
+
 package com.example.map_umkm
 
 import android.os.Bundle
@@ -25,13 +25,13 @@ class RiwayatPoinFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // PERHATIAN: Pastikan R.layout.fragment_riwayat_poin memiliki RecyclerView dengan ID 'recyclerViewPoin'
+        
         val view = inflater.inflate(R.layout.fragment_riwayat_poin, container, false)
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerViewPoin)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // Memuat riwayat dari Firestore
+        
         loadHistory(recyclerView)
 
         return view
@@ -41,14 +41,14 @@ class RiwayatPoinFragment : Fragment() {
         val userId = auth.currentUser?.uid
         if (userId == null) return
 
-        // Mengambil data dari koleksi 'point_transactions'
+        
         db.collection("point_transactions")
-            .whereEqualTo("userId", userId) // Filter hanya transaksi user yang login
-            .orderBy("timestamp", Query.Direction.DESCENDING) // Urutkan dari yang terbaru
+            .whereEqualTo("userId", userId) 
+            .orderBy("timestamp", Query.Direction.DESCENDING) 
             .get()
             .addOnSuccessListener { result ->
                 val historyList = mutableListOf<PoinHistory>()
-                // Format tanggal Indonesia
+                
                 val dateFormat = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("in", "ID"))
 
                 for (document in result.documents) {
@@ -62,7 +62,7 @@ class RiwayatPoinFragment : Fragment() {
                         "Tanggal Tidak Diketahui"
                     }
 
-                    // Tentukan tanda +/- untuk ditampilkan di UI
+                    
                     val amountString = if (amount > 0) "+${amount}" else "${amount}"
 
                     historyList.add(
@@ -74,11 +74,11 @@ class RiwayatPoinFragment : Fragment() {
                     )
                 }
 
-                // Set Adapter dengan data yang sudah diproses
+                
                 recyclerView.adapter = PoinHistoryAdapter(historyList)
             }
             .addOnFailureListener {
-                // Di sini Anda bisa menampilkan Toast atau View kosong jika gagal memuat data
+                
             }
     }
 }

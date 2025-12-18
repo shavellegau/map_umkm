@@ -33,39 +33,34 @@ class AddProductActivity : AppCompatActivity() {
     private lateinit var etImageUrl: EditText
     private lateinit var etDescription: EditText
     private lateinit var btnSave: Button
-
-    // [BARU] Tambahan untuk UI upload gambar
     private lateinit var ivProductPreview: ImageView
     private var imageUri: Uri? = null
-
-    // [BARU] Launcher untuk meminta izin
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             val granted = permissions.entries.all { it.value }
             if (granted) {
-                showImagePickerDialog() // Jika izin diberikan, tampilkan dialog
+                showImagePickerDialog() 
             } else {
                 Toast.makeText(this, "Izin diperlukan untuk memilih gambar", Toast.LENGTH_SHORT).show()
             }
         }
-
-    // [BARU] Launcher untuk mengambil gambar dari galeri
+    
     private val galleryLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 imageUri = result.data?.data
-                etImageUrl.setText(imageUri.toString()) // Isi URL
-                Glide.with(this).load(imageUri).into(ivProductPreview) // Tampilkan preview
+                etImageUrl.setText(imageUri.toString()) 
+                Glide.with(this).load(imageUri).into(ivProductPreview) 
             }
         }
 
-    // [BARU] Launcher untuk mengambil foto dari kamera
+    
     private val cameraLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
-                // Untuk kamera, URI sudah kita siapkan sebelumnya
-                etImageUrl.setText(imageUri.toString()) // Isi URL
-                Glide.with(this).load(imageUri).into(ivProductPreview) // Tampilkan preview
+                
+                etImageUrl.setText(imageUri.toString()) 
+                Glide.with(this).load(imageUri).into(ivProductPreview) 
             }
         }
 
@@ -75,7 +70,7 @@ class AddProductActivity : AppCompatActivity() {
 
         jsonHelper = JsonHelper(this)
 
-        // Hubungkan UI
+        
         etName = findViewById(R.id.et_product_name)
         etPriceHot = findViewById(R.id.et_product_price_hot)
         etPriceIced = findViewById(R.id.et_product_price_iced)
@@ -84,10 +79,10 @@ class AddProductActivity : AppCompatActivity() {
         etDescription = findViewById(R.id.et_product_description)
         btnSave = findViewById(R.id.btn_save_product)
 
-        // [FIXED] Menggunakan ID yang benar sesuai file layout
+        
         val toolbar: MaterialToolbar = findViewById(R.id.toolbar_edit_product)
 
-        // [BARU] Hubungkan UI untuk preview gambar
+        
         ivProductPreview = findViewById(R.id.iv_product_preview)
         val tvChangeImage: TextView = findViewById(R.id.tv_change_image)
 
@@ -96,7 +91,7 @@ class AddProductActivity : AppCompatActivity() {
 
         btnSave.setOnClickListener { saveProductToJson() }
 
-        // [BARU] Tambahkan listener untuk klik pada gambar/teks
+        
         ivProductPreview.setOnClickListener { checkPermissionsAndShowDialog() }
         tvChangeImage.setOnClickListener { checkPermissionsAndShowDialog() }
     }
@@ -108,7 +103,7 @@ class AddProductActivity : AppCompatActivity() {
         spinnerCategory.adapter = adapter
     }
 
-    // [BARU] Fungsi untuk memeriksa izin sebelum menampilkan dialog
+    
     private fun checkPermissionsAndShowDialog() {
         val requiredPermissions = arrayOf(
             Manifest.permission.CAMERA,
@@ -121,7 +116,7 @@ class AddProductActivity : AppCompatActivity() {
         }
     }
 
-    // [BARU] Fungsi untuk menampilkan dialog pilihan
+    
     private fun showImagePickerDialog() {
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -133,7 +128,7 @@ class AddProductActivity : AppCompatActivity() {
 
         optionCamera.setOnClickListener {
             val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            // Di sini Anda bisa menambahkan logika untuk menyimpan file foto jika diperlukan
+            
             cameraLauncher.launch(cameraIntent)
             dialog.dismiss()
         }
@@ -148,8 +143,8 @@ class AddProductActivity : AppCompatActivity() {
 
     private fun saveProductToJson() {
         val name = etName.text.toString().trim()
-        // ... (sisa logika save Anda tetap sama)
-        // Pastikan etImageUrl sudah terisi oleh URI gambar dari launcher
+        
+        
         val imageUrl = etImageUrl.text.toString().trim()
 
         if (name.isEmpty() || spinnerCategory.selectedItem == null) {

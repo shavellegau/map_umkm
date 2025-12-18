@@ -14,7 +14,7 @@ import java.net.URL
 
 class FCMService(private val context: Context) {
 
-    private val PROJECT_ID = "map-umkm" // Pastikan ID ini sesuai project Firebase Anda
+    private val PROJECT_ID = "map-umkm"
 
     fun sendNotification(target: String, title: String, body: String, orderId: String? = null, targetEmail: String? = null) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -66,7 +66,6 @@ class FCMService(private val context: Context) {
                 val data = JSONObject()
                 val finalJson = JSONObject()
 
-                // Logic Penentuan Target (Explicit Variables)
                 val targetKey: String
                 val targetValue: String
 
@@ -79,7 +78,6 @@ class FCMService(private val context: Context) {
                 }
                 messageContent.put(targetKey, targetValue)
 
-                // Logic Penentuan Tipe
                 val typeString: String = if (target == "promo") "PROMO" else "INFO"
 
                 notification.put("title", title)
@@ -113,7 +111,6 @@ class FCMService(private val context: Context) {
                     }
                 }
 
-                // Return Unit explicit
                 Unit
 
             } catch (e: Exception) {

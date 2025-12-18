@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.R
 import com.example.map_umkm.model.Notification
 
-class NotificationAdapter(private var notificationList: List<Notification>) : // 1. Ganti 'val' menjadi 'var'
+class NotificationAdapter(private var notificationList: List<Notification>) : 
     RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder>() {
 
     inner class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -32,16 +32,13 @@ class NotificationAdapter(private var notificationList: List<Notification>) : //
 
     override fun getItemCount(): Int = notificationList.size
 
-    // 2. 🔔 FUNGSI BARU: updateList()
-    /**
-     * Memperbarui daftar notifikasi dengan data terbaru dari Room Database.
-     * Fungsi ini dibutuhkan oleh NotificationFragment.kt.
-     */
+    
+    
     fun updateList(newList: List<Notification>) {
-        // Ganti daftar lama dengan daftar baru
+        
         this.notificationList = newList
 
-        // Memberi tahu RecyclerView untuk me-reload tampilannya
+        
         notifyDataSetChanged()
     }
 }

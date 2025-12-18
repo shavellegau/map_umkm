@@ -4,13 +4,13 @@ import com.example.map_umkm.R
 
 data class TierInfo(
     val tierName: String,
-    val tierIndex: Int, // 0=Bronze, 1=Silver, dst (untuk ViewPager)
+    val tierIndex: Int, 
     val maxXp: Int,
     val iconRes: Int
 )
 
 object TierCalculator {
-    // Aturan XP sesuai request
+    
     fun calculateTier(xp: Int): TierInfo {
         return when {
             xp < 100 -> TierInfo("Bronze", 0, 100, R.drawable.ic_tier_bronze)

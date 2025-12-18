@@ -57,14 +57,14 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
     private var currentLocationMarker: Marker? = null
     private var isMapMovementFromAutocomplete: Boolean = false
 
-    // --- FIX UTAMA: Definisi Launcher Tanpa Referensi Diri Sendiri ---
+    
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
                 getLastLocation()
             } else {
-                // Jika ditolak, jangan langsung panggil launcher lagi di sini.
-                // Panggil fungsi terpisah untuk menampilkan dialog.
+                
+                
                 showPermissionRationaleDialog()
             }
         }
@@ -115,7 +115,7 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
         checkAndRequestPermission()
     }
 
-    // --- Fungsi Helper untuk Izin ---
+    
 
     private fun checkAndRequestPermission() {
         when {
@@ -126,7 +126,7 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
                 showPermissionRationaleDialog()
             }
             else -> {
-                // Panggil launcher dari sini aman karena launcher sudah dibuat sebelumnya
+                
                 requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             }
         }
@@ -137,7 +137,7 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
             .setTitle("Izin Lokasi")
             .setMessage("Aplikasi ini memerlukan akses lokasi Anda untuk memilih lokasi pengiriman yang akurat.")
             .setPositiveButton("Izinkan") { _, _ ->
-                // Panggil launcher di sini aman
+                
                 requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             }
             .setNegativeButton("Batal") { dialog, _ ->
@@ -176,7 +176,7 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun setDefaultLocation() {
-        // Monas sebagai default jika izin ditolak atau lokasi null
+        
         val defaultLoc = LatLng(-6.175392, 106.827153)
         googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLoc, 12f))
     }

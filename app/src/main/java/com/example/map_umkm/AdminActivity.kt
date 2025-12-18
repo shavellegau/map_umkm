@@ -2,7 +2,7 @@ package com.example.map_umkm
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast // [FIXED] Import yang hilang ditambahkan
+import android.widget.Toast 
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
@@ -22,7 +22,7 @@ class AdminActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_admin_viewpager) // Pastikan layout ini ada
+        setContentView(R.layout.activity_admin_viewpager) 
 
         jsonHelper = JsonHelper(this)
         viewPager = findViewById(R.id.view_pager_admin)
@@ -51,7 +51,7 @@ class AdminActivity : AppCompatActivity() {
         val toolbar: MaterialToolbar = findViewById(R.id.toolbar)
 
         fab.setOnClickListener {
-            if (viewPager.currentItem == 0) { // Hanya aktif jika di tab menu
+            if (viewPager.currentItem == 0) { 
                 startActivity(Intent(this, AddProductActivity::class.java))
             } else {
                 Toast.makeText(this, "Fitur tambah hanya untuk tab menu", Toast.LENGTH_SHORT).show()

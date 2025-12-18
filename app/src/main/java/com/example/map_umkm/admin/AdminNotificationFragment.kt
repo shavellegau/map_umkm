@@ -45,14 +45,14 @@ class AdminNotificationFragment : Fragment() {
         loadHistory()
 
         btnBuatBroadcast.setOnClickListener {
-            showPromoDialog() // Dialog Buat Baru
+            showPromoDialog() 
         }
 
         return view
     }
 
     private fun setupRecyclerView() {
-        // 🔥 Tambahkan aksi saat item diklik -> Tampilkan Opsi Edit/Hapus
+        
         adapter = BroadcastAdapter(emptyList()) { historyItem ->
             showOptionsDialog(historyItem)
         }
@@ -61,7 +61,7 @@ class AdminNotificationFragment : Fragment() {
     }
 
     private fun loadHistory() {
-        // Mengambil data secara Realtime
+        
         db.collection("broadcast_history")
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshots, e ->
@@ -71,16 +71,16 @@ class AdminNotificationFragment : Fragment() {
                 }
 
                 if (snapshots != null) {
-                    // Karena kita pakai @DocumentId di model, ID otomatis terisi
+                    
                     val historyList = snapshots.toObjects(BroadcastHistory::class.java)
                     adapter.updateList(historyList)
                 }
             }
     }
 
-    // ==========================================================
-    // 🛠️ FITUR EDIT & HAPUS
-    // ==========================================================
+    
+    
+    
 
     private fun showOptionsDialog(item: BroadcastHistory) {
         val options = arrayOf("Edit", "Hapus")
@@ -88,14 +88,14 @@ class AdminNotificationFragment : Fragment() {
             .setTitle("Kelola Broadcast")
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> showEditDialog(item) // Edit
-                    1 -> showDeleteConfirmation(item) // Hapus
+                    0 -> showEditDialog(item) 
+                    1 -> showDeleteConfirmation(item) 
                 }
             }
             .show()
     }
 
-    // 🔥 Fungsi Hapus Data di Firestore 🔥
+    
     private fun showDeleteConfirmation(item: BroadcastHistory) {
         AlertDialog.Builder(requireContext())
             .setTitle("Hapus Riwayat?")
@@ -114,7 +114,7 @@ class AdminNotificationFragment : Fragment() {
             .show()
     }
 
-    // 🔥 Fungsi Edit Data di Firestore 🔥
+    
     private fun showEditDialog(item: BroadcastHistory) {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Edit Riwayat Broadcast")
@@ -124,11 +124,11 @@ class AdminNotificationFragment : Fragment() {
         layout.setPadding(50, 20, 50, 20)
 
         val inputTitle = EditText(requireContext())
-        inputTitle.setText(item.title) // Isi data lama
+        inputTitle.setText(item.title) 
         layout.addView(inputTitle)
 
         val inputBody = EditText(requireContext())
-        inputBody.setText(item.body) // Isi data lama
+        inputBody.setText(item.body) 
         layout.addView(inputBody)
 
         builder.setView(layout)
@@ -138,7 +138,7 @@ class AdminNotificationFragment : Fragment() {
             val newBody = inputBody.text.toString().trim()
 
             if (newTitle.isNotEmpty()) {
-                // Update Firestore
+                
                 db.collection("broadcast_history").document(item.id)
                     .update(
                         mapOf(
@@ -157,10 +157,6 @@ class AdminNotificationFragment : Fragment() {
         builder.setNegativeButton("Batal", null)
         builder.show()
     }
-
-    // ==========================================================
-    // 📢 FITUR BUAT BARU (KIRIM NOTIFIKASI)
-    // ==========================================================
 
     private fun showPromoDialog() {
         val builder = AlertDialog.Builder(requireContext())
@@ -190,10 +186,10 @@ class AdminNotificationFragment : Fragment() {
                 return@setPositiveButton
             }
 
-            // 1. Simpan ke Riwayat Admin
+            
             saveToHistory(title, body)
 
-            // 2. Kirim FCM Broadcast
+            
             fcmService.sendNotification("promo", title, body)
 
             Toast.makeText(context, "Broadcast dikirim!", Toast.LENGTH_SHORT).show()

@@ -50,9 +50,9 @@ class AdminMenuFragment : Fragment() {
             productList = emptyList(),
             onDeleteClick = { product -> showDeleteConfirmation(product) },
             onEditClick = { product ->
-                // [FIXED] Jangan kirim seluruh objek. Kirim ID-nya saja.
+                
                 val intent = Intent(activity, EditProductActivity::class.java).apply {
-                    putExtra("PRODUCT_ID", product.id.toIntOrNull()) // Kirim ID sebagai Int
+                    putExtra("PRODUCT_ID", product.id.toIntOrNull()) 
                 }
                 startActivity(intent)
             }
@@ -87,10 +87,10 @@ class AdminMenuFragment : Fragment() {
     }
 
     private fun showDeleteConfirmation(product: Product) {
-        // Inflate layout kustom
+        
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_confirm_delete, null)
 
-        // Buat dialog menggunakan AlertDialog.Builder
+        
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogView)
             .create()
@@ -101,19 +101,19 @@ class AdminMenuFragment : Fragment() {
 
         tvMessage.text = "Yakin ingin menghapus '${product.name}'?"
 
-        // Atur listener untuk tombol
+        
         btnCancel.setOnClickListener {
-            dialog.dismiss() // Tutup dialog
+            dialog.dismiss() 
         }
         btnDelete.setOnClickListener {
-            deleteProductFromJson(product) // Jalankan fungsi hapus
-            dialog.dismiss() // Tutup dialog
+            deleteProductFromJson(product) 
+            dialog.dismiss() 
         }
 
-        // Atur agar background dialog transparan (karena kita pakai CardView)
+        
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
-        // Tampilkan dialog
+        
         dialog.show()
     }
 

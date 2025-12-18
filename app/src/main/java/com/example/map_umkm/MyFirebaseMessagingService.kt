@@ -35,14 +35,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val body = data["body"] ?: remoteMessage.notification?.body ?: "Pesan baru."
         val type = data["type"] ?: data["status"] ?: "INFO"
         val orderId = data["orderId"]
-
         val timestampStr = data["timestamp"]
         val timestamp = timestampStr?.toLongOrNull() ?: System.currentTimeMillis()
         val uniqueId = UUID.randomUUID().toString()
-
-        // 🔥 LOGIKA EMAIL UTAMA 🔥
-        // 1. Cek payload 'targetEmail'. Jika ada, pakai itu (Akurat untuk Order).
-        // 2. Jika tidak ada (Promo), baru ambil dari User yg sedang login.
         val payloadEmail = data["targetEmail"]
         val email = if (!payloadEmail.isNullOrEmpty()) payloadEmail else getUserEmail()
 
@@ -61,7 +56,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     private fun saveToFirestore(id: String, email: String, title: String, body: String, timestamp: Long, orderId: String?, type: String) {
         val db = FirebaseFirestore.getInstance()
         val notifData = hashMapOf(
-            "userEmail" to email, // Disimpan ke email user yang BENAR
+            "userEmail" to email, 
             "title" to title,
             "body" to body,
             "timestamp" to timestamp,

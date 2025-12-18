@@ -34,18 +34,18 @@ class AdminCabangFragment : Fragment() {
         loadDataCabang()
 
         binding.fabAddCabang.setOnClickListener {
-            // Tambahkan logika navigasi ke halaman tambah cabang di sini
+            
             Toast.makeText(context, "Tambah Cabang diklik", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun setupRecyclerView() {
-        // Inisialisasi Adapter dengan Lambda function untuk Edit dan Delete
+        
         adapter = AdminCabangAdapter(
             listCabang = listOf(),
             onEditClick = { cabang ->
                 Toast.makeText(context, "Edit: ${cabang.nama}", Toast.LENGTH_SHORT).show()
-                // Navigasi ke fragment edit bawa ID cabang
+                
             },
             onDeleteClick = { cabang ->
                 deleteCabang(cabang)

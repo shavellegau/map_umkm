@@ -18,12 +18,12 @@ class PengaturanAkunFragment : Fragment() {
         val menuMyProfile = view.findViewById<View>(R.id.menuMyProfile)
         val btnBack = view.findViewById<View>(R.id.btnBack)
 
-        // Navigasi ke Edit Profile
+        
         menuMyProfile.setOnClickListener {
             findNavController().navigate(R.id.action_pengaturanAkunFragment_to_editProfileFragment)
         }
 
-        // Tombol Back berfungsi kembali
+        
         btnBack.setOnClickListener {
             findNavController().popBackStack()
         }

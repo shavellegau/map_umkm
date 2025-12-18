@@ -33,7 +33,7 @@ class HistoryOrdersFragment : Fragment(), UserOrdersAdapter.OnItemClickListener 
         tvEmpty = view.findViewById(R.id.tv_empty_history)
         setupRecyclerView()
 
-        // Tombol back
+        
         val btnBack = view.findViewById<ImageView>(R.id.btn_back_history)
         btnBack.setOnClickListener {
             findNavController().popBackStack()

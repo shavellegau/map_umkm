@@ -10,10 +10,9 @@ import com.example.map_umkm.model.BroadcastHistory
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-// Tambahkan parameter onItemClick di constructor
 class BroadcastAdapter(
     private var list: List<BroadcastHistory>,
-    private val onItemClick: (BroadcastHistory) -> Unit // Callback klik
+    private val onItemClick: (BroadcastHistory) -> Unit
 ) : RecyclerView.Adapter<BroadcastAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -37,7 +36,6 @@ class BroadcastAdapter(
         val format = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale("id", "ID"))
         holder.tvDate.text = if (date != null) format.format(date) else "-"
 
-        // 🔥 Pasang Listener Klik 🔥
         holder.itemView.setOnClickListener {
             onItemClick(item)
         }

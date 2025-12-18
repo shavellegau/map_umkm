@@ -11,7 +11,7 @@ data class NotificationEntity(
     val body: String,
     val timestamp: Long,
 
-    // 🔥 CUKUP PAKAI INI SAJA (Hapus 'status') 🔥
+    
     val type: String,
 
     val orderId: String?,

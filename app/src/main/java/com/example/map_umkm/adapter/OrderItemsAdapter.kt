@@ -15,7 +15,7 @@ class OrderItemsAdapter(
 ) : RecyclerView.Adapter<OrderItemsAdapter.ItemViewHolder>() {
 
     inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val ivProductImage: ImageView = itemView.findViewById(R.id.ivProductImage) // Deklarasi ImageView
+        val ivProductImage: ImageView = itemView.findViewById(R.id.ivProductImage) 
         val tvProductName: TextView = itemView.findViewById(R.id.tvProductName)
         val tvQuantity: TextView = itemView.findViewById(R.id.tvQuantity)
         val tvNotes: TextView = itemView.findViewById(R.id.tvNotes)
@@ -32,11 +32,11 @@ class OrderItemsAdapter(
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = items[position]
 
-        // Memuat gambar produk menggunakan Glide
+        
         Glide.with(holder.itemView.context)
             .load(item.image)
-            .placeholder(R.drawable.placeholder_image) // Gambar sementara
-            .error(R.drawable.error_image) // Gambar jika gagal
+            .placeholder(R.drawable.placeholder_image) 
+            .error(R.drawable.error_image) 
             .into(holder.ivProductImage)
 
         holder.tvProductName.text = item.name

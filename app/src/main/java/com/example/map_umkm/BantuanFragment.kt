@@ -39,12 +39,10 @@ class BantuanFragment : Fragment() {
         binding.btnChatLangsung.setOnClickListener { openWhatsApp() }
         binding.btnKirimEmail.setOnClickListener { openEmail() }
 
-        // Logic Expandable Card 1
         binding.itemProdukToko.setOnClickListener {
             toggleExpand(binding.expandProduk, binding.imgArrowProduk)
         }
 
-        // Logic Expandable Card 2
         binding.itemPesananMaya.setOnClickListener {
             toggleExpand(binding.expandPesanan, binding.imgArrowPesanan)
         }

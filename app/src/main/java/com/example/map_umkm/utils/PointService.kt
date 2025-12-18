@@ -17,7 +17,7 @@ object PointService {
     ) {
         val userId = auth.currentUser?.uid ?: return
 
-        // Fix logika 3% (0.03)
+        
         val pointsToAdd = (totalPurchase * 0.03).toLong()
 
         if (pointsToAdd <= 0) {
@@ -27,7 +27,7 @@ object PointService {
 
         db.runBatch { batch ->
             val userRef = db.collection("users").document(userId)
-            // Pakai FieldValue.increment agar tidak perlu baca data lama (menghindari error null)
+            
             batch.update(userRef, "points", FieldValue.increment(pointsToAdd))
 
             val logRef = db.collection("point_transactions").document()
@@ -44,7 +44,7 @@ object PointService {
         }
     }
 
-    // Fungsi Redeem (Penting untuk mengatasi error di Fragment lain)
+    
     fun redeemPoints(
         pointsToRedeem: Long,
         rewardTitle: String,

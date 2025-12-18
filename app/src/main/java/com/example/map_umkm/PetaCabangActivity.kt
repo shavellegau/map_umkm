@@ -1,4 +1,4 @@
-package com.example.map_umkm // SUDAH DIPERBAIKI
+package com.example.map_umkm 
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.example.map_umkm.R // IMPORT PENTING
+import com.example.map_umkm.R 
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -21,7 +21,7 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.firestore.FirebaseFirestore
 
-// Data Class Sederhana (Internal)
+
 data class CabangMap(
     val id: String,
     val nama: String,
@@ -145,7 +145,7 @@ class PetaCabangActivity : AppCompatActivity(), OnMapReadyCallback {
                     try {
                         mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 150))
                     } catch (e: Exception) {
-                        // Ignore camera update error if layout not ready
+                        
                     }
 
                     if (cabangTerdekat != null) {

@@ -49,12 +49,12 @@ class PetaPilihLokasiActivity : AppCompatActivity(), OnMapReadyCallback {
                 intent.putExtra("LATITUDE", centerLatLng!!.latitude)
                 intent.putExtra("LONGITUDE", centerLatLng!!.longitude)
 
-                // Pastikan alamat tidak null
+                
                 val alamatFinal = tvAlamat.text.toString()
                 intent.putExtra("ALAMAT", if (alamatFinal.contains("Memuat")) "Lokasi terpilih" else alamatFinal)
 
                 setResult(RESULT_OK, intent)
-                finish() // Tutup activity ini dan kembali ke Fragment
+                finish() 
             } else {
                 Toast.makeText(this, "Tunggu peta memuat lokasi...", Toast.LENGTH_SHORT).show()
             }
@@ -89,7 +89,7 @@ class PetaPilihLokasiActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun getAddressFromLocation(latLng: LatLng) {
         try {
             val geocoder = Geocoder(this, Locale.getDefault())
-            // Gunakan thread background agar tidak lag (opsional, tapi disarankan)
+            
             val addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
             if (!addresses.isNullOrEmpty()) {
                 tvAlamat.text = addresses[0].getAddressLine(0)

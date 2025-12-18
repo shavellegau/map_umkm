@@ -21,7 +21,7 @@ class OrderDetailAdapter(private val items: List<Product>) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        // Pastikan nama layout XML ini sesuai dengan file layout item kamu
+        
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_order_detail_product, parent, false)
         return ViewHolder(view)
@@ -31,11 +31,11 @@ class OrderDetailAdapter(private val items: List<Product>) :
         val item = items[position]
         val context = holder.itemView.context
 
-        // 1. Set Nama & Jumlah
+        
         holder.tvProductName.text = item.name
         holder.tvQuantity.text = "Jumlah: x${item.quantity}"
 
-        // 2. Set Catatan
+        
         if (item.notes.isNullOrEmpty()) {
             holder.tvNotes.visibility = View.GONE
         } else {
@@ -43,12 +43,12 @@ class OrderDetailAdapter(private val items: List<Product>) :
             holder.tvNotes.text = "Catatan: ${item.notes}"
         }
 
-        // 🔥 3. LOAD GAMBAR (Simple Logic ala CartItemAdapter) 🔥
-        // Langsung muat item.image (baik itu URL Firebase maupun Path lokal)
+        
+        
         Glide.with(context)
             .load(item.image)
-            .placeholder(R.drawable.placeholder_image) // Gambar saat loading
-            .error(R.drawable.error_image) // Gambar jika gagal/null
+            .placeholder(R.drawable.placeholder_image) 
+            .error(R.drawable.error_image) 
             .into(holder.ivProductImage)
     }
 

@@ -12,7 +12,7 @@ import com.example.map_umkm.databinding.FragmentNotificationListBinding
 import com.example.map_umkm.model.Notification
 import com.example.map_umkm.model.NotificationEntity
 import com.example.map_umkm.viewmodel.NotificationViewModel
-// 🔥 Tambahkan import ini untuk Factory
+
 import com.example.map_umkm.AppDatabase
 import com.example.map_umkm.repository.NotificationRepository
 import com.example.map_umkm.viewmodel.NotificationViewModelFactory
@@ -26,7 +26,7 @@ class NotificationListFragment : Fragment() {
     private var _binding: FragmentNotificationListBinding? = null
     private val binding get() = _binding!!
 
-    // 🔥 PERBAIKAN: Tambahkan Factory di sini agar ViewModel bisa dibuat dengan benar
+    
     private val viewModel: NotificationViewModel by activityViewModels {
         val database = AppDatabase.getDatabase(requireContext())
         val repository = NotificationRepository(database.notificationDao())
@@ -65,7 +65,7 @@ class NotificationListFragment : Fragment() {
             adapter = this@NotificationListFragment.adapter
         }
 
-        // Observasi Data Sesuai Tab
+        
         if (type == "PROMO") {
             viewModel.promoList.observe(viewLifecycleOwner) { updateUI(it) }
         } else {

@@ -3,7 +3,7 @@ package com.example.map_umkm
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
-import android.widget.LinearLayout // Masih dipakai untuk layout lain jika perlu
+import android.widget.LinearLayout 
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -47,14 +47,14 @@ class OrderDetailActivity : AppCompatActivity() {
         val tvInvSubtotal: TextView = findViewById(R.id.tvInvSubtotal)
         val tvInvTax: TextView = findViewById(R.id.tvInvTax)
 
-        // 🔥 PERBAIKAN 1: Ganti LinearLayout ke View (atau MaterialCardView)
+        
         val layoutVoucher: View = findViewById(R.id.layoutVoucher)
 
         val tvInvDiscount: TextView = findViewById(R.id.tvInvDiscount)
         val tvTotalPrice: TextView = findViewById(R.id.tvTotalPrice)
         val rvOrderItems: RecyclerView = findViewById(R.id.rvOrderItems)
 
-        // 🔥 PERBAIKAN 2: Ganti LinearLayout ke View (karena di XML ini adalah MaterialCardView)
+        
         val layoutDelivery: View = findViewById(R.id.layout_delivery)
 
         val tvDeliveryAddress: TextView = findViewById(R.id.tvDeliveryAddress)
@@ -66,7 +66,7 @@ class OrderDetailActivity : AppCompatActivity() {
         tvUserEmail.text = "Pemesan: ${order.userName} (${order.userEmail})"
         tvOrderDate.text = order.orderDate
 
-        // Logika Tampilan Delivery
+        
         if (order.orderType == "Delivery" && order.deliveryAddress != null) {
             layoutDelivery.visibility = View.VISIBLE
             val address = order.deliveryAddress
@@ -75,28 +75,28 @@ class OrderDetailActivity : AppCompatActivity() {
             layoutDelivery.visibility = View.GONE
         }
 
-        // Setup RecyclerView
+        
         val orderItemsAdapter = OrderDetailAdapter(order.items)
         rvOrderItems.layoutManager = LinearLayoutManager(this)
         rvOrderItems.adapter = orderItemsAdapter
 
-        // Perhitungan Harga
+        
         val subtotal = order.items.sumOf {
             ((if (it.selectedType == "iced") it.price_iced else it.price_hot) ?: 0) * it.quantity.toDouble()
         }
         val tax = subtotal * 0.11
 
-        // Dapatkan ongkir dan diskon dari totalAmount
+        
         val subtotalPlusTax = subtotal + tax
         val shippingAndDiscount = order.totalAmount - subtotalPlusTax
 
         val discount = if(shippingAndDiscount < 0) -shippingAndDiscount else 0.0
-        // val shippingCost = if(shippingAndDiscount > 0) shippingAndDiscount else 0.0 // (Opsional jika ingin ditampilkan)
+        
 
         tvInvSubtotal.text = currencyFormat.format(subtotal)
         tvInvTax.text = currencyFormat.format(tax)
 
-        // Logika Tampilan Voucher
+        
         if (discount > 0) {
             layoutVoucher.visibility = View.VISIBLE
             tvInvDiscount.text = "-${currencyFormat.format(discount)}"
@@ -106,7 +106,7 @@ class OrderDetailActivity : AppCompatActivity() {
 
         tvTotalPrice.text = currencyFormat.format(order.totalAmount)
 
-        // Logika Tombol "Pesanan Diterima"
+        
         if (order.status == "Sedang Diantar" || order.status == "Dikirim") {
             btnPesananDiterima.visibility = View.VISIBLE
             btnPesananDiterima.setOnClickListener {
@@ -115,7 +115,7 @@ class OrderDetailActivity : AppCompatActivity() {
                     .addOnSuccessListener {
                         Toast.makeText(this, "Pesanan telah diselesaikan. Terima kasih!", Toast.LENGTH_LONG).show()
                         btnPesananDiterima.visibility = View.GONE
-                        // Opsional: Refresh activity atau finish()
+                        
                         finish()
                     }
                     .addOnFailureListener {

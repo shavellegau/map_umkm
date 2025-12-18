@@ -17,10 +17,7 @@ class NotificationRepository(private val notificationDao: NotificationDao) {
     val allNotifications = notificationDao.getAllNotifications()
 
     private val db = FirebaseFirestore.getInstance()
-
-    // ============================================================
-    // FIXED: SYNC INFO USER (TIDAK MENGAPUS SEMUA SETIAP LOGIN)
-    // ============================================================
+    
     fun syncPersonalOrders(userEmail: String) {
         db.collection("notifications")
             .whereEqualTo("userEmail", userEmail)
@@ -43,8 +40,6 @@ class NotificationRepository(private val notificationDao: NotificationDao) {
 
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-                        // ❌ Jangan deleteAllInfo()
-                        // ✔ Update/replace berdasarkan ID
                         notificationDao.insertAll(list)
                     } catch (e: Exception) {
                         Log.e("REPO", "Error sync info: ${e.message}")
@@ -53,9 +48,6 @@ class NotificationRepository(private val notificationDao: NotificationDao) {
             }
     }
 
-    // ============================================================
-    // FIXED: SYNC PROMO ADMIN (HAPUS PROMO LAMA → INSERT BARU)
-    // ============================================================
     fun syncPromosFromAdmin() {
         db.collection("broadcast_history")
             .orderBy("timestamp", Query.Direction.DESCENDING)
@@ -74,10 +66,8 @@ class NotificationRepository(private val notificationDao: NotificationDao) {
                         isRead = false
                     )
                 }
-
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-                        // 🔥 FIX: Hapus promo lama untuk menghindari duplikat
                         notificationDao.deleteAllPromos()
                         notificationDao.insertAll(list)
                     } catch (e: Exception) {

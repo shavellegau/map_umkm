@@ -12,9 +12,9 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.map_umkm.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.messaging.FirebaseMessaging
-// Import Fragment Admin kamu (sesuaikan jika perlu)
+
 import com.example.map_umkm.admin.AdminNotificationFragment
-// import com.example.map_umkm.AdminOrdersFragment // (Uncomment jika package benar)
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,10 +24,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // ======================================================
-        // 1. Cek sesi login
-        // ======================================================
         val prefs = getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
         val email = prefs.getString("userEmail", null)
 
@@ -39,9 +35,9 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // ======================================================
-        // 2. Setup UI
-        // ======================================================
+        
+        
+        
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -53,12 +49,12 @@ class MainActivity : AppCompatActivity() {
 
         bottomNavigationView.setupWithNavController(navController)
 
-        // ======================================================
-        // LOGIKA MENYEMBUNYIKAN NAVBAR
-        // ======================================================
+        
+        
+        
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                // Daftar Halaman yang TIDAK BOLEH ada Navbar
+                
                 R.id.paymentFragment,
                 R.id.paymentSuccessFragment,
                 R.id.qrisFragment,
@@ -70,24 +66,20 @@ class MainActivity : AppCompatActivity() {
                     bottomNavigationView.visibility = View.GONE
                 }
                 else -> {
-                    // Halaman Utama (Home, Cart, Profile) -> Munculkan Navbar
+                    
                     bottomNavigationView.visibility = View.VISIBLE
                 }
             }
         }
 
-        // ======================================================
-        // 3. Admin Mode
-        // ======================================================
+        
+        
+        
         val openAdmin = intent.getBooleanExtra("openAdmin", false)
         if (openAdmin) {
             navController.navigate(R.id.adminDashboardFragment)
             bottomNavigationView.visibility = View.GONE
         }
-
-        // ======================================================
-        // 4. Save Token FCM & Subscribe
-        // ======================================================
         saveUserFCMToken()
 
         FirebaseMessaging.getInstance().subscribeToTopic("promo")
@@ -98,25 +90,19 @@ class MainActivity : AppCompatActivity() {
                     Log.e("FCM_SUB", "Gagal subscribe", task.exception)
                 }
             }
-
-
-
-
     }
 
-    // ======================================================
-    // 6. Simpan token FCM ke SharedPrefs
-    // ======================================================
+    
+    
+    
     private fun saveUserFCMToken() {
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {
                 Log.e("FCM_TOKEN", "Gagal ambil token", task.exception)
                 return@addOnCompleteListener
             }
-
             val token = task.result
             Log.d("FCM_TOKEN", "Token user: $token")
-
             getSharedPreferences("USER_PREFS", MODE_PRIVATE)
                 .edit()
                 .putString("fcm_token", token)

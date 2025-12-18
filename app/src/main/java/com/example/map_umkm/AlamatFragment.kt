@@ -138,12 +138,12 @@ class AlamatFragment : Fragment() {
 
                 if (!isAdded || _binding == null) return@addSnapshotListener
 
-                // [PERBAIKAN KRUSIAL ADA DI SINI]
+                
                 val addresses = mutableListOf<Address>()
                 snapshot?.documents?.forEach { doc ->
                     val address = doc.toObject(Address::class.java)
                     if (address != null) {
-                        // Salin ID dokumen Firestore ke properti 'id' di dalam model Address
+                        
                         address.id = doc.id
                         addresses.add(address)
                     }

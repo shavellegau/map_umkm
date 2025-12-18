@@ -20,11 +20,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class ReferralFragment : Fragment() {
 
-    // Menggunakan View Binding
+    
     private var _binding: FragmentReferralBinding? = null
     private val binding get() = _binding!!
 
-    // Firebase
+    
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
     private val TAG = "ReferralFragment"
@@ -40,19 +40,19 @@ class ReferralFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Inisialisasi Firebase
+        
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        // Menambahkan try-catch di sekitar inisialisasi listener untuk mencegah crash karena Missing View ID
+        
         try {
             loadReferralCodeFromFirestore()
             setupListeners()
         } catch (e: NullPointerException) {
-            // Ini menangkap jika salah satu View ID (misal: btnCopyCode) tidak ada di XML
+            
             Log.e(TAG, "FATAL: View ID tidak ditemukan saat setup: ${e.message}", e)
             Snackbar.make(view, "Kesalahan tampilan. Harap laporkan bug ini.", Snackbar.LENGTH_LONG).show()
-            // Nonaktifkan tombol untuk mencegah crash lebih lanjut
+            
             binding.btnShareReferral.isEnabled = false
         } catch (e: Exception) {
             Log.e(TAG, "Error umum saat inisialisasi: ${e.message}", e)
@@ -61,17 +61,17 @@ class ReferralFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        // Tombol Back
+        
         binding.btnBack.setOnClickListener {
             findNavController().popBackStack()
         }
 
-        // Tombol Info Referral
+        
         binding.btnReferralInfo.setOnClickListener {
             Snackbar.make(requireView(), "Informasi Referral...", Snackbar.LENGTH_SHORT).show()
         }
 
-        // Tombol Copy Code
+        
         binding.btnCopyCode.setOnClickListener {
             val codeToCopy = binding.tvReferralCode.text.toString()
             if (codeToCopy.length > 5 && codeToCopy != "Gagal memuat kode." && codeToCopy != "Silakan Login Ulang") {
@@ -81,7 +81,7 @@ class ReferralFragment : Fragment() {
             }
         }
 
-        // Tombol Share
+        
         binding.btnShareReferral.setOnClickListener {
             val codeToShare = binding.tvReferralCode.text.toString()
             if (codeToShare.length > 5 && codeToShare != "Gagal memuat kode." && codeToShare != "Silakan Login Ulang") {
@@ -101,31 +101,31 @@ class ReferralFragment : Fragment() {
         val uid = user?.uid
 
         if (uid.isNullOrEmpty()) {
-            // Kasus 1: User belum login
+            
             binding.tvReferralCode.text = "Silakan Login Ulang"
             binding.btnShareReferral.isEnabled = false
             binding.btnCopyCode.isEnabled = false
             return
         }
 
-        // Kasus 2: User login, ambil data dari Firestore
+        
         db.collection("users").document(uid)
             .get()
             .addOnSuccessListener { document ->
-                // Asumsi field di Firestore adalah 'ownReferralCode'
+                
                 val code = document.getString("ownReferralCode")
 
                 if (!code.isNullOrEmpty()) {
-                    // Kasus 2a: Kode ditemukan dan valid
+                    
                     binding.tvReferralCode.text = code
                     binding.btnShareReferral.isEnabled = true
                     binding.btnCopyCode.isEnabled = true
                 } else {
-                    // Kasus 2b: Kode hilang (User lama). Lakukan Self-Correction.
+                    
                     val newCode = uid.substring(0, 6).uppercase()
                     binding.tvReferralCode.text = newCode
 
-                    // Simpan kode yang baru dibuat ini kembali ke Firestore (Update)
+                    
                     db.collection("users").document(uid).update("ownReferralCode", newCode)
                         .addOnSuccessListener {
                             Log.d(TAG, "Kode referral otomatis dibuat dan disimpan: $newCode")
@@ -139,7 +139,7 @@ class ReferralFragment : Fragment() {
                 }
             }
             .addOnFailureListener { e ->
-                // Kasus 3: Error koneksi atau dokumen tidak dapat diakses
+                
                 Log.e(TAG, "Gagal koneksi ke Firestore: ${e.message}", e)
                 binding.tvReferralCode.text = "Error koneksi."
                 binding.btnShareReferral.isEnabled = false

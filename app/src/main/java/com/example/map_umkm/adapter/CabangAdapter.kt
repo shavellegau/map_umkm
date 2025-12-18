@@ -14,7 +14,6 @@ class CabangAdapter(
 ) : RecyclerView.Adapter<CabangAdapter.CabangViewHolder>() {
 
     inner class CabangViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // ID ini HARUS ada di file item_cabang_user.xml
         val tvNama: TextView = itemView.findViewById(R.id.tv_cabang_nama)
         val tvAlamat: TextView = itemView.findViewById(R.id.tv_cabang_alamat)
         val tvStatus: TextView = itemView.findViewById(R.id.tv_cabang_status)
@@ -22,7 +21,6 @@ class CabangAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CabangViewHolder {
-        // Panggil layout khusus User
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_cabang_user, parent, false)
         return CabangViewHolder(view)
@@ -34,10 +32,8 @@ class CabangAdapter(
         holder.tvNama.text = cabang.nama
         holder.tvAlamat.text = cabang.alamat
 
-        // Menggunakan variabel statusBuka yang baru kita buat di Model
         holder.tvStatus.text = "${cabang.statusBuka} (${cabang.jamBuka})"
 
-        // Tampilkan Jarak
         if (cabang.jarakHitung != null) {
             val km = String.format("%.1f km", cabang.jarakHitung!! / 1000)
             holder.tvJarak?.text = km

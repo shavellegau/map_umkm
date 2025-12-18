@@ -15,13 +15,13 @@ class NotificationViewModel(private val repository: NotificationRepository) : Vi
 
     fun syncCloud(userEmail: String) {
         viewModelScope.launch {
-            // 🔥 PERBAIKAN: Gunakan nama fungsi yang benar sesuai Repository 🔥
+            
 
-            // 1. Ambil Info Pesanan (Nama di Repo: syncPersonalOrders)
+            
             repository.syncPersonalOrders(userEmail)
 
-            // 2. Ambil Promo (Nama di Repo: syncPromosFromAdmin)
-            // Perhatikan huruf 's' di Promos
+            
+            
             repository.syncPromosFromAdmin()
         }
     }

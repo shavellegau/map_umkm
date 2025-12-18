@@ -4,17 +4,17 @@ import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
-// [MODIFIKASI] Tambahkan 'orders' di sini
+
 data class MenuData(
     @SerializedName("success")    val success: Boolean?,
 
     @SerializedName("menu")
     var menu: MutableList<MenuItem>,
 
-    @SerializedName("orders") // <-- TAMBAHKAN INI
-    var orders: MutableList<Order> // <-- TAMBAHKAN INI
+    @SerializedName("orders") 
+    var orders: MutableList<Order> 
 )
-// [PERBAIKAN] Ubah semua 'val' menjadi 'var' di sini agar nilainya bisa diedit
+
 @Parcelize
 data class MenuItem(
     @SerializedName("id")
@@ -33,7 +33,7 @@ data class MenuItem(
     var image: String?,
 
     @SerializedName("created_at")
-    val createdAt: String?, // createdAt tidak perlu diedit, biarkan val
+    val createdAt: String?, 
 
     @SerializedName("price_hot")
     var price_hot: Int?,

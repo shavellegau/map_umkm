@@ -39,7 +39,7 @@ class MenuAdapter(
             .placeholder(R.drawable.logo_tuku)
             .into(holder.productImage)
 
-        // Cek apakah produk sudah favorite
+        
         if (isFavorite(product)) {
             holder.btnFavorite.setImageResource(R.drawable.ic_favorite_filled)
         } else {

@@ -42,14 +42,14 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    // Listener Firestore agar data User update Real-time
+    
     private var userListener: ListenerRegistration? = null
 
     private val handler = Handler(Looper.getMainLooper())
     private var timer: Timer? = null
     private var updateRunnable: Runnable? = null
 
-    // Data Menu dari JSON
+    
     private var allRealMenus: List<MenuItem> = emptyList()
 
     private val pilihCabangLauncher = registerForActivityResult(
@@ -71,24 +71,24 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 1. Load Data Menu (JSON)
+        
         loadMenuFromJson()
 
-        // 2. Setup Listener User (Nama, Poin, XP, Tier)
+        
         setupUserDataListener()
 
-        // 3. Setup UI Lainnya
+        
         setupBannerCarousel()
         setupListeners()
         loadSavedLocation()
         getVoucherCount()
         getUnreadNotificationCount()
 
-        // 4. Setup AI (Budget Optimizer)
+        
         setupBudgetOptimizer()
     }
 
-    // --- FUNGSI UTAMA: REAL-TIME USER DATA ---
+    
     private fun setupUserDataListener() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
@@ -101,20 +101,20 @@ class HomeFragment : Fragment() {
                 }
 
                 if (document != null && document.exists()) {
-                    // A. Update Nama
+                    
                     val name = document.getString("name") ?: "Pengguna"
                     binding.tvUserGreeting.text = "Hi, $name!"
 
-                    // B. Update Poin (Baca field 'tukuPoints' sesuai TukuPointFragment)
+                    
                     val points = document.getLong("tukuPoints")?.toInt() ?: 0
                     val formattedPoints = NumberFormat.getNumberInstance(Locale("id", "ID")).format(points)
                     binding.tvTukuPointValue.text = "$formattedPoints Poin"
 
-                    // C. Update XP & Tier (Baca field 'currentXp' sesuai TetanggaTukuFragment)
+                    
                     val currentXp = document.getLong("currentXp")?.toInt() ?: 0
 
-                    // Logika Tier Manual (Sama persis dengan TetanggaTukuFragment)
-                    // Batas: Bronze (0), Silver (100), Gold (250), Platinum (500), Diamond (1000)
+                    
+                    
 
                     val tierName: String
                     val nextTargetXp: Int
@@ -122,7 +122,7 @@ class HomeFragment : Fragment() {
                     when {
                         currentXp >= 1000 -> {
                             tierName = "Diamond"
-                            nextTargetXp = 1000 // Max Level
+                            nextTargetXp = 1000 
                         }
                         currentXp >= 500 -> {
                             tierName = "Platinum"
@@ -142,8 +142,8 @@ class HomeFragment : Fragment() {
                         }
                     }
 
-                    // Update UI Tier & Progress Bar di Home
-                    // Pastikan ID di XML kamu sesuai (tvLevelValue, tvExpValue, progressBarExp)
+                    
+                    
                     if (binding.tvLevelValue != null) {
                         binding.tvLevelValue.text = tierName
 
@@ -182,12 +182,12 @@ class HomeFragment : Fragment() {
         binding.btnCariRekomendasi.setOnClickListener {
             val budget = binding.sliderBudget.value
             try {
-                // 1. Prediksi AI
+                
                 val classifier = BudgetClassifier(requireContext(), "budget_tuku_v2.tflite")
                 val normalizedBudget = budget / 100000.0f
                 val resultIndex = classifier.predict(normalizedBudget)
 
-                // 2. Filter Data Asli
+                
                 val filteredRealData = when(resultIndex) {
                     0 -> allRealMenus.filter { getValidPrice(it) < 18000 }
                     1 -> allRealMenus.filter { getValidPrice(it) in 18000..32000 }
@@ -195,14 +195,14 @@ class HomeFragment : Fragment() {
                     else -> emptyList()
                 }
 
-                // 3. Pilih Menu (Random Asli atau Dummy Fallback)
+                
                 val selectedMenu: MenuItem = if (filteredRealData.isNotEmpty()) {
                     filteredRealData.random()
                 } else {
                     getDummyFallback(resultIndex)
                 }
 
-                // 4. Tampilkan Hasil
+                
                 binding.layoutResultML.visibility = View.VISIBLE
                 binding.tvResultName.text = selectedMenu.name
                 binding.tvResultPrice.text = "Rp ${getValidPrice(selectedMenu)}"
@@ -212,7 +212,7 @@ class HomeFragment : Fragment() {
                     .placeholder(R.drawable.placeholder_image)
                     .into(binding.ivResultImage)
 
-                // 5. Navigasi ke Detail
+                
                 binding.layoutResultML.setOnClickListener {
                     try {
                         val bundle = Bundle()
@@ -229,7 +229,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // Helper functions
+    
     private fun getValidPrice(menu: MenuItem): Int {
         return menu.price_iced ?: menu.price_hot ?: 0
     }
@@ -351,7 +351,7 @@ class HomeFragment : Fragment() {
     }
 }
 
-// CLASS HELPER TFLITE (Tetap Sama)
+
 class BudgetClassifier(context: Context, fileName: String) {
     private var interpreter: Interpreter? = null
     init {

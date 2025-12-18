@@ -28,17 +28,17 @@ class PesananSayaFragment : Fragment() {
 
         db = FirebaseFirestore.getInstance()
 
-        // 🔙 Tombol Back
+        
         val btnBack = view.findViewById<ImageView>(R.id.btnBack)
         btnBack.setOnClickListener {
             findNavController().popBackStack()
         }
 
-        // 🔄 ProgressBar Pesanan
+        
         val progressBar = view.findViewById<ProgressBar>(R.id.progressPesanan)
-        progressBar.progress = 70 // contoh statis
+        progressBar.progress = 70 
 
-        // 🔥 Update dari Firestore
+        
         val orderId = "TK-12345"
         db.collection("orders").document(orderId)
             .addSnapshotListener { snapshot, e ->

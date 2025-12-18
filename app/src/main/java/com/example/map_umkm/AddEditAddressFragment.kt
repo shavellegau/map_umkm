@@ -21,7 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class AddEditAddressFragment : Fragment() {
 
-    // View components
+    
     private lateinit var etLabel: EditText
     private lateinit var etName: EditText
     private lateinit var etPhone: EditText
@@ -30,19 +30,14 @@ class AddEditAddressFragment : Fragment() {
     private lateinit var cbPrimary: CheckBox
     private lateinit var btnSave: Button
     private lateinit var toolbar: MaterialToolbar
-
-    // Variables
     private var tempLatitude: Double? = null
     private var tempLongitude: Double? = null
-    private var addressId: String? = null // Untuk mode edit
+    private var addressId: String? = null 
 
-    // =========================================================================
-    // 1. LAUNCHER ANTI-CRASH (Inilah Kuncinya)
-    // =========================================================================
     private val mapResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        // Cek apakah Fragment masih aktif di layar
+        
         if (!isAdded) return@registerForActivityResult
 
         try {
@@ -53,15 +48,13 @@ class AddEditAddressFragment : Fragment() {
                     val lng = data.getDoubleExtra("LONGITUDE", 0.0)
                     val addressStr = data.getStringExtra("ALAMAT") ?: ""
 
-                    // Simpan koordinat ke variabel
+                    
                     tempLatitude = lat
                     tempLongitude = lng
-
-                    // [PENTING] Cek apakah EditText sudah siap sebelum diisi
-                    // Ini yang mencegah aplikasi mental ke Ringkasan Pesanan
+                    
                     if (::etFullAddress.isInitialized) {
                         etFullAddress.setText(addressStr)
-                        // Taruh kursor di akhir teks
+                        
                         if (etFullAddress.text.isNotEmpty()) {
                             etFullAddress.setSelection(etFullAddress.text.length)
                         }
@@ -74,7 +67,7 @@ class AddEditAddressFragment : Fragment() {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            // Tangkap error agar aplikasi TIDAK restart
+            
             Toast.makeText(context, "Gagal memuat lokasi, silakan ketik manual.", Toast.LENGTH_SHORT).show()
         }
     }
@@ -89,12 +82,12 @@ class AddEditAddressFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Ambil argumen dari navigasi (jika ada ID untuk edit)
+        
         arguments?.let {
-            addressId = it.getString("addressId") // Sesuaikan dengan nav_graph kamu
+            addressId = it.getString("addressId") 
         }
 
-        // Init View
+        
         etLabel = view.findViewById(R.id.etAddressLabel)
         etName = view.findViewById(R.id.etRecipientName)
         etPhone = view.findViewById(R.id.etPhoneNumber)
@@ -104,18 +97,18 @@ class AddEditAddressFragment : Fragment() {
         btnSave = view.findViewById(R.id.btnSaveAddress)
         toolbar = view.findViewById(R.id.toolbar)
 
-        // Setup Toolbar
+        
         toolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
 
-        // Event Tombol Peta
+        
         btnPilihPeta.setOnClickListener {
             val intent = Intent(requireContext(), PetaPilihLokasiActivity::class.java)
             mapResultLauncher.launch(intent)
         }
 
-        // Event Tombol Simpan
+        
         btnSave.setOnClickListener {
             saveAddress()
         }
@@ -139,7 +132,7 @@ class AddEditAddressFragment : Fragment() {
             return
         }
 
-        // Buat ID baru jika addressId null, atau gunakan yg lama jika edit
+        
         val db = FirebaseFirestore.getInstance()
         val docRef = if (addressId.isNullOrEmpty()) {
             db.collection("users").document(uid).collection("addresses").document()
@@ -159,11 +152,11 @@ class AddEditAddressFragment : Fragment() {
             longitude = tempLongitude
         )
 
-        // Simpan ke Firestore
+        
         docRef.set(newAddress)
             .addOnSuccessListener {
                 Toast.makeText(context, "Alamat berhasil disimpan", Toast.LENGTH_SHORT).show()
-                findNavController().popBackStack() // Kembali ke list alamat
+                findNavController().popBackStack() 
             }
             .addOnFailureListener { e ->
                 Toast.makeText(context, "Gagal menyimpan: ${e.message}", Toast.LENGTH_SHORT).show()
