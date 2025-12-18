@@ -1,212 +1,302 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/scrollView"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="#FFFDF9"
-    android:fitsSystemWindows="true"
-    tools:context=".BantuanFragment">
+    android:background="#FFFFFF"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingHorizontal="24dp"
-        android:paddingBottom="24dp">
+        android:paddingBottom="32dp">
 
-        <!-- Header -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="48dp"
-            android:paddingBottom="40dp">
+            android:paddingTop="32dp"
+            android:paddingBottom="24dp">
+
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="#3E2723" />
 
             <ImageView
-                android:id="@+id/btnBack"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignParentStart="true"
-                android:src="@drawable/ic_arrow_back"
-                android:tint="#000000"
-                android:contentDescription="Back"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <TextView
-                android:id="@+id/tvTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:text="Pusat Bantuan"
-                android:textColor="#3E2723"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+                android:layout_width="90dp"
+                android:layout_height="35dp"
+                android:layout_centerInParent="true"
+                android:src="@android:drawable/btn_star_big_on"
+                app:tint="#795548" />
         </RelativeLayout>
 
-        <!-- Ikon tengah -->
-        <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_gravity="center"
-            android:src="@android:drawable/ic_menu_help"
-            android:tint="#795548"
-            android:layout_marginBottom="20dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pusat Bantuan"
+            android:textSize="26sp"
+            android:fontFamily="sans-serif-black"
+            android:textColor="#3E2723" />
 
-        <!-- Search box -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Temukan jawaban cepat untuk kendala Anda."
+            android:textSize="14sp"
+            android:textColor="#8D6E63"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="24dp"/>
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@android:drawable/editbox_background"
-            android:orientation="horizontal"
+            android:layout_height="54dp"
+            android:background="#F8F8F8"
             android:gravity="center_vertical"
-            android:paddingHorizontal="12dp"
-            android:layout_marginBottom="24dp">
+            android:paddingHorizontal="20dp"
+            android:layout_marginBottom="32dp">
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@android:drawable/ic_menu_search"
-                android:tint="#8D6E63" />
+                app:tint="#A1887F" />
 
             <EditText
                 android:id="@+id/etSearch"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="Cari solusi..."
                 android:background="@null"
-                android:paddingStart="8dp"
+                android:hint="Cari topik bantuan..."
+                android:paddingStart="12dp"
                 android:textColor="#3E2723"
-                android:textColorHint="#BCAAA4" />
+                android:textColorHint="#BDBDBD"
+                android:textSize="16sp" />
         </LinearLayout>
 
-        <!-- Topik Bantuan -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/itemProdukToko"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="#FAF9F6">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@android:drawable/ic_menu_manage"
+                            app:tint="#8D6E63" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="16dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Produk dan Toko"
+                                android:textColor="#3E2723"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-bold" />
+
+                            <TextView
+                                android:id="@+id/tvSubProduk"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Info menu, lokasi &amp; jam buka"
+                                android:textColor="#A1887F"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/imgArrowProduk"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="#BCAAA4" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/expandProduk"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        android:paddingTop="16dp">
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginBottom="12dp"/>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="• Lokasi Toko: Cek di tab 'Maps' untuk gerai terdekat.\n• Jam Buka: Umumnya pkl 07:00 - 21:00 WIB.\n• Menu: Seluruh menu kopi tersedia di aplikasi."
+                            android:textColor="#4E342E"
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="4dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/itemPesananMaya"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="#FAF9F6">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@android:drawable/ic_menu_agenda"
+                            app:tint="#8D6E63" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="16dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Pesanan Maya"
+                                android:textColor="#3E2723"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-bold" />
+
+                            <TextView
+                                android:id="@+id/tvSubPesanan"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Status order &amp; pengiriman"
+                                android:textColor="#A1887F"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/imgArrowPesanan"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="#BCAAA4" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/expandPesanan"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        android:paddingTop="16dp">
+                        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginBottom="12dp"/>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="• Melacak Pesanan: Cek di riwayat transaksi Anda.\n• Kendala Driver: Hubungi nomor driver yang tertera.\n• Pembatalan: Hubungi Admin via Chat jika pesanan belum diproses."
+                            android:textColor="#4E342E"
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="4dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#F0F0F0"
+            android:layout_marginBottom="32dp"/>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Topik Bantuan"
-            android:textStyle="bold"
-            android:textSize="18sp"
+            android:text="Belum menemukan solusi?"
+            android:gravity="center"
+            android:fontFamily="sans-serif-medium"
             android:textColor="#3E2723"
-            android:layout_marginBottom="12dp" />
+            android:layout_marginBottom="16dp" />
 
-        <!-- Produk & Toko -->
-        <LinearLayout
-            android:id="@+id/itemProdukToko"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#FFFFFF"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:layout_marginBottom="12dp"
-            android:gravity="center_vertical"
-            android:elevation="2dp">
-
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@android:drawable/ic_menu_manage"
-                android:tint="#795548" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                android:text="Produk dan Toko"
-                android:textSize="16sp"
-                android:textColor="#3E2723" />
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@android:drawable/ic_media_next"
-                android:tint="#795548" />
-        </LinearLayout>
-
-        <!-- Pesanan Maya -->
-        <LinearLayout
-            android:id="@+id/itemPesananMaya"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#FFFFFF"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:layout_marginBottom="24dp"
-            android:gravity="center_vertical"
-            android:elevation="2dp">
-
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@android:drawable/ic_menu_agenda"
-                android:tint="#795548" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                android:text="Pesanan Maya"
-                android:textSize="16sp"
-                android:textColor="#3E2723" />
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@android:drawable/ic_media_next"
-                android:tint="#795548" />
-        </LinearLayout>
-
-        <!-- Bantuan Personal -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Butuh Bantuan Personal?"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="#3E2723"
-            android:layout_marginBottom="12dp" />
-
-        <!-- Tombol Chat dan Email -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btnChatLangsung"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:layout_weight="1"
+                android:layout_marginEnd="8dp"
                 android:text="Chat Langsung"
+                android:textAllCaps="false"
                 android:backgroundTint="#795548"
                 android:textColor="#FFFFFF"
-                android:layout_marginEnd="8dp" />
+                android:fontFamily="sans-serif-medium"
+                app:cornerRadius="12dp" />
 
             <Button
                 android:id="@+id/btnKirimEmail"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:layout_weight="1"
+                android:layout_marginStart="8dp"
                 android:text="Kirim Email"
+                android:textAllCaps="false"
                 android:textColor="#795548"
                 android:backgroundTint="#FFFFFF"
-                android:layout_marginStart="8dp"
-                android:elevation="2dp" />
+                android:fontFamily="sans-serif-medium"
+                app:cornerRadius="12dp"
+                app:strokeColor="#795548"
+                app:strokeWidth="1dp" />
         </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tim kami siap membantu, pkl 08:00 - 22:00 WIB"
+            android:text="Tersedia setiap hari pukul 08:00 - 22:00 WIB"
             android:textSize="12sp"
-            android:textColor="#8D6E63"
+            android:textColor="#A1887F"
             android:gravity="center"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="20dp" />
 
     </LinearLayout>
 </ScrollView>
