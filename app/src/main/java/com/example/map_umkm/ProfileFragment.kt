@@ -5,6 +5,8 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -20,15 +22,14 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.map_umkm.databinding.FragmentProfileBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import java.io.File
+import java.io.FileOutputStream
 import java.text.NumberFormat
 import java.util.Locale
-
 
 class ProfileFragment : Fragment() {
 
@@ -43,25 +44,21 @@ class ProfileFragment : Fragment() {
     private val galleryLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        if (uri != null) uploadImageToStorage(uri)
+        if (uri != null) saveImageToLocal(uri)
     }
 
     private val cameraLauncher = registerForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { isSuccess ->
         if (isSuccess && tempImageUri != null) {
-            uploadImageToStorage(tempImageUri!!)
+            saveImageToLocal(tempImageUri!!)
         }
     }
 
     private val requestCameraPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
-        if (isGranted) {
-            openCamera()
-        } else {
-            Toast.makeText(context, "Izin kamera diperlukan untuk mengambil foto", Toast.LENGTH_SHORT).show()
-        }
+        if (isGranted) openCamera() else Toast.makeText(context, "Izin kamera diperlukan", Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreateView(
@@ -91,13 +88,9 @@ class ProfileFragment : Fragment() {
 
         binding.txtName.text = currentUser.displayName ?: prefs.getString("userName", "Pengguna")
         binding.tvEmail.text = currentUser.email ?: prefs.getString("userEmail", "-")
-        binding.tvMemberPoints.text = "0 Pts"
-        binding.tvMemberStatus.text = "Loading..."
 
-        val currentPhotoUrl = currentUser.photoUrl
-        if (currentPhotoUrl != null) {
-            Glide.with(this).load(currentPhotoUrl).into(ivProfile)
-        }
+        // Memuat foto lama yang tersimpan di HP
+        loadLocalProfileImage(uid, prefs)
 
         ivProfile.setOnClickListener {
             showImagePickerOptions()
@@ -108,23 +101,9 @@ class ProfileFragment : Fragment() {
             .addSnapshotListener { doc, _ ->
                 if (_binding == null || !isAdded) return@addSnapshotListener
                 if (doc != null && doc.exists()) {
-                    val name = doc.getString("name")
-                    if (name != null) {
-                        binding.txtName.text = name
-                        prefs.edit().putString("userName", name).apply()
-                    }
-
-                    val photoUrl = doc.getString("photoUrl")
-                    if (!photoUrl.isNullOrEmpty()) {
-                        Glide.with(requireContext())
-                            .load(photoUrl)
-                            .placeholder(R.drawable.placeholder_image)
-                            .into(ivProfile)
-                    }
-
+                    binding.txtName.text = doc.getString("name") ?: binding.txtName.text
                     val points = doc.getLong("tukuPoints") ?: 0
-                    val formattedPoints = NumberFormat.getInstance(Locale("in", "ID")).format(points)
-                    binding.tvMemberPoints.text = "$formattedPoints Pts"
+                    binding.tvMemberPoints.text = "${NumberFormat.getInstance(Locale("in", "ID")).format(points)} Pts"
 
                     val currentXp = doc.getLong("currentXp")?.toInt() ?: 0
                     val tierName = when {
@@ -141,109 +120,86 @@ class ProfileFragment : Fragment() {
         setupNavigation()
     }
 
-    private fun showImagePickerOptions() {
-        val options = arrayOf("Ambil Foto (Kamera)", "Pilih dari Galeri")
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Ganti Foto Profil")
-        builder.setItems(options) { _, which ->
-            when (which) {
-                0 -> checkCameraPermissionAndOpen() 
-                1 -> openGallery()
+    private fun loadLocalProfileImage(uid: String, prefs: android.content.SharedPreferences) {
+        val path = prefs.getString("local_profile_path_$uid", null)
+        if (path != null) {
+            val file = File(path)
+            if (file.exists()) {
+                Glide.with(this)
+                    .load(file)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE) // Paksa Glide jangan pakai cache agar gambar berubah
+                    .skipMemoryCache(true)
+                    .placeholder(R.drawable.placeholder_image)
+                    .into(ivProfile)
             }
         }
-        builder.show()
     }
 
-    private fun openGallery() {
-        galleryLauncher.launch("image/*")
+    private fun saveImageToLocal(fileUri: Uri) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        progressBar.visibility = View.VISIBLE
+        ivProfile.alpha = 0.5f
+
+        try {
+            val inputStream = requireContext().contentResolver.openInputStream(fileUri)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+
+            val directory = File(requireContext().filesDir, "profile_images")
+            if (!directory.exists()) directory.mkdirs()
+
+            // Hapus foto lama agar memori HP tidak penuh
+            directory.listFiles()?.forEach { it.delete() }
+
+            // Beri nama unik pakai timestamp agar sistem selalu mendeteksi file baru
+            val newFile = File(directory, "profile_${uid}_${System.currentTimeMillis()}.jpg")
+            val out = FileOutputStream(newFile)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+            out.flush()
+            out.close()
+
+            val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
+            prefs.edit().putString("local_profile_path_$uid", newFile.absolutePath).apply()
+
+            progressBar.visibility = View.GONE
+            ivProfile.alpha = 1.0f
+
+            // Tampilkan gambar baru dengan Glide tanpa cache
+            Glide.with(this)
+                .load(newFile)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
+                .into(ivProfile)
+
+            Toast.makeText(context, "Foto berhasil diganti!", Toast.LENGTH_SHORT).show()
+
+        } catch (e: Exception) {
+            progressBar.visibility = View.GONE
+            ivProfile.alpha = 1.0f
+            Toast.makeText(context, "Gagal simpan gambar lokal", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showImagePickerOptions() {
+        val options = arrayOf("Ambil Foto (Kamera)", "Pilih dari Galeri")
+        AlertDialog.Builder(requireContext())
+            .setTitle("Ganti Foto Profil")
+            .setItems(options) { _, which ->
+                if (which == 0) checkCameraPermissionAndOpen() else galleryLauncher.launch("image/*")
+            }.show()
     }
 
     private fun checkCameraPermissionAndOpen() {
-        when {
-            ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED -> {
-                
-                openCamera()
-            }
-            else -> {
-                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-            }
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            openCamera()
+        } else {
+            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
 
     private fun openCamera() {
-        try {
-            val tmpFile = File.createTempFile("tmp_photo", ".jpg", requireContext().cacheDir).apply {
-                createNewFile()
-                deleteOnExit()
-            }
-
-            val authority = "${requireContext().packageName}.fileprovider"
-
-            tempImageUri = FileProvider.getUriForFile(
-                requireContext(),
-                authority,
-                tmpFile
-            )
-
-            cameraLauncher.launch(tempImageUri)
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(context, "Gagal membuka kamera: ${e.message}", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    private fun uploadImageToStorage(fileUri: Uri) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-
-        binding.progressBarProfile.visibility = View.VISIBLE
-        binding.ivProfile.alpha = 0.5f
-        binding.ivProfile.isEnabled = false
-
-        val storageRef = FirebaseStorage.getInstance().reference.child("profile_images/$uid.jpg")
-
-        storageRef.putFile(fileUri)
-            .addOnSuccessListener {
-                storageRef.downloadUrl.addOnSuccessListener { uri ->
-                    if (_binding != null) {
-                        saveUrlToDatabase(uri.toString())
-                    }
-                }
-            }
-            .addOnFailureListener { e ->
-                _binding?.let {
-                    it.progressBarProfile.visibility = View.GONE
-                    it.ivProfile.alpha = 1.0f
-                    it.ivProfile.isEnabled = true
-                    Toast.makeText(requireContext(), "Gagal upload: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-    }
-
-    private fun saveUrlToDatabase(imageUrl: String) {
-        val user = FirebaseAuth.getInstance().currentUser ?: return
-        val db = FirebaseFirestore.getInstance()
-
-        val profileUpdates = UserProfileChangeRequest.Builder()
-            .setPhotoUri(Uri.parse(imageUrl))
-            .build()
-
-        user.updateProfile(profileUpdates).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                db.collection("users").document(user.uid)
-                    .update("photoUrl", imageUrl)
-                    .addOnSuccessListener {
-                        progressBar.visibility = View.GONE
-                        ivProfile.alpha = 1.0f
-                        ivProfile.isEnabled = true
-                        Toast.makeText(context, "Foto Profil Berhasil!", Toast.LENGTH_SHORT).show()
-                        Glide.with(this).load(imageUrl).into(ivProfile)
-                    }
-            }
-        }
+        val tmpFile = File.createTempFile("tmp_photo", ".jpg", requireContext().cacheDir).apply { deleteOnExit() }
+        tempImageUri = FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", tmpFile)
+        cameraLauncher.launch(tempImageUri)
     }
 
     private fun setupNavigation() {
@@ -262,10 +218,8 @@ class ProfileFragment : Fragment() {
         val dialog = android.app.Dialog(requireContext())
         dialog.setContentView(dialogView)
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancel)
-        val btnLogout = dialogView.findViewById<Button>(R.id.btnLogout)
-        btnCancel.setOnClickListener { dialog.dismiss() }
-        btnLogout.setOnClickListener {
+        dialogView.findViewById<Button>(R.id.btnCancel).setOnClickListener { dialog.dismiss() }
+        dialogView.findViewById<Button>(R.id.btnLogout).setOnClickListener {
             dialog.dismiss()
             logout()
         }
@@ -276,10 +230,9 @@ class ProfileFragment : Fragment() {
         val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
         prefs.edit().clear().apply()
         FirebaseAuth.getInstance().signOut()
-        val intent = Intent(activity, LoginActivity::class.java).apply {
+        startActivity(Intent(activity, LoginActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        startActivity(intent)
+        })
         requireActivity().finish()
     }
 
