@@ -34,18 +34,15 @@ class AdminCabangFragment : Fragment() {
         loadDataCabang()
 
         binding.fabAddCabang.setOnClickListener {
-            
-            Toast.makeText(context, "Tambah Cabang diklik", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Fitur Tambah segera hadir", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun setupRecyclerView() {
-        
         adapter = AdminCabangAdapter(
             listCabang = listOf(),
             onEditClick = { cabang ->
                 Toast.makeText(context, "Edit: ${cabang.nama}", Toast.LENGTH_SHORT).show()
-                
             },
             onDeleteClick = { cabang ->
                 deleteCabang(cabang)
@@ -59,28 +56,45 @@ class AdminCabangFragment : Fragment() {
     }
 
     private fun loadDataCabang() {
-        db.collection("cabang")
+        db.collection("branches")
             .addSnapshotListener { value, error ->
                 if (error != null) {
-                    Toast.makeText(context, "Gagal memuat data", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Gagal memuat data: ${error.message}", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
 
-                val list = value?.toObjects(Cabang::class.java) ?: listOf()
+                val list = mutableListOf<Cabang>()
+
+                for (doc in value!!) {
+                    val cabang = Cabang(
+                        id = doc.id,
+                        nama = doc.getString("nama") ?: "",
+                        alamat = doc.getString("alamat") ?: "",
+                        jamBuka = doc.getString("jamBuka") ?: "",
+                        jamTutup = doc.getString("jamTutup") ?: "",
+                        fasilitas = doc.getString("fasilitas") ?: "",
+                        latitude = doc.getDouble("latitude") ?: 0.0,
+                        longitude = doc.getDouble("longitude") ?: 0.0
+                    )
+                    list.add(cabang)
+                }
+
                 adapter.updateData(list)
             }
     }
 
     private fun deleteCabang(cabang: Cabang) {
         if (cabang.id.isNotEmpty()) {
-            db.collection("cabang").document(cabang.id)
+            db.collection("branches").document(cabang.id)
                 .delete()
                 .addOnSuccessListener {
-                    Toast.makeText(context, "Cabang dihapus", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Cabang berhasil dihapus", Toast.LENGTH_SHORT).show()
                 }
                 .addOnFailureListener {
                     Toast.makeText(context, "Gagal menghapus", Toast.LENGTH_SHORT).show()
                 }
+        } else {
+            Toast.makeText(context, "Error: ID Cabang tidak ditemukan", Toast.LENGTH_SHORT).show()
         }
     }
 

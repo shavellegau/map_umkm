@@ -1,7 +1,8 @@
 package com.example.map_umkm
 
 import android.content.Context
-import android.content.res.ColorStateList 
+import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -30,7 +31,6 @@ import java.util.Locale
 
 class CartFragment : Fragment() {
 
-    
     private lateinit var rvCategory: RecyclerView
     private lateinit var rvProducts: RecyclerView
     private lateinit var tvTotal: TextView
@@ -41,17 +41,14 @@ class CartFragment : Fragment() {
     private lateinit var bottomBar: View
     private lateinit var btnViewOrder: Button
 
-    
     private lateinit var btnTakeAway: MaterialButton
     private lateinit var btnDelivery: MaterialButton
     private lateinit var toggleSelector: View
     private lateinit var toggleContainer: View
 
-    
     private lateinit var tvSelectedBranch: TextView
     private lateinit var btnChangeBranch: TextView
 
-    
     private val cartViewModel: CartViewModel by activityViewModels()
     private val favoriteViewModel: FavoriteViewModel by activityViewModels()
 
@@ -93,7 +90,6 @@ class CartFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         loadSelectedBranch()
-        
         animateMode(currentMode, immediate = true)
     }
 
@@ -119,11 +115,8 @@ class CartFragment : Fragment() {
 
     private fun setupBranchListener() {
         btnChangeBranch.setOnClickListener {
-            try {
-                findNavController().navigate(R.id.action_nav_cart_to_cabangFragment)
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Error Navigasi: Cek nav_graph.xml", Toast.LENGTH_SHORT).show()
-            }
+            val intent = Intent(requireContext(), PilihCabangActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -160,32 +153,26 @@ class CartFragment : Fragment() {
                     .setDuration(250)
                     .start()
             }
-            
+
             updateToggleTextStyle(mode)
         }
     }
 
-    
     private fun updateToggleTextStyle(mode: String) {
         val whiteColor = ContextCompat.getColor(requireContext(), android.R.color.white)
-        
         val darkColor = ContextCompat.getColor(requireContext(), R.color.tuku_dark)
 
         if (mode == "Take Away") {
-            
             btnTakeAway.setTextColor(whiteColor)
             btnTakeAway.iconTint = ColorStateList.valueOf(whiteColor)
 
-            
             btnDelivery.setTextColor(darkColor)
             btnDelivery.iconTint = ColorStateList.valueOf(darkColor)
 
         } else {
-            
             btnDelivery.setTextColor(whiteColor)
             btnDelivery.iconTint = ColorStateList.valueOf(whiteColor)
 
-            
             btnTakeAway.setTextColor(darkColor)
             btnTakeAway.iconTint = ColorStateList.valueOf(darkColor)
         }
@@ -220,7 +207,6 @@ class CartFragment : Fragment() {
         rvProducts.adapter = productAdapter
     }
 
-    
     private fun navigateToDetail(product: Product) {
         try {
             val menuItem = MenuItem(
