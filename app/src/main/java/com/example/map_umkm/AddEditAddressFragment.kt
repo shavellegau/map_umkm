@@ -31,6 +31,7 @@ class AddEditAddressFragment : Fragment() {
     private var tempLat: Double = 0.0
     private var tempLng: Double = 0.0
     private var addressId: String? = null
+    private var fromPayment: Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_add_edit_address, container, false)
@@ -50,9 +51,20 @@ class AddEditAddressFragment : Fragment() {
         btnSave = view.findViewById(R.id.btnSaveAddress)
         toolbar = view.findViewById(R.id.toolbar)
 
+        fromPayment = arguments?.getBoolean("from_payment") ?: false
+        val hasilAlamat = arguments?.getString("hasil_alamat")
+        val hasilLat = arguments?.getDouble("hasil_lat")
+        val hasilLng = arguments?.getDouble("hasil_lng")
+
+        if(hasilAlamat != null && hasilLat != null && hasilLng != null){
+            etFullAddress.setText(hasilAlamat)
+            tempLat = hasilLat
+            tempLng = hasilLng
+        }
+
+
         toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
 
-        // Menerima data koordinat dari PilihLokasiFragment
         setFragmentResultListener("requestKey_lokasi") { _, bundle ->
             val alamat = bundle.getString("hasil_alamat")
             val lat = bundle.getDouble("hasil_lat")
@@ -64,10 +76,9 @@ class AddEditAddressFragment : Fragment() {
             }
         }
 
-        // Jika mau ganti titik peta lagi
         btnPilihPeta.setOnClickListener {
-            // Mode biasa (bukan mode create new flow), biar dia balik kesini lagi
-            findNavController().navigate(R.id.action_addEditAddressFragment_to_pilihLokasiFragment)
+            val bundle = bundleOf("from_payment" to fromPayment)
+            findNavController().navigate(R.id.action_addEditAddressFragment_to_pilihLokasiFragment, bundle)
         }
 
         btnSave.setOnClickListener { saveAddress() }
@@ -107,16 +118,16 @@ class AddEditAddressFragment : Fragment() {
             .addOnSuccessListener {
                 Toast.makeText(context, "Alamat berhasil disimpan!", Toast.LENGTH_SHORT).show()
 
-                // --- KUNCI FLOW BARU DISINI ---
-                // Kirim data alamat baru ini kembali ke PaymentFragment agar langsung terpakai
-                val resultBundle = bundleOf("data_alamat" to newAddress)
-                setFragmentResult("request_alamat", resultBundle)
-
-                // Lompat langsung ke PaymentFragment (Lewati Peta, Lewati stack lain)
-                findNavController().popBackStack(R.id.paymentFragment, false)
+                if (fromPayment) {
+                    val resultBundle = bundleOf("data_alamat" to newAddress)
+                    setFragmentResult("request_alamat", resultBundle)
+                    findNavController().popBackStack(R.id.paymentFragment, false)
+                } else {
+                    findNavController().popBackStack()
+                }
             }
-            .addOnFailureListener {
-                Toast.makeText(context, "Gagal menyimpan: ${it.message}", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Gagal menyimpan: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 }

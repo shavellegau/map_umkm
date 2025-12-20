@@ -39,7 +39,7 @@ class AdminOrdersFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
     private var orderListener: ListenerRegistration? = null
 
-    private var allOrderList: List<Order> = emptyList()
+    private var allOrderList: MutableList<Order> = mutableListOf()
     private var currentFilterMode = "ALL"
 
     private var statsListener1: ListenerRegistration? = null
@@ -88,30 +88,24 @@ class AdminOrdersFragment : Fragment() {
         val orderRef = db.collection("orders").document(order.orderId)
         val userRef = db.collection("users").document(order.userId)
 
-        val subtotal = order.items.sumOf { item ->
-            val price = (if (item.selectedType == "iced") item.price_iced else item.price_hot) ?: 0
-            price * item.quantity.toDouble()
-        }
-        val pointsEarned = (subtotal * 0.10).toInt()
-
         db.runTransaction { transaction ->
+            // 1. READ FIRST
             val userSnapshot = transaction.get(userRef)
-            val currentPoints = userSnapshot.getLong("tukuPoints") ?: 0
-            val newTotalPoints = currentPoints + pointsEarned
+            val currentPoints = userSnapshot.getLong("tukuPoints") ?: 0L
 
-            // 1. Update status pesanan menjadi "Diproses"
+            // 2. WRITES
             transaction.update(orderRef, "status", "Diproses")
 
-            // Hanya tambahkan poin jika ada poin yang didapat
-            if (pointsEarned > 0) {
-                // 2. Update total poin user
-                transaction.update(userRef, "tukuPoints", newTotalPoints)
+            val subtotal = order.items.sumOf { item -> (((if (item.selectedType == "iced") item.price_iced else item.price_hot) ?: 0) * item.quantity).toDouble() }
+            val pointsEarned = (subtotal * 0.10).toLong()
 
-                // 3. Tambah catatan di riwayat poin
+            if (pointsEarned > 0) {
+                transaction.update(userRef, "tukuPoints", currentPoints + pointsEarned)
+
                 val pointHistoryRef = userRef.collection("point_history").document()
                 val pointHistoryData = hashMapOf(
                     "title" to "Poin dari Pesanan #${order.orderId.take(6)}",
-                    "amount" to pointsEarned.toLong(),
+                    "amount" to pointsEarned,
                     "type" to "earn",
                     "timestamp" to FieldValue.serverTimestamp()
                 )
@@ -119,60 +113,52 @@ class AdminOrdersFragment : Fragment() {
             }
             null
         }.addOnSuccessListener {
-            val successMessage = "Pesanan dikonfirmasi & status diubah ke 'Diproses'."
-            val pointsMessage = if(pointsEarned > 0) " $pointsEarned poin diberikan!" else ""
-            Toast.makeText(context, successMessage + pointsMessage, Toast.LENGTH_LONG).show()
-
-            if (!order.userToken.isNullOrEmpty()) {
-                val notificationBody = if (pointsEarned > 0) {
-                    "Pesananmu sedang diproses. Kamu mendapatkan $pointsEarned poin!"
-                } else {
-                    "Pesananmu sedang diproses oleh admin."
-                }
-                fcmService.sendNotification(
-                    order.userToken,
-                    "Pesanan Diproses",
-                    notificationBody,
-                    order.orderId,
-                    order.userEmail
-                )
+            Toast.makeText(context, "Pesanan dikonfirmasi.", Toast.LENGTH_SHORT).show()
+            val index = allOrderList.indexOfFirst { it.orderId == order.orderId }
+            if (index != -1) {
+                allOrderList[index].status = "Diproses"
+                adapter.notifyItemChanged(index)
             }
         }.addOnFailureListener { e ->
-            Log.e("FirestoreTransaction", "Gagal konfirmasi & beri poin: ", e)
+            Log.e("FirestoreTransaction", "Gagal konfirmasi: ", e)
             Toast.makeText(context, "Gagal mengkonfirmasi pesanan: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
     private fun setupRecyclerView() {
         adapter = AdminOrdersAdapter(
-            emptyList(),
+            allOrderList,
             onItemClick = { order ->
                 val intent = Intent(requireContext(), OrderDetailActivity::class.java)
                 intent.putExtra("ORDER_DATA", order)
                 startActivity(intent)
             },
             onConfirmPaymentClick = { order ->
-                confirmPaymentAndAwardPoints(order)
+                if (order.status == "Menunggu Pembayaran" || order.status == "Menunggu Konfirmasi") {
+                    confirmPaymentAndAwardPoints(order)
+                }
             },
             onAntarPesananClick = { order ->
-                // This button should not be visible in Take Away
+                // Not used in Take Away
             },
             onSelesaikanClick = { order ->
-                 updateStatusAndNotify(order.orderId, "Selesai", order.userToken, "Pesanan Selesai", "Terima kasih sudah memesan!", order.userEmail)
+                if (order.status == "Diproses") {
+                    updateStatusAndNotify(order.orderId, "Selesai", order.userToken, "Pesanan Selesai", "Terima kasih sudah memesan!", order.userEmail)
+                }
             }
         )
         rvRecentOrders.layoutManager = LinearLayoutManager(requireContext())
         rvRecentOrders.adapter = adapter
     }
 
-    private fun updateStatusAndNotify(
-        orderId: String, newStatus: String, token: String?, title: String, body: String, targetEmail: String?
-    ) {
+    private fun updateStatusAndNotify(orderId: String, newStatus: String, token: String?, title: String, body: String, targetEmail: String?) {
         db.collection("orders").document(orderId).update("status", newStatus)
             .addOnSuccessListener {
                 Toast.makeText(context, "Status pesanan diubah menjadi: $newStatus", Toast.LENGTH_SHORT).show()
-                if (!token.isNullOrEmpty()) {
-                    fcmService.sendNotification(token, title, body, orderId, targetEmail)
+                val index = allOrderList.indexOfFirst { it.orderId == orderId }
+                if (index != -1) {
+                    allOrderList[index].status = newStatus
+                    adapter.notifyItemChanged(index)
                 }
             }
             .addOnFailureListener {
@@ -183,19 +169,13 @@ class AdminOrdersFragment : Fragment() {
     private fun setupFilterListener() {
         chipGroupFilter.check(R.id.chipAll)
         chipGroupFilter.setOnCheckedStateChangeListener { _, checkedIds ->
-            if (checkedIds.isNotEmpty()) {
-                currentFilterMode = when (checkedIds[0]) {
-                    R.id.chipToday -> "TODAY"
-                    R.id.chipYesterday -> "YESTERDAY"
-                    R.id.chipWeek -> "WEEK"
-                    else -> "ALL"
-                }
-                applyFilter()
-            } else {
-                currentFilterMode = "ALL"
-                chipGroupFilter.check(R.id.chipAll)
-                applyFilter()
+            currentFilterMode = when (checkedIds.firstOrNull()) {
+                R.id.chipToday -> "TODAY"
+                R.id.chipYesterday -> "YESTERDAY"
+                R.id.chipWeek -> "WEEK"
+                else -> "ALL"
             }
+            applyFilter()
         }
     }
 
@@ -208,7 +188,7 @@ class AdminOrdersFragment : Fragment() {
         }
 
         if (filteredList.isEmpty()) {
-            tvEmpty.text = if (allOrderList.isEmpty()) "Belum ada pesanan." else "Tidak ada pesanan untuk filter ini."
+            tvEmpty.text = if (allOrderList.isEmpty()) "Belum ada pesanan take away." else "Tidak ada pesanan untuk filter ini."
             tvEmpty.visibility = View.VISIBLE
             rvRecentOrders.visibility = View.GONE
         } else {
@@ -225,11 +205,12 @@ class AdminOrdersFragment : Fragment() {
             .orderBy("orderDate", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshots, e ->
                 if (e != null) {
-                    Log.e("Firestore", "Error: ${e.message}")
+                    Log.e("Firestore", "Error listening for orders: ${e.message}")
                     return@addSnapshotListener
                 }
                 if (snapshots != null) {
-                    allOrderList = snapshots.toObjects(Order::class.java)
+                    allOrderList.clear()
+                    allOrderList.addAll(snapshots.toObjects(Order::class.java))
                     applyFilter()
                 }
             }
@@ -237,26 +218,19 @@ class AdminOrdersFragment : Fragment() {
 
     private fun startListeningForStats() {
         statsListener1?.remove()
-        statsListener1 = db.collection("orders")
-            .whereIn("status", listOf("Menunggu Konfirmasi", "Menunggu Pembayaran"))
-            .addSnapshotListener { s, _ -> tvTotalOrders.text = "${s?.size() ?: 0}" }
+        statsListener1 = db.collection("orders").whereEqualTo("orderType", "Take Away").whereIn("status", listOf("Menunggu Konfirmasi", "Menunggu Pembayaran")).addSnapshotListener { s, _ -> tvTotalOrders.text = "${s?.size() ?: 0}" }
 
         statsListener2?.remove()
-        statsListener2 = db.collection("orders")
-            .whereEqualTo("status", "Diproses")
-            .addSnapshotListener { s, _ -> tvTotalProducts.text = "${s?.size() ?: 0}" }
+        statsListener2 = db.collection("orders").whereEqualTo("orderType", "Take Away").whereEqualTo("status", "Diproses").addSnapshotListener { s, _ -> tvTotalProducts.text = "${s?.size() ?: 0}" }
 
         statsListener3?.remove()
-        statsListener3 = db.collection("orders")
-            .whereEqualTo("status", "Selesai")
-            .addSnapshotListener { s, _ -> tvTotalUsers.text = "${s?.size() ?: 0}" }
+        statsListener3 = db.collection("orders").whereEqualTo("orderType", "Take Away").whereEqualTo("status", "Selesai").addSnapshotListener { s, _ -> tvTotalUsers.text = "${s?.size() ?: 0}" }
     }
 
     private fun parseDate(dateString: String?): Date? {
         if (dateString == null) return null
         return try {
-            val format = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("id", "ID"))
-            format.parse(dateString)
+            SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("id", "ID")).parse(dateString)
         } catch (e: Exception) { null }
     }
 
@@ -264,16 +238,14 @@ class AdminOrdersFragment : Fragment() {
         val date = parseDate(dateString) ?: return false
         val now = Calendar.getInstance()
         val target = Calendar.getInstance().apply { time = date }
-        return now.get(Calendar.YEAR) == target.get(Calendar.YEAR) &&
-                now.get(Calendar.DAY_OF_YEAR) == target.get(Calendar.DAY_OF_YEAR)
+        return now.get(Calendar.YEAR) == target.get(Calendar.YEAR) && now.get(Calendar.DAY_OF_YEAR) == target.get(Calendar.DAY_OF_YEAR)
     }
 
     private fun isDateYesterday(dateString: String?): Boolean {
         val date = parseDate(dateString) ?: return false
         val yesterday = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -1) }
         val target = Calendar.getInstance().apply { time = date }
-        return yesterday.get(Calendar.YEAR) == target.get(Calendar.YEAR) &&
-                yesterday.get(Calendar.DAY_OF_YEAR) == target.get(Calendar.DAY_OF_YEAR)
+        return yesterday.get(Calendar.YEAR) == target.get(Calendar.YEAR) && yesterday.get(Calendar.DAY_OF_YEAR) == target.get(Calendar.DAY_OF_YEAR)
     }
 
     private fun isDateOlderThanWeek(dateString: String?): Boolean {

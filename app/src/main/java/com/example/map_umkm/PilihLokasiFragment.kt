@@ -35,13 +35,12 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
     private lateinit var toolbar: MaterialToolbar
     private lateinit var centerMarker: ImageView
 
-    // Koordinat Default (Misal: Monas / Jakarta Pusat)
     private var currentLat: Double = -6.175392
     private var currentLng: Double = 106.827153
     private var currentAddress: String = ""
+    private var fromPayment: Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        // Inisialisasi Google Places SDK jika belum (Wajib isi API Key di AndroidManifest/String)
         if (!Places.isInitialized()) {
             Places.initialize(requireContext(), getString(R.string.google_maps_key))
         }
@@ -51,44 +50,35 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 1. Sembunyikan Bottom Navigation Bar agar layar penuh
+        fromPayment = arguments?.getBoolean("from_payment") ?: false
+
         requireActivity().findViewById<View>(R.id.bottom_nav)?.visibility = View.GONE
 
-        // 2. Binding Views
         btnSimpan = view.findViewById(R.id.btnSimpanLokasi)
         tvAlamat = view.findViewById(R.id.tvAlamatTerdeteksi)
-        centerMarker = view.findViewById(R.id.iv_center_marker) // Ikon pin merah
+        centerMarker = view.findViewById(R.id.iv_center_marker)
         toolbar = view.findViewById(R.id.toolbar)
 
-        // 3. Setup Toolbar Back Action
         toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
 
-        // 4. Setup Google Map
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        // 5. Setup Autocomplete (Pencarian Lokasi)
         setupAutocomplete()
 
-        // 6. Logika Tombol Simpan
         btnSimpan.setOnClickListener {
             handleSimpanLokasi()
         }
     }
 
     private fun setupAutocomplete() {
-        val autocompleteFragment = childFragmentManager.findFragmentById(R.id.autocompleteFragment)
-                as? AutocompleteSupportFragment
-
-        // Tentukan data apa yang ingin diambil (ID, Nama, Koordinat)
+        val autocompleteFragment =
+            childFragmentManager.findFragmentById(R.id.autocompleteFragment) as? AutocompleteSupportFragment
         autocompleteFragment?.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG))
-
         autocompleteFragment?.setOnPlaceSelectedListener(object : PlaceSelectionListener {
             override fun onPlaceSelected(place: Place) {
-                // Saat user memilih lokasi dari search bar, pindahkan kamera map ke sana
                 place.latLng?.let { latLng ->
                     map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17f))
-                    // Listener onCameraIdle nanti akan otomatis mengupdate alamat teks
                 }
             }
 
@@ -100,27 +90,21 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-
-        // Setting UI Map
         map.uiSettings.isZoomControlsEnabled = true
         map.uiSettings.isCompassEnabled = true
 
-        // Pindahkan kamera ke posisi awal
         val startLocation = LatLng(currentLat, currentLng)
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(startLocation, 15f))
 
-        // Listener saat Map berhenti digeser (Idle)
         map.setOnCameraIdleListener {
             val center = map.cameraPosition.target
             currentLat = center.latitude
             currentLng = center.longitude
 
-            // Animasi Marker (opsional, biar ada efek 'lompat' dikit saat geser)
             centerMarker.animate().translationY(-10f).setDuration(100).withEndAction {
                 centerMarker.animate().translationY(0f).setDuration(100).start()
             }.start()
 
-            // Ambil nama jalan dari koordinat (Reverse Geocoding)
             val addressName = getAddressName(currentLat, currentLng)
             currentAddress = addressName
             tvAlamat.text = addressName
@@ -138,22 +122,15 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
             val dataBundle = bundleOf(
                 "hasil_alamat" to currentAddress,
                 "hasil_lat" to currentLat,
-                "hasil_lng" to currentLng
+                "hasil_lng" to currentLng,
+                "from_payment" to fromPayment // <-- BUG FIX: Pass the flag along
             )
 
-            // Cek apakah mode "Tambah Baru" atau "Edit/Pilih Ulang"
-            val isCreateNew = arguments?.getBoolean("mode_create_new") ?: false
-
-            if (isCreateNew) {
-                // FLOW A: Kirim hasil ke Form Tambah Alamat
-                // Kita kirim result via setFragmentResult (agar didengar Fragment tujuan)
-                // DAN kirim bundle via arguments navigation (agar aman)
-                setFragmentResult("requestKey_lokasi", dataBundle)
-
-                // Pastikan ID action ini ada di nav_graph.xml
+            if (fromPayment) {
+                // Jika datang dari PaymentFragment, navigasi ke AddEditAddressFragment
                 findNavController().navigate(R.id.action_pilihLokasiFragment_to_addEditAddressFragment, dataBundle)
             } else {
-                // FLOW B: Hanya kembali ke layar sebelumnya (misal dipanggil dari layar Edit)
+                // Jika dari tempat lain (misal edit alamat), kembali ke fragment sebelumnya
                 setFragmentResult("requestKey_lokasi", dataBundle)
                 findNavController().popBackStack()
             }
@@ -179,7 +156,6 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Kembalikan Bottom Nav saat keluar dari fragment ini
         requireActivity().findViewById<View>(R.id.bottom_nav)?.visibility = View.VISIBLE
     }
 }

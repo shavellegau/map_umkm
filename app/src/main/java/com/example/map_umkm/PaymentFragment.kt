@@ -2,6 +2,7 @@ package com.example.map_umkm
 
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +20,7 @@ import com.example.map_umkm.adapter.CartItemAdapter
 import com.example.map_umkm.model.Address
 import com.example.map_umkm.model.Order
 import com.example.map_umkm.viewmodel.CartViewModel
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -37,27 +39,29 @@ class PaymentFragment : Fragment() {
     private lateinit var switchPoint: SwitchMaterial
     private lateinit var tvUserPoints: TextView
     private lateinit var rgOrderType: RadioGroup
-    private lateinit var layoutAddressSelected: LinearLayout
+    private lateinit var layoutAddressSelected: MaterialCardView
     private lateinit var tvDeliveryAddress: TextView
-    private lateinit var btnChangeManual: Button
-    private lateinit var btnSelectSaved: Button
+    private lateinit var tvDeliveryAddressTitle: TextView
+    private lateinit var btnChangeAddressManual: Button
+    private lateinit var btnSelectSavedAddressList: Button
     private lateinit var tvShippingCost: TextView
     private lateinit var layoutShippingCost: RelativeLayout
     private lateinit var cartAdapter: CartItemAdapter
     private lateinit var layoutPointsUsed: RelativeLayout
     private lateinit var tvPointsUsed: TextView
+    private lateinit var btnSelectVoucher: MaterialCardView
+    private lateinit var tvPointsEarned: TextView
+    private lateinit var tvExpEarned: TextView
 
     private var shippingCost: Double = 0.0
     private var isDelivery = true
-    private var userLat: Double = 0.0
-    private var userLng: Double = 0.0
-    private var branchLat: Double = 0.0
-    private var branchLng: Double = 0.0
     private var userCurrentPoints: Long = 0
     private var isPointUsed = false
+    private var selectedAddress: Address? = null
 
     private val db = FirebaseFirestore.getInstance()
-    private val currentUserUid = FirebaseAuth.getInstance().uid
+    private var branchLat: Double = 0.0
+    private var branchLng: Double = 0.0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_payment, container, false)
@@ -69,6 +73,7 @@ class PaymentFragment : Fragment() {
         val toolbar: Toolbar = view.findViewById(R.id.toolbar_payment)
         toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
 
+        // Initialize Views
         rvOrderList = view.findViewById(R.id.rv_order_list)
         tvSubtotal = view.findViewById(R.id.tvSubtotal)
         tvTax = view.findViewById(R.id.tvTax)
@@ -81,21 +86,27 @@ class PaymentFragment : Fragment() {
         tvPointsUsed = view.findViewById(R.id.tvPointsUsed)
         layoutAddressSelected = view.findViewById(R.id.layout_address_selected)
         tvDeliveryAddress = view.findViewById(R.id.tv_delivery_address)
-        btnChangeManual = view.findViewById(R.id.btn_change_address_manual)
-        btnSelectSaved = view.findViewById(R.id.btn_select_saved_address_list)
+        tvDeliveryAddressTitle = view.findViewById(R.id.tv_delivery_address_title)
+        btnChangeAddressManual = view.findViewById(R.id.btn_change_address_manual)
+        btnSelectSavedAddressList = view.findViewById(R.id.btn_select_saved_address_list)
         tvShippingCost = view.findViewById(R.id.tvShippingCost)
         layoutShippingCost = view.findViewById(R.id.layout_shipping_cost)
+        btnSelectVoucher = view.findViewById(R.id.btn_select_voucher)
+        tvPointsEarned = view.findViewById(R.id.tv_points_earned)
+        tvExpEarned = view.findViewById(R.id.tv_exp_earned)
 
+        // Setup
         setupRecyclerView()
         loadBranchData()
         loadUserPoints()
 
-        if (userLat == 0.0) {
+        if (selectedAddress == null) {
             loadPrimaryAddress()
         }
 
         setupListeners()
         setupResultListeners()
+        updateTotals()
 
         cartViewModel.cartList.observe(viewLifecycleOwner) { cart ->
             cartAdapter.updateItems(cart)
@@ -107,21 +118,20 @@ class PaymentFragment : Fragment() {
         setFragmentResultListener("request_alamat") { _, bundle ->
             val addressObj = bundle.getParcelable<Address>("data_alamat")
             if (addressObj != null) {
-                val lat = addressObj.latitude ?: 0.0
-                val lng = addressObj.longitude ?: 0.0
-                updateUserLocation("${addressObj.label}\n${addressObj.fullAddress}", lat, lng)
+                selectedAddress = addressObj
+                updateUserLocation(addressObj)
                 Toast.makeText(context, "Alamat digunakan: ${addressObj.label}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun setupListeners() {
-        btnChangeManual.setOnClickListener {
-            val bundle = bundleOf("mode_create_new" to true)
+        btnChangeAddressManual.setOnClickListener {
+             val bundle = bundleOf("from_payment" to true)
             findNavController().navigate(R.id.action_paymentFragment_to_pilihLokasiFragment, bundle)
         }
 
-        btnSelectSaved.setOnClickListener {
+        btnSelectSavedAddressList.setOnClickListener {
             findNavController().navigate(R.id.action_paymentFragment_to_alamatFragment)
         }
 
@@ -129,6 +139,9 @@ class PaymentFragment : Fragment() {
             isDelivery = (checkedId == R.id.rb_delivery)
             layoutAddressSelected.visibility = if (isDelivery) View.VISIBLE else View.GONE
             layoutShippingCost.visibility = if (isDelivery) View.VISIBLE else View.GONE
+            if(!isDelivery) {
+                shippingCost = 0.0
+            }
             calculateShippingCost()
         }
 
@@ -137,9 +150,17 @@ class PaymentFragment : Fragment() {
             updateTotals()
         }
 
+        btnSelectVoucher.setOnClickListener {
+            Toast.makeText(context, "Fitur voucher belum tersedia", Toast.LENGTH_SHORT).show()
+        }
+
         btnPay.setOnClickListener {
-            if (isDelivery && userLat == 0.0) {
+            if (isDelivery && selectedAddress == null) {
                 Toast.makeText(context, "Mohon pilih alamat pengiriman", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if ((cartViewModel.cartList.value ?: emptyList()).isEmpty()){
+                Toast.makeText(context, "Keranjang Anda kosong.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             showPaymentMethodDialog()
@@ -147,46 +168,49 @@ class PaymentFragment : Fragment() {
     }
 
     private fun createOrder(paymentMethod: String, orderType: String) {
-        if (currentUserUid == null) {
-            Toast.makeText(context, "Error: User tidak terautentikasi.", Toast.LENGTH_SHORT).show()
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser == null) {
+            Toast.makeText(context, "Error: Sesi pengguna tidak valid. Silakan login kembali.", Toast.LENGTH_LONG).show()
             return
         }
+        val currentUserId = currentUser.uid
 
-        val cartItems = cartViewModel.cartList.value ?: emptyList()
-        if (cartItems.isEmpty()) {
-            Toast.makeText(context, "Keranjang Anda kosong.", Toast.LENGTH_SHORT).show()
-            return
-        }
+        val cartItems = cartViewModel.cartList.value!!
 
-        val subtotal = cartItems.sumOf { (if (it.selectedType == "iced") it.price_iced ?: 0 else it.price_hot)?.toDouble()?.times(it.quantity) ?: 0.0 }
+        val subtotal = cartItems.sumOf { (if (it.selectedType == "iced") it.price_iced else it.price_hot)?.toDouble()?.times(it.quantity) ?: 0.0 }
         val tax = subtotal * 0.11
-        val totalPayment = subtotal + tax + shippingCost
+        val totalPayment = subtotal + tax + (if(isDelivery) shippingCost else 0.0)
 
         val orderId = db.collection("orders").document().id
-        val orderDate = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale.forLanguageTag("id-ID")).format(Date())
+        val orderDate = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("id", "ID")).format(Date())
 
         val newOrder = Order(
             orderId = orderId,
-            userId = currentUserUid,
+            userId = currentUserId,
             items = cartItems,
-            totalAmount = totalPayment, // Corrected parameter
+            totalAmount = totalPayment,
             orderDate = orderDate,
             status = if (paymentMethod == "CASH") "Menunggu Pembayaran" else "Menunggu Konfirmasi",
             orderType = orderType,
-            userName = FirebaseAuth.getInstance().currentUser?.displayName ?: "Unknown User",
-            userEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
+            userName = currentUser.displayName ?: "Unknown User",
+            userEmail = currentUser.email ?: "",
+            deliveryAddress = if(isDelivery) selectedAddress else null,
+            userToken = null
         )
 
         db.collection("orders").document(orderId).set(newOrder)
             .addOnSuccessListener {
+                Log.d("PaymentFragment", "Order created successfully with ID: $orderId")
+                val bundle = bundleOf("paymentMethod" to paymentMethod, "orderId" to orderId, "totalPayment" to totalPayment)
                 if (paymentMethod == "QRIS") {
-                    findNavController().navigate(R.id.action_paymentFragment_to_qrisFragment, bundleOf("orderId" to orderId, "totalPayment" to totalPayment))
+                    findNavController().navigate(R.id.action_paymentFragment_to_qrisFragment, bundle)
                 } else {
-                    findNavController().navigate(R.id.action_paymentFragment_to_paymentSuccessFragment, bundleOf("paymentMethod" to "CASH"))
+                    findNavController().navigate(R.id.action_paymentFragment_to_paymentSuccessFragment, bundle)
                 }
             }
-            .addOnFailureListener {
-                Toast.makeText(context, "Gagal membuat pesanan: ${it.message}", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { e ->
+                Log.e("PaymentFragment", "Failed to create order", e)
+                Toast.makeText(context, "Gagal membuat pesanan: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -211,21 +235,22 @@ class PaymentFragment : Fragment() {
         dialog.show()
     }
 
-    private fun updateUserLocation(addressText: String, lat: Double, lng: Double) {
-        userLat = lat
-        userLng = lng
-        tvDeliveryAddress.text = addressText
+    private fun updateUserLocation(address: Address) {
+        selectedAddress = address
+        tvDeliveryAddress.text = "${address.label}\n${address.fullAddress}"
+        tvDeliveryAddress.visibility = View.VISIBLE
+        tvDeliveryAddressTitle.visibility = View.GONE
         calculateShippingCost()
     }
 
     private fun calculateShippingCost() {
-        if (!isDelivery || userLat == 0.0 || branchLat == 0.0) {
+        if (!isDelivery || selectedAddress == null || branchLat == 0.0) {
             shippingCost = 0.0
         } else {
             val results = FloatArray(1)
-            Location.distanceBetween(branchLat, branchLng, userLat, userLng, results)
+            Location.distanceBetween(branchLat, branchLng, selectedAddress!!.latitude!!, selectedAddress!!.longitude!!, results)
             val distanceInKm = results[0] / 1000.0
-            shippingCost = (distanceInKm * 3000.0).coerceIn(10000.0, 50000.0)
+            shippingCost = (distanceInKm * 2500.0).coerceIn(8000.0, 30000.0) // Example shipping cost logic
         }
         tvShippingCost.text = formatCurrency(shippingCost)
         updateTotals()
@@ -233,35 +258,34 @@ class PaymentFragment : Fragment() {
 
     private fun updateTotals() {
         val cartItems = cartViewModel.cartList.value ?: emptyList()
-        var subtotal = 0.0
-        for (item in cartItems) {
-            val price = if (item.selectedType == "iced") item.price_iced ?: 0 else item.price_hot ?: 0
-            subtotal += (price.toDouble() * item.quantity)
-        }
+        val subtotal = cartItems.sumOf { (if (it.selectedType == "iced") it.price_iced else it.price_hot)?.toDouble()?.times(it.quantity) ?: 0.0 }
+        
+        val pointsEarned = (subtotal * 0.10).toLong()
+        val expEarned = (subtotal * 0.04).toLong()
+
+        tvPointsEarned.text = "$pointsEarned Poin"
+        tvExpEarned.text = "$expEarned EXP"
 
         val tax = subtotal * 0.11
-        val totalWithTaxAndShip = subtotal + tax + shippingCost
+        val shipping = if(isDelivery) shippingCost else 0.0
+        val totalWithTaxAndShip = subtotal + tax + shipping
 
-        val discount = if (isPointUsed) {
-            val pointsToUse = if (userCurrentPoints >= totalWithTaxAndShip) totalWithTaxAndShip else userCurrentPoints.toDouble()
-            layoutPointsUsed.visibility = View.VISIBLE
-            tvPointsUsed.text = "-${formatCurrency(pointsToUse)}"
-            pointsToUse
-        } else {
-            layoutPointsUsed.visibility = View.GONE
-            0.0
-        }
+        val pointsToUse = if (isPointUsed) (userCurrentPoints.toDouble()).coerceAtMost(totalWithTaxAndShip) else 0.0
 
-        val finalTotal = (totalWithTaxAndShip - discount).coerceAtLeast(0.0)
+        layoutPointsUsed.visibility = if(isPointUsed && pointsToUse > 0) View.VISIBLE else View.GONE
+        tvPointsUsed.text = "-${formatCurrency(pointsToUse)}"
+
+        val finalTotal = (totalWithTaxAndShip - pointsToUse).coerceAtLeast(0.0)
 
         tvSubtotal.text = formatCurrency(subtotal)
         tvTax.text = formatCurrency(tax)
         tvTotalPayment.text = formatCurrency(finalTotal)
+        btnPay.text = "Bayar ${formatCurrency(finalTotal)}"
     }
 
     private fun loadPrimaryAddress() {
-        if (currentUserUid == null) return
-        db.collection("users").document(currentUserUid).collection("addresses")
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        db.collection("users").document(uid).collection("addresses")
             .whereEqualTo("primary", true)
             .limit(1)
             .get()
@@ -269,27 +293,29 @@ class PaymentFragment : Fragment() {
                 if (!it.isEmpty) {
                     val addr = it.documents[0].toObject(Address::class.java)
                     if (addr != null) {
-                        updateUserLocation(
-                            "${addr.label}\n${addr.fullAddress}",
-                            addr.latitude ?: 0.0,
-                            addr.longitude ?: 0.0
-                        )
+                        updateUserLocation(addr)
                     }
                 } else {
-                    tvDeliveryAddress.text = "Belum ada alamat utama. Silakan pilih."
+                    tvDeliveryAddressTitle.text = "Alamat pengiriman belum dipilih"
+                    tvDeliveryAddress.visibility = View.GONE
+                    tvDeliveryAddressTitle.visibility = View.VISIBLE
                 }
+            }.addOnFailureListener{
+                 tvDeliveryAddressTitle.text = "Gagal memuat alamat. Silakan pilih."
+                 tvDeliveryAddress.visibility = View.GONE
+                 tvDeliveryAddressTitle.visibility = View.VISIBLE
             }
     }
 
     private fun loadBranchData() {
         val prefs = requireActivity().getSharedPreferences("USER_SESSION", android.content.Context.MODE_PRIVATE)
-        branchLat = prefs.getString("selectedBranchLat", "-6.175392")?.toDouble() ?: -6.175392
-        branchLng = prefs.getString("selectedBranchLng", "106.827153")?.toDouble() ?: 106.827153
+        branchLat = prefs.getString("selectedBranchLat", "0.0")?.toDoubleOrNull() ?: 0.0
+        branchLng = prefs.getString("selectedBranchLng", "0.0")?.toDoubleOrNull() ?: 0.0
     }
 
     private fun loadUserPoints() {
-        if (currentUserUid == null) return
-        db.collection("users").document(currentUserUid).get().addOnSuccessListener {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        db.collection("users").document(uid).get().addOnSuccessListener {
             userCurrentPoints = it.getLong("tukuPoints") ?: 0L
             tvUserPoints.text = "Saldo Poin: $userCurrentPoints"
         }

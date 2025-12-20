@@ -72,44 +72,30 @@
             android:id="@+id/layout_buttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
+            android:orientation="vertical"
             android:layout_marginTop="16dp">
 
             <Button
                 android:id="@+id/btn_konfirmasi_pembayaran"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Konfirmasi"
+                android:text="Konfirmasi Pembayaran"
                 android:textStyle="bold"
                 android:textColor="@android:color/white"
                 android:backgroundTint="@color/tuku_primary"
                 android:visibility="gone"
                 tools:visibility="visible"/>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_proses_pesanan"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="6dp"
-                android:text="Proses"
-                android:textStyle="bold"
-                android:textColor="@color/tuku_primary"
-                app:strokeColor="@color/tuku_primary"
-                app:strokeWidth="1dp"/>
-
             <Button
                 android:id="@+id/btn_selesaikan_pesanan"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="Selesai"
                 android:textStyle="bold"
                 android:textColor="@android:color/white"
-                android:backgroundTint="@color/tuku_dark"/>
+                android:backgroundTint="@color/tuku_dark"
+                android:visibility="gone"
+                tools:visibility="visible"/>
 
         </LinearLayout>
     </LinearLayout>

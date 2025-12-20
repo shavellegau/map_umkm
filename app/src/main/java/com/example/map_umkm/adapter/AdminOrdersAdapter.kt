@@ -28,8 +28,7 @@ class AdminOrdersAdapter(
         val tvStatus: TextView = itemView.findViewById(R.id.tv_order_status)
 
         val btnConfirm: Button = itemView.findViewById(R.id.btn_konfirmasi_pembayaran)
-        val btnProses: Button = itemView.findViewById(R.id.btn_proses_pesanan) // Jika ada di XML
-        val btnSelesai: Button = itemView.findViewById(R.id.btn_selesaikan_pesanan) // Dipakai untuk Antar & Selesai
+        val btnSelesai: Button = itemView.findViewById(R.id.btn_selesaikan_pesanan) // Re-used for different actions
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdminOrderViewHolder {
@@ -50,31 +49,32 @@ class AdminOrdersAdapter(
         holder.tvTotal.text = formatRp.format(order.totalAmount)
         holder.tvStatus.text = order.status
 
+        // Hide all buttons by default
         holder.btnConfirm.visibility = View.GONE
-        holder.btnProses.visibility = View.GONE
         holder.btnSelesai.visibility = View.GONE
 
+        // Show buttons based on order status
         when (order.status) {
             "Menunggu Pembayaran", "Menunggu Konfirmasi" -> {
                 holder.btnConfirm.visibility = View.VISIBLE
-                holder.btnConfirm.text = "Konfirmasi Pembayaran"
                 holder.btnConfirm.setOnClickListener { onConfirmPaymentClick(order) }
             }
             "Diproses" -> {
-                // Gunakan btnSelesai untuk aksi "Antar Pesanan"
                 holder.btnSelesai.visibility = View.VISIBLE
-                holder.btnSelesai.text = "Antar Pesanan"
-                holder.btnSelesai.setOnClickListener { onAntarPesananClick(order) }
+                if (order.orderType == "Delivery") {
+                    holder.btnSelesai.text = "Antar Pesanan"
+                    holder.btnSelesai.setOnClickListener { onAntarPesananClick(order) }
+                } else { // Take Away
+                    holder.btnSelesai.text = "Selesaikan Pesanan"
+                    holder.btnSelesai.setOnClickListener { onSelesaikanClick(order) }
+                }
             }
-            "Dikirim" -> {
+            "Dikirim" -> { // Only for Delivery
                 holder.btnSelesai.visibility = View.VISIBLE
                 holder.btnSelesai.text = "Selesaikan Pesanan"
                 holder.btnSelesai.setOnClickListener { onSelesaikanClick(order) }
             }
-            "Selesai", "Dibatalkan" -> {
-            }
-            else -> {
-            }
+            // No buttons for "Selesai" or "Dibatalkan"
         }
 
         holder.itemView.setOnClickListener { onItemClick(order) }
