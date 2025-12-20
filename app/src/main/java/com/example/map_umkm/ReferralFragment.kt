@@ -143,7 +143,7 @@ class ReferralFragment : Fragment() {
     private fun executeReferralReward(myUid: String, referrerUid: String, code: String) {
         val db = FirebaseFirestore.getInstance()
         val voucherData = hashMapOf(
-            "title" to "Voucher Referral 10k",
+            "title" to "Voucher Referral 50%",
             "desc" to "Hadiah dari kode $code",
             "code" to "REF-$code",
             "isActive" to true,
