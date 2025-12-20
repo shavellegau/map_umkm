@@ -184,16 +184,6 @@
     </fragment>
 
     <fragment
-        android:id="@+id/alamatFragment"
-        android:name="com.example.map_umkm.AlamatFragment"
-        android:label="Alamat Pengiriman"
-        tools:layout="@layout/fragment_alamat">
-        <action
-            android:id="@+id/action_alamatFragment_to_addEditAddressFragment"
-            app:destination="@id/addEditAddressFragment" />
-    </fragment>
-
-    <fragment
         android:id="@+id/addEditAddressFragment"
         android:name="com.example.map_umkm.AddEditAddressFragment"
         android:label="AddEditAddressFragment"
@@ -207,12 +197,6 @@
             android:id="@+id/action_addEditAddressFragment_to_pilihLokasiFragment"
             app:destination="@id/pilihLokasiFragment" />
     </fragment>
-
-    <fragment
-        android:id="@+id/pilihLokasiFragment"
-        android:name="com.example.map_umkm.PilihLokasiFragment"
-        android:label="Pilih Lokasi di Peta"
-        tools:layout="@layout/fragment_pilih_lokasi" />
 
     <fragment
         android:id="@+id/tukuPointFragment"
@@ -308,16 +292,6 @@
         android:label="Kelola Pesanan"
         tools:layout="@layout/fragment_admin_orders" />
     <fragment
-        android:id="@+id/pilihLokasiFragment"
-        android:name="com.example.map_umkm.PilihLokasiFragment"
-        android:label="Pilih Lokasi di Peta"
-        tools:layout="@layout/fragment_pilih_lokasi">
-
-        <action
-            android:id="@+id/action_pilihLokasiFragment_to_addEditAddressFragment"
-            app:destination="@id/addEditAddressFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/adminNotificationFragment"
         android:name="com.example.map_umkm.admin.AdminNotificationFragment"
         android:label="Broadcast Promo"
@@ -334,5 +308,28 @@
         android:name="com.example.map_umkm.PilihCabangActivity"
         android:label="Pilih Cabang"
         tools:layout="@layout/activity_pilih_cabang" />
+
+    <fragment
+        android:id="@+id/alamatFragment"
+        android:name="com.example.map_umkm.AlamatFragment"
+        android:label="Alamat Pengiriman"
+        tools:layout="@layout/fragment_alamat">
+        <action
+            android:id="@+id/action_alamatFragment_to_addEditAddressFragment"
+            app:destination="@id/addEditAddressFragment" />
+        <action
+            android:id="@+id/action_alamatFragment_to_pilihLokasiFragment"
+            app:destination="@id/pilihLokasiFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/pilihLokasiFragment"
+        android:name="com.example.map_umkm.PilihLokasiFragment"
+        android:label="Pilih Lokasi di Peta"
+        tools:layout="@layout/fragment_pilih_lokasi">
+        <action
+            android:id="@+id/action_pilihLokasiFragment_to_addEditAddressFragment"
+            app:destination="@id/addEditAddressFragment" />
+    </fragment>
 
 </navigation>

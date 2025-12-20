@@ -10,6 +10,7 @@ import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.example.map_umkm.AdminDeliveryFragment
 import com.google.android.material.tabs.TabLayoutMediator
 
 
@@ -46,6 +47,7 @@ class AdminDashboardFragment : Fragment() {
         
         val fragments = listOf(
             AdminOrdersFragment(),
+            AdminDeliveryFragment(),
             AdminMenuFragment(),
             AdminVoucherFragment(),
             AdminCabangFragment(),     
@@ -54,7 +56,8 @@ class AdminDashboardFragment : Fragment() {
 
         
         val titles = listOf(
-            "Pesanan",    
+            "Take Away",
+            "Delivery",
             "Menu",
             "Voucher",
             "Cabang",

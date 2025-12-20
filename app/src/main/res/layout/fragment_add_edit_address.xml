@@ -103,16 +103,16 @@
                 android:layout_height="wrap_content"
                 android:inputType="textMultiLine"
                 android:minLines="2"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_pilih_di_peta"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="Pilih Lokasi di Peta"
-                app:icon="@drawable/ic_location" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_pilih_di_peta"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Pilih Lokasi di Peta"
+            app:icon="@drawable/ic_location" />
 
         <CheckBox
             android:id="@+id/cbSetAsPrimary"

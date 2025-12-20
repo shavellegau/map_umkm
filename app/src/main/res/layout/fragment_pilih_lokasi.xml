@@ -12,31 +12,39 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@android:color/white"
+        android:elevation="4dp"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/ic_arrow_back"
         app:title="Pilih Lokasi Pengantaran"
         app:titleTextColor="@color/tuku_dark" />
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/autocompleteFragment"
-        android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_search"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/autocompleteFragment"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </androidx.cardview.widget.CardView>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/tvAlamatTerdeteksi"
+        app:layout_constraintBottom_toTopOf="@+id/container_address_info"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/autocompleteFragment" />
+        app:layout_constraintTop_toBottomOf="@id/cv_search" />
 
     <ImageView
         android:id="@+id/iv_center_marker"
@@ -45,36 +53,53 @@
         android:src="@drawable/ic_location"
         android:contentDescription="Penanda Lokasi"
         app:tint="@color/tuku_red"
+        android:translationY="-24dp"
         app:layout_constraintBottom_toBottomOf="@id/map"
         app:layout_constraintEnd_toEndOf="@id/map"
         app:layout_constraintStart_toStartOf="@id/map"
         app:layout_constraintTop_toTopOf="@id/map" />
-
-    <TextView
-        android:id="@+id/tvAlamatTerdeteksi"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/container_address_info"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="Mencari alamat..."
-        android:textSize="14sp"
-        android:textColor="@color/black"
-        android:maxLines="2"
-        android:ellipsize="end"
-        app:layout_constraintBottom_toTopOf="@+id/btnSimpanLokasi"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:orientation="vertical"
+        android:background="@android:color/white"
+        android:padding="16dp"
+        android:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-    <Button
-        android:id="@+id/btnSimpanLokasi"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/tuku_primary"
-        android:padding="12dp"
-        android:text="Pilih Lokasi Ini"
-        android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Alamat Terpilih"
+            android:textStyle="bold"
+            android:textColor="@color/tuku_dark"
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tvAlamatTerdeteksi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sedang mencari alamat..."
+            android:textSize="14sp"
+            android:textColor="@android:color/black"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:drawablePadding="8dp"
+            app:drawableStartCompat="@drawable/ic_location"
+            android:layout_marginBottom="16dp"/>
+
+        <Button
+            android:id="@+id/btnSimpanLokasi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/tuku_primary"
+            android:padding="12dp"
+            android:text="Pilih Lokasi Ini"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

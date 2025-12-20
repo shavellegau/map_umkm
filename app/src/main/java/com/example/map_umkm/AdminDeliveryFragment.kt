@@ -3,7 +3,6 @@ package com.example.map_umkm
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,16 +23,12 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class AdminOrdersFragment : Fragment() {
+class AdminDeliveryFragment : Fragment() {
 
     private lateinit var rvRecentOrders: RecyclerView
     private lateinit var tvEmpty: TextView
     private lateinit var adapter: AdminOrdersAdapter
     private lateinit var chipGroupFilter: ChipGroup
-
-    private lateinit var tvTotalOrders: TextView
-    private lateinit var tvTotalProducts: TextView
-    private lateinit var tvTotalUsers: TextView
 
     private lateinit var fcmService: FCMService
     private val db = FirebaseFirestore.getInstance()
@@ -42,22 +37,15 @@ class AdminOrdersFragment : Fragment() {
     private var allOrderList: List<Order> = emptyList()
     private var currentFilterMode = "ALL"
 
-    private var statsListener1: ListenerRegistration? = null
-    private var statsListener2: ListenerRegistration? = null
-    private var statsListener3: ListenerRegistration? = null
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_admin_orders, container, false)
+        val view = inflater.inflate(R.layout.fragment_admin_delivery, container, false)
         fcmService = FCMService(requireContext())
 
         rvRecentOrders = view.findViewById(R.id.rvRecentOrders)
         tvEmpty = view.findViewById(R.id.tv_admin_no_orders)
         chipGroupFilter = view.findViewById(R.id.chipGroupFilter)
-        tvTotalOrders = view.findViewById(R.id.tvTotalOrders)
-        tvTotalProducts = view.findViewById(R.id.tvTotalProducts)
-        tvTotalUsers = view.findViewById(R.id.tvTotalUsers)
 
         setupRecyclerView()
         setupFilterListener()
@@ -68,15 +56,11 @@ class AdminOrdersFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         startListeningForOrders()
-        startListeningForStats()
     }
 
     override fun onPause() {
         super.onPause()
         orderListener?.remove()
-        statsListener1?.remove()
-        statsListener2?.remove()
-        statsListener3?.remove()
     }
 
     private fun confirmPaymentAndAwardPoints(order: Order) {
@@ -155,7 +139,7 @@ class AdminOrdersFragment : Fragment() {
                 confirmPaymentAndAwardPoints(order)
             },
             onAntarPesananClick = { order ->
-                // This button should not be visible in Take Away
+                updateStatusAndNotify(order.orderId, "Dikirim", order.userToken, "Pesanan Dikirim", "Pesananmu sedang dalam perjalanan.", order.userEmail)
             },
             onSelesaikanClick = { order ->
                  updateStatusAndNotify(order.orderId, "Selesai", order.userToken, "Pesanan Selesai", "Terima kasih sudah memesan!", order.userEmail)
@@ -221,7 +205,7 @@ class AdminOrdersFragment : Fragment() {
     private fun startListeningForOrders() {
         orderListener?.remove()
         orderListener = db.collection("orders")
-            .whereEqualTo("orderType", "Take Away")
+            .whereEqualTo("orderType", "Delivery")
             .orderBy("orderDate", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshots, e ->
                 if (e != null) {
@@ -233,23 +217,6 @@ class AdminOrdersFragment : Fragment() {
                     applyFilter()
                 }
             }
-    }
-
-    private fun startListeningForStats() {
-        statsListener1?.remove()
-        statsListener1 = db.collection("orders")
-            .whereIn("status", listOf("Menunggu Konfirmasi", "Menunggu Pembayaran"))
-            .addSnapshotListener { s, _ -> tvTotalOrders.text = "${s?.size() ?: 0}" }
-
-        statsListener2?.remove()
-        statsListener2 = db.collection("orders")
-            .whereEqualTo("status", "Diproses")
-            .addSnapshotListener { s, _ -> tvTotalProducts.text = "${s?.size() ?: 0}" }
-
-        statsListener3?.remove()
-        statsListener3 = db.collection("orders")
-            .whereEqualTo("status", "Selesai")
-            .addSnapshotListener { s, _ -> tvTotalUsers.text = "${s?.size() ?: 0}" }
     }
 
     private fun parseDate(dateString: String?): Date? {

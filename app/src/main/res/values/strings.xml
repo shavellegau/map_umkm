@@ -14,8 +14,11 @@
     <string name="search_menu">Cari menu…</string>
     <string name="total_price">Total Belanja: Rp0</string>
     <string name="product_image">Gambar produk</string>
-    <string name="favorite">Favorite</string>
+    <string name="favorite">Favorite</string>d
     <string name="remove_favorite">Hapus favorit</string>
+    <string name="google_maps_key">
+        AIzaSyDIrN5Cr4dSpkpWwM4dbyt7DTaPf-2PLrw
+    </string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 

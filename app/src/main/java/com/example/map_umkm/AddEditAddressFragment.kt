@@ -5,7 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
 import com.example.map_umkm.model.Address
 import com.google.android.material.appbar.MaterialToolbar
@@ -20,7 +23,6 @@ class AddEditAddressFragment : Fragment() {
     private lateinit var etFullAddress: EditText
     private lateinit var etDetails: EditText
     private lateinit var etNotes: EditText
-
     private lateinit var btnPilihPeta: Button
     private lateinit var cbPrimary: CheckBox
     private lateinit var btnSave: Button
@@ -30,61 +32,31 @@ class AddEditAddressFragment : Fragment() {
     private var tempLng: Double = 0.0
     private var addressId: String? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_add_edit_address, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Binding View
         etLabel = view.findViewById(R.id.etAddressLabel)
         etName = view.findViewById(R.id.etRecipientName)
         etPhone = view.findViewById(R.id.etPhoneNumber)
         etFullAddress = view.findViewById(R.id.etFullAddress)
         etDetails = view.findViewById(R.id.etAddressDetails)
         etNotes = view.findViewById(R.id.etAddressNotes)
-
         btnPilihPeta = view.findViewById(R.id.btn_pilih_di_peta)
         cbPrimary = view.findViewById(R.id.cbSetAsPrimary)
         btnSave = view.findViewById(R.id.btnSaveAddress)
         toolbar = view.findViewById(R.id.toolbar)
 
-        toolbar.setNavigationOnClickListener {
-            findNavController().popBackStack()
-        }
+        toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
 
-        // ---------------------------------------------------------
-        // LOGIKA PENERIMAAN DATA
-        // ---------------------------------------------------------
-
-        // 1. Cek Arguments (Jika dari Peta Langsung atau Edit Mode)
-        arguments?.let { args ->
-            // A. Cek jika Edit Mode (membawa addressId)
-            addressId = args.getString("addressId")
-            if (addressId != null) {
-                toolbar.title = "Edit Alamat"
-                loadAddressData(addressId!!)
-            }
-
-            // B. Cek jika Data Peta Direct (membawa hasil_alamat) - MODIFIKASI
-            val directAlamat = args.getString("hasil_alamat")
-            if (directAlamat != null) {
-                etFullAddress.setText(directAlamat)
-                tempLat = args.getDouble("hasil_lat")
-                tempLng = args.getDouble("hasil_lng")
-            }
-        }
-
-        // 2. Listener Fragment Result (Jika user klik tombol "Pilih di Peta" dalam form ini)
-        parentFragmentManager.setFragmentResultListener("requestKey_lokasi", viewLifecycleOwner) { _, bundle ->
+        // Menerima data koordinat dari PilihLokasiFragment
+        setFragmentResultListener("requestKey_lokasi") { _, bundle ->
             val alamat = bundle.getString("hasil_alamat")
             val lat = bundle.getDouble("hasil_lat")
             val lng = bundle.getDouble("hasil_lng")
-
             if (alamat != null) {
                 etFullAddress.setText(alamat)
                 tempLat = lat
@@ -92,36 +64,13 @@ class AddEditAddressFragment : Fragment() {
             }
         }
 
-        // ---------------------------------------------------------
-
+        // Jika mau ganti titik peta lagi
         btnPilihPeta.setOnClickListener {
-            // Arahkan ke Fragment Peta
+            // Mode biasa (bukan mode create new flow), biar dia balik kesini lagi
             findNavController().navigate(R.id.action_addEditAddressFragment_to_pilihLokasiFragment)
         }
 
-        btnSave.setOnClickListener {
-            saveAddress()
-        }
-    }
-
-    private fun loadAddressData(id: String) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        FirebaseFirestore.getInstance().collection("users").document(uid)
-            .collection("addresses").document(id).get()
-            .addOnSuccessListener { doc ->
-                val addr = doc.toObject(Address::class.java)
-                if (addr != null) {
-                    etLabel.setText(addr.label)
-                    etName.setText(addr.recipientName)
-                    etPhone.setText(addr.phoneNumber)
-                    etFullAddress.setText(addr.fullAddress)
-                    etDetails.setText(addr.details)
-                    etNotes.setText(addr.notes)
-                    cbPrimary.isChecked = addr.isPrimary
-                    tempLat = addr.latitude
-                    tempLng = addr.longitude
-                }
-            }
+        btnSave.setOnClickListener { saveAddress() }
     }
 
     private fun saveAddress() {
@@ -139,11 +88,7 @@ class AddEditAddressFragment : Fragment() {
 
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
-
-        val ref = if (addressId == null)
-            db.collection("users").document(uid).collection("addresses").document()
-        else
-            db.collection("users").document(uid).collection("addresses").document(addressId!!)
+        val ref = db.collection("users").document(uid).collection("addresses").document() // Buat ID baru
 
         val newAddress = Address(
             id = ref.id,
@@ -158,52 +103,20 @@ class AddEditAddressFragment : Fragment() {
             isPrimary = cbPrimary.isChecked
         )
 
-        // Simpan ke Firestore
-        val saveTask = {
-            ref.set(newAddress)
-                .addOnSuccessListener {
-                    Toast.makeText(context, "Alamat tersimpan!", Toast.LENGTH_SHORT).show()
+        ref.set(newAddress)
+            .addOnSuccessListener {
+                Toast.makeText(context, "Alamat berhasil disimpan!", Toast.LENGTH_SHORT).show()
 
-                    // Setelah simpan: Kembali ke Payment (Pop 2 kali: Form -> Peta -> Payment)
-                    // Atau gunakan popBackStack ke ID fragment tujuan jika tumpukan dalam
-                    // Untuk saat ini standar popBackStack() cukup jika flow: Payment -> Peta -> Form
-                    // Agar user tidak kembali ke Peta setelah simpan, kita bisa pop ke PaymentFragment.
+                // --- KUNCI FLOW BARU DISINI ---
+                // Kirim data alamat baru ini kembali ke PaymentFragment agar langsung terpakai
+                val resultBundle = bundleOf("data_alamat" to newAddress)
+                setFragmentResult("request_alamat", resultBundle)
 
-                    // Cara aman: popBackStack() sekali.
-                    // Jika stack: Payment -> Peta -> Form. Pop -> Peta. (User harus back lagi).
-                    // Solusi: Navigasi Explicit kembali ke Payment atau popInclusive.
-
-                    findNavController().popBackStack(R.id.paymentFragment, false)
-                    // Pastikan ID fragment payment Anda adalah 'paymentFragment' di nav_graph
-                    // Jika ragu, gunakan findNavController().popBackStack() saja.
-                }
-                .addOnFailureListener {
-                    Toast.makeText(context, "Gagal menyimpan: ${it.message}", Toast.LENGTH_SHORT).show()
-                }
-        }
-
-        if (cbPrimary.isChecked) {
-            resetOtherPrimaryAddresses(uid, db) {
-                saveTask()
+                // Lompat langsung ke PaymentFragment (Lewati Peta, Lewati stack lain)
+                findNavController().popBackStack(R.id.paymentFragment, false)
             }
-        } else {
-            saveTask()
-        }
-    }
-
-    private fun resetOtherPrimaryAddresses(uid: String, db: FirebaseFirestore, onComplete: () -> Unit) {
-        db.collection("users").document(uid).collection("addresses")
-            .whereEqualTo("isPrimary", true)
-            .get()
-            .addOnSuccessListener { documents ->
-                val batch = db.batch()
-                for (doc in documents) {
-                    if (doc.id != addressId) {
-                        batch.update(doc.reference, "isPrimary", false)
-                    }
-                }
-                batch.commit().addOnCompleteListener { onComplete() }
+            .addOnFailureListener {
+                Toast.makeText(context, "Gagal menyimpan: ${it.message}", Toast.LENGTH_SHORT).show()
             }
-            .addOnFailureListener { onComplete() }
     }
 }

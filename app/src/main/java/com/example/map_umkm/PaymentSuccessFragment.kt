@@ -4,17 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.map_umkm.databinding.FragmentPaymentSuccessBinding
+import com.example.map_umkm.viewmodel.CartViewModel
 
 class PaymentSuccessFragment : Fragment() {
 
     private var _binding: FragmentPaymentSuccessBinding? = null
     private val binding get() = _binding!!
     private val args: PaymentSuccessFragmentArgs by navArgs()
+    private val cartViewModel: CartViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -23,13 +25,14 @@ class PaymentSuccessFragment : Fragment() {
         _binding = FragmentPaymentSuccessBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        
+        // Hapus keranjang
+        cartViewModel.clearCart()
+
         val paymentMethod = args.paymentMethod
         if (paymentMethod == "CASH") {
             binding.tvSuccessMessage.text = "Pesanan Dibuat!"
             binding.tvSuccessSubtitle.text = "Silakan lakukan pembayaran di kasir untuk diproses lebih lanjut."
         } else {
-            
             binding.tvSuccessMessage.text = "Pembayaran Berhasil!"
             binding.tvSuccessSubtitle.text = "Pesanan Anda sedang diproses."
         }
