@@ -1,220 +1,177 @@
 package com.example.map_umkm
 
+import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.adapter.AddressAdapter
-import com.example.map_umkm.databinding.FragmentAlamatBinding
 import com.example.map_umkm.model.Address
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 
 class AlamatFragment : Fragment() {
 
-    private var _binding: FragmentAlamatBinding? = null
-    private val binding get() = _binding!!
-
-    private val db by lazy { FirebaseFirestore.getInstance() }
-    private val auth by lazy { FirebaseAuth.getInstance() }
+    private lateinit var rvAddress: RecyclerView
+    private lateinit var btnAddAddress: Button
+    private lateinit var toolbar: MaterialToolbar
+    private lateinit var tvEmpty: TextView
+    private lateinit var progressBar: ProgressBar
 
     private lateinit var addressAdapter: AddressAdapter
-    private var addressListener: ListenerRegistration? = null
+    private val db = FirebaseFirestore.getInstance()
+    private val uid = FirebaseAuth.getInstance().currentUser?.uid
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentAlamatBinding.inflate(inflater, container, false)
-        return binding.root
+    ): View? {
+        return inflater.inflate(R.layout.fragment_alamat, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupToolbar()
-        setupRecycler()
-        setupButtons()
-    }
 
-    override fun onStart() {
-        super.onStart()
-        loadAddresses()
-    }
+        // 1. Binding View
+        rvAddress = view.findViewById(R.id.rvAddresses)
+        btnAddAddress = view.findViewById(R.id.btnTambahAlamat)
+        toolbar = view.findViewById(R.id.toolbar)
+        tvEmpty = view.findViewById(R.id.tvEmpty)
+        progressBar = view.findViewById(R.id.progressBar)
 
-    override fun onStop() {
-        super.onStop()
-        addressListener?.remove()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    private fun setupToolbar() {
-        binding.toolbar.setNavigationOnClickListener {
+        // 2. Setup Toolbar Back Button
+        toolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
+        }
+
+        // 3. Setup RecyclerView
+        setupRecyclerView()
+
+        // 4. Load Data
+        loadAddresses()
+
+        // 5. Setup Tombol Tambah
+        btnAddAddress.setOnClickListener {
+            findNavController().navigate(R.id.action_alamatFragment_to_addEditAddressFragment)
         }
     }
 
-    private fun setupRecycler() {
+    private fun setupRecyclerView() {
+        // PERBAIKAN: Menambahkan onUseClick yang sebelumnya error
         addressAdapter = AddressAdapter(
-            addresses = emptyList(),
-            onItemClick = { address ->
-                findNavController().previousBackStackEntry?.savedStateHandle?.set("selectedAddress", address)
-                findNavController().popBackStack()
-            },
-            onEditClick = { address ->
-                if (address.id.isNotEmpty()) {
-                    val action = AlamatFragmentDirections.actionAlamatFragmentToAddEditAddressFragment(address.id)
-                    findNavController().navigate(action)
-                } else {
-                    Toast.makeText(context, "ID alamat tidak valid untuk diedit.", Toast.LENGTH_SHORT).show()
-                }
-            },
-            onDeleteClick = { address ->
-                showDeleteConfirmation(address)
-            },
-            onSetPrimaryClick = { address ->
-                setPrimaryAddress(address)
+            addresses = mutableListOf(),
+            onItemClick = { address -> pilihAlamatDanKembali(address) }, // Klik item = pilih
+            onEditClick = { address -> navigateToEdit(address) },
+            onDeleteClick = { address -> showDeleteConfirmation(address) },
+            onSetPrimaryClick = { address -> setPrimaryAddress(address) },
+            onUseClick = { address ->
+                // Logic tombol "Gunakan"
+                pilihAlamatDanKembali(address)
             }
         )
 
-        binding.rvAddresses.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvAddresses.adapter = addressAdapter
+        rvAddress.layoutManager = LinearLayoutManager(context)
+        rvAddress.adapter = addressAdapter
     }
 
-    private fun setupButtons() {
-        binding.btnTambahAlamat.setOnClickListener {
-            val action = AlamatFragmentDirections.actionAlamatFragmentToAddEditAddressFragment(null)
-            findNavController().navigate(action)
-        }
+    // Fungsi untuk mengirim alamat terpilih ke fragment sebelumnya (misal Home/Checkout)
+    private fun pilihAlamatDanKembali(address: Address) {
+        setFragmentResult("request_alamat", bundleOf("data_alamat" to address))
+        findNavController().popBackStack()
     }
 
-    private fun setLoading(show: Boolean) {
-        if (_binding != null) {
-            binding.progressBar.visibility = if (show) View.VISIBLE else View.GONE
-            if (show) {
-                binding.rvAddresses.visibility = View.GONE
-                binding.tvEmpty.visibility = View.GONE
-            }
+    private fun navigateToEdit(address: Address) {
+        val bundle = Bundle().apply {
+            putString("addressId", address.id)
         }
-    }
-
-    /**
-     * [FIXED] Mengisi properti 'id' dari setiap dokumen ke dalam model Address.
-     */
-    private fun loadAddresses() {
-        setLoading(true)
-        val uid = auth.currentUser?.uid
-        if (uid == null) {
-            Toast.makeText(requireContext(), "Sesi tidak valid.", Toast.LENGTH_SHORT).show()
-            setLoading(false)
-            return
-        }
-
-        addressListener?.remove()
-
-        addressListener = db.collection("users").document(uid).collection("addresses")
-            .orderBy("isPrimary", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, error ->
-                setLoading(false)
-
-                if (error != null) {
-                    Log.w("AlamatFragment", "Gagal memuat alamat: ", error)
-                    binding.tvEmpty.text = "Gagal memuat alamat. Periksa koneksi."
-                    binding.tvEmpty.visibility = View.VISIBLE
-                    binding.rvAddresses.visibility = View.GONE
-                    return@addSnapshotListener
-                }
-
-                if (!isAdded || _binding == null) return@addSnapshotListener
-
-                
-                val addresses = mutableListOf<Address>()
-                snapshot?.documents?.forEach { doc ->
-                    val address = doc.toObject(Address::class.java)
-                    if (address != null) {
-                        
-                        address.id = doc.id
-                        addresses.add(address)
-                    }
-                }
-
-                addressAdapter.updateData(addresses)
-
-                if (addresses.isEmpty()) {
-                    binding.tvEmpty.text = "Anda belum punya alamat tersimpan."
-                    binding.tvEmpty.visibility = View.VISIBLE
-                    binding.rvAddresses.visibility = View.GONE
-                } else {
-                    binding.tvEmpty.visibility = View.GONE
-                    binding.rvAddresses.visibility = View.VISIBLE
-                }
-            }
+        findNavController().navigate(R.id.action_alamatFragment_to_addEditAddressFragment, bundle)
     }
 
     private fun showDeleteConfirmation(address: Address) {
-        val uid = auth.currentUser?.uid ?: return
-        if (address.id.isEmpty()) {
-            Toast.makeText(requireContext(), "Error: ID Alamat tidak ditemukan untuk dihapus.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
         AlertDialog.Builder(requireContext())
             .setTitle("Hapus Alamat")
-            .setMessage("Anda yakin ingin menghapus alamat '${address.label}'?")
+            .setMessage("Apakah Anda yakin ingin menghapus alamat ${address.label}?")
             .setPositiveButton("Hapus") { _, _ ->
-                db.collection("users").document(uid).collection("addresses").document(address.id)
-                    .delete()
-                    .addOnFailureListener { e ->
-                        Toast.makeText(context, "Gagal hapus: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
+                deleteAddress(address)
             }
             .setNegativeButton("Batal", null)
             .show()
     }
 
-    private fun setPrimaryAddress(newPrimaryAddress: Address) {
-        val uid = auth.currentUser?.uid ?: return
+    private fun deleteAddress(address: Address) {
+        if (uid == null) return
+        db.collection("users").document(uid).collection("addresses").document(address.id)
+            .delete()
+            .addOnSuccessListener {
+                Toast.makeText(context, "Alamat berhasil dihapus", Toast.LENGTH_SHORT).show()
+            }
+    }
 
-        if (newPrimaryAddress.id.isEmpty()) {
-            Toast.makeText(requireContext(), "Error: ID Alamat tidak valid.", Toast.LENGTH_SHORT).show()
-            return
-        }
+    private fun setPrimaryAddress(selectedAddress: Address) {
+        if (uid == null) return
 
-        setLoading(true)
+        progressBar.isVisible = true
         val batch = db.batch()
+        val colRef = db.collection("users").document(uid).collection("addresses")
 
-        db.collection("users").document(uid).collection("addresses").get()
-            .addOnSuccessListener { snapshot ->
-                snapshot.documents.forEach { doc ->
-                    batch.update(doc.reference, "isPrimary", (doc.id == newPrimaryAddress.id))
-                }
-
-                batch.commit().addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Toast.makeText(context, "Alamat utama berhasil diubah", Toast.LENGTH_SHORT).show()
-                        findNavController().previousBackStackEntry?.savedStateHandle?.set("selectedAddress", newPrimaryAddress)
-                        findNavController().popBackStack()
-                    } else {
-                        setLoading(false)
-                        Toast.makeText(context, "Gagal mengubah alamat utama", Toast.LENGTH_SHORT).show()
-                    }
+        colRef.get().addOnSuccessListener { docs ->
+            for (doc in docs) {
+                if (doc.id != selectedAddress.id) {
+                    batch.update(doc.reference, "isPrimary", false)
                 }
             }
-            .addOnFailureListener { e ->
-                setLoading(false)
-                Log.e("AlamatFragment", "Gagal mengambil data untuk set primary", e)
-                Toast.makeText(context, "Gagal mengambil data alamat: ${e.message}", Toast.LENGTH_SHORT).show()
+            val selRef = colRef.document(selectedAddress.id)
+            batch.update(selRef, "isPrimary", true)
+
+            batch.commit().addOnSuccessListener {
+                progressBar.isVisible = false
+                Toast.makeText(context, "Alamat utama diperbarui", Toast.LENGTH_SHORT).show()
+            }.addOnFailureListener {
+                progressBar.isVisible = false
+            }
+        }
+    }
+
+    private fun loadAddresses() {
+        if (uid == null) return
+
+        progressBar.isVisible = true
+        tvEmpty.isVisible = false
+
+        db.collection("users").document(uid).collection("addresses")
+            .orderBy("isPrimary", Query.Direction.DESCENDING)
+            .addSnapshotListener { snaps, e ->
+                progressBar.isVisible = false
+
+                if (e != null) {
+                    Toast.makeText(context, "Gagal memuat: ${e.message}", Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
+                }
+
+                if (snaps != null) {
+                    val list = snaps.toObjects(Address::class.java)
+                    for (i in list.indices) {
+                        list[i] = list[i].copy(id = snaps.documents[i].id)
+                    }
+
+                    addressAdapter.updateData(list)
+
+                    tvEmpty.isVisible = list.isEmpty()
+                    rvAddress.isVisible = list.isNotEmpty()
+                }
             }
     }
 }

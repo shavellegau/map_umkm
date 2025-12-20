@@ -13,11 +13,9 @@
         <action
             android:id="@+id/action_nav_home_to_nav_orders"
             app:destination="@id/nav_orders" />
-
         <action
             android:id="@+id/action_nav_home_to_tetanggaTukuFragment"
             app:destination="@id/nav_tetangga_tuku" />
-
         <action
             android:id="@+id/action_nav_home_to_bantuanFragment"
             app:destination="@id/bantuanFragment" />
@@ -43,17 +41,14 @@
         android:name="com.example.map_umkm.TetanggaTukuFragment"
         android:label="Tetangga Tuku"
         tools:layout="@layout/fragment_tetangga_tuku">
-
         <action
             android:id="@+id/action_tetanggaTukuFragment_to_nav_home"
             app:destination="@id/nav_home"
             app:popUpTo="@id/nav_home"
             app:popUpToInclusive="true" />
-
         <action
             android:id="@+id/action_tetanggaTukuFragment_to_tukuPointFragment"
             app:destination="@id/tukuPointFragment" />
-
         <action
             android:id="@+id/action_tetanggaTukuFragment_to_nav_profile"
             app:destination="@id/nav_profile"
@@ -136,12 +131,19 @@
         android:name="com.example.map_umkm.PaymentFragment"
         android:label="Pembayaran"
         tools:layout="@layout/fragment_payment">
+
+        <action
+            android:id="@+id/action_payment_to_addEditAddress"
+            app:destination="@id/addEditAddressFragment" />
+
         <action
             android:id="@+id/action_paymentFragment_to_qrisFragment"
             app:destination="@id/qrisFragment" />
+
         <action
             android:id="@+id/action_paymentFragment_to_paymentSuccessFragment"
             app:destination="@id/paymentSuccessFragment" />
+
         <action
             android:id="@+id/action_paymentFragment_to_alamatFragment"
             app:destination="@id/alamatFragment" />
@@ -149,6 +151,10 @@
         <action
             android:id="@+id/action_paymentFragment_to_voucherSayaFragment"
             app:destination="@id/voucherSayaFragment" />
+
+        <action
+            android:id="@+id/action_paymentFragment_to_pilihLokasiFragment"
+            app:destination="@id/pilihLokasiFragment" />
     </fragment>
 
     <fragment
@@ -301,7 +307,16 @@
         android:name="com.example.map_umkm.AdminOrdersFragment"
         android:label="Kelola Pesanan"
         tools:layout="@layout/fragment_admin_orders" />
+    <fragment
+        android:id="@+id/pilihLokasiFragment"
+        android:name="com.example.map_umkm.PilihLokasiFragment"
+        android:label="Pilih Lokasi di Peta"
+        tools:layout="@layout/fragment_pilih_lokasi">
 
+        <action
+            android:id="@+id/action_pilihLokasiFragment_to_addEditAddressFragment"
+            app:destination="@id/addEditAddressFragment" />
+    </fragment>
     <fragment
         android:id="@+id/adminNotificationFragment"
         android:name="com.example.map_umkm.admin.AdminNotificationFragment"

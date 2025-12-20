@@ -94,6 +94,7 @@
         <activity
             android:name=".OrderDetailActivity"
             android:exported="false" />
+        <activity android:name=".FormAlamatActivity" />
 
     </application>
 
