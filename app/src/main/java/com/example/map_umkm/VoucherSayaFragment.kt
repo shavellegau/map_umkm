@@ -40,7 +40,6 @@ class VoucherSayaFragment : Fragment() {
 
         rvVoucher.layoutManager = LinearLayoutManager(requireContext())
 
-
         btnBack.setOnClickListener {
             findNavController().popBackStack()
         }
@@ -52,65 +51,57 @@ class VoucherSayaFragment : Fragment() {
 
     private fun loadVouchersFromFirebase() {
         val db = FirebaseFirestore.getInstance()
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val voucherList = mutableListOf<Voucher>()
 
+        db.collection("vouchers").whereEqualTo("isActive", true).get().addOnSuccessListener { globalDocs ->
+            for (doc in globalDocs) {
+                doc.toObject(Voucher::class.java)?.let { voucherList.add(it) }
+            }
 
-        db.collection("vouchers")
-            .whereEqualTo("isActive", true)
-            .get()
-            .addOnSuccessListener { documents ->
-                val voucherList = mutableListOf<Voucher>()
-                for (document in documents) {
-
-                    val voucher = document.toObject(Voucher::class.java)
-                    voucherList.add(voucher)
+            db.collection("users").document(uid).collection("vouchers").get().addOnSuccessListener { privateDocs ->
+                for (doc in privateDocs) {
+                    val v = Voucher().apply {
+                        title = doc.getString("title") ?: "Diskon Referral"
+                        description = doc.getString("desc") ?: ""
+                        code = doc.getString("code") ?: "REFERRAL"
+                        discountAmount = doc.getDouble("discountAmount") ?: 0.0
+                        isActive = true
+                    }
+                    voucherList.add(v)
                 }
-
-                if (voucherList.isEmpty()) {
-                    Toast.makeText(context, "Belum ada voucher tersedia", Toast.LENGTH_SHORT).show()
-                }
-
                 setupAdapter(voucherList)
             }
-            .addOnFailureListener { exception ->
-                Log.w("Firestore", "Error getting documents: ", exception)
-                Toast.makeText(context, "Gagal memuat voucher", Toast.LENGTH_SHORT).show()
-            }
+        }.addOnFailureListener {
+            Toast.makeText(context, "Gagal memuat data", Toast.LENGTH_SHORT).show()
+        }
     }
-
     private fun setupAdapter(vouchers: List<Voucher>) {
-
         adapter = VoucherAdapter(vouchers) { voucher ->
             showVoucherDetailBottomSheet(voucher)
         }
         rvVoucher.adapter = adapter
     }
 
-
     private fun showVoucherDetailBottomSheet(voucher: Voucher) {
-
         val dialog = BottomSheetDialog(requireContext())
         val view = layoutInflater.inflate(R.layout.layout_bottom_sheet_voucher, null)
         dialog.setContentView(view)
-
 
         val tvTitle = view.findViewById<TextView>(R.id.tvSheetTitle)
         val tvCode = view.findViewById<TextView>(R.id.tvSheetCode)
         val tvTerms = view.findViewById<TextView>(R.id.tvSheetTerms)
         val btnAction = view.findViewById<Button>(R.id.btnSheetAction)
 
-
         tvTitle.text = voucher.title
         tvCode.text = voucher.code
-
 
         val formatRp = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
         val minPurchaseStr = formatRp.format(voucher.minPurchase)
 
-
         val sb = StringBuilder()
         sb.append("• Minimal belanja: $minPurchaseStr\n")
         sb.append("• Berlaku sampai: ${voucher.expiryDate}")
-
 
         if (voucher.description.isNotEmpty()) {
             sb.append("\n• ${voucher.description}")
@@ -118,13 +109,9 @@ class VoucherSayaFragment : Fragment() {
 
         tvTerms.text = sb.toString()
 
-
         val previousBackStackEntry = findNavController().previousBackStackEntry
         val previousDestinationId = previousBackStackEntry?.destination?.id
-
-
         val isFromPayment = (previousDestinationId == R.id.paymentFragment)
-
 
         if (isFromPayment) {
             btnAction.text = "Gunakan Voucher"
@@ -132,25 +119,17 @@ class VoucherSayaFragment : Fragment() {
             btnAction.text = "Salin Kode"
         }
 
-
         btnAction.setOnClickListener {
             if (isFromPayment) {
-
-
                 previousBackStackEntry?.savedStateHandle?.set("selectedVoucherCode", voucher.code)
-
                 dialog.dismiss()
                 findNavController().popBackStack()
-
-                Toast.makeText(context, "Voucher ${voucher.code} Dipilih!", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(context, "Voucher ${voucher.code} Dipilih!", Toast.LENGTH_SHORT).show()
             } else {
-
                 copyToClipboard(voucher.code)
                 dialog.dismiss()
             }
         }
-
         dialog.show()
     }
 

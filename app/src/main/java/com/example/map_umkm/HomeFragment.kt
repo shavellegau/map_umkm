@@ -42,14 +42,14 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    
+
     private var userListener: ListenerRegistration? = null
 
     private val handler = Handler(Looper.getMainLooper())
     private var timer: Timer? = null
     private var updateRunnable: Runnable? = null
 
-    
+
     private var allRealMenus: List<MenuItem> = emptyList()
 
     private val pilihCabangLauncher = registerForActivityResult(
@@ -71,24 +71,24 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        
+
         loadMenuFromJson()
 
-        
+
         setupUserDataListener()
 
-        
+
         setupBannerCarousel()
         setupListeners()
         loadSavedLocation()
         getVoucherCount()
         getUnreadNotificationCount()
 
-        
+
         setupBudgetOptimizer()
     }
 
-    
+
     private fun setupUserDataListener() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
@@ -101,28 +101,22 @@ class HomeFragment : Fragment() {
                 }
 
                 if (document != null && document.exists()) {
-                    
+
                     val name = document.getString("name") ?: "Pengguna"
                     binding.tvUserGreeting.text = "Hi, $name!"
 
-                    
+
                     val points = document.getLong("tukuPoints")?.toInt() ?: 0
                     val formattedPoints = NumberFormat.getNumberInstance(Locale("id", "ID")).format(points)
                     binding.tvTukuPointValue.text = "$formattedPoints Poin"
-
-                    
                     val currentXp = document.getLong("currentXp")?.toInt() ?: 0
-
-                    
-                    
-
                     val tierName: String
                     val nextTargetXp: Int
 
                     when {
                         currentXp >= 1000 -> {
                             tierName = "Diamond"
-                            nextTargetXp = 1000 
+                            nextTargetXp = 1000
                         }
                         currentXp >= 500 -> {
                             tierName = "Platinum"
@@ -141,9 +135,6 @@ class HomeFragment : Fragment() {
                             nextTargetXp = 100
                         }
                     }
-
-                    
-                    
                     if (binding.tvLevelValue != null) {
                         binding.tvLevelValue.text = tierName
 
@@ -182,12 +173,12 @@ class HomeFragment : Fragment() {
         binding.btnCariRekomendasi.setOnClickListener {
             val budget = binding.sliderBudget.value
             try {
-                
+
                 val classifier = BudgetClassifier(requireContext(), "budget_tuku_v2.tflite")
                 val normalizedBudget = budget / 100000.0f
                 val resultIndex = classifier.predict(normalizedBudget)
 
-                
+
                 val filteredRealData = when(resultIndex) {
                     0 -> allRealMenus.filter { getValidPrice(it) < 18000 }
                     1 -> allRealMenus.filter { getValidPrice(it) in 18000..32000 }
@@ -195,14 +186,14 @@ class HomeFragment : Fragment() {
                     else -> emptyList()
                 }
 
-                
+
                 val selectedMenu: MenuItem = if (filteredRealData.isNotEmpty()) {
                     filteredRealData.random()
                 } else {
                     getDummyFallback(resultIndex)
                 }
 
-                
+
                 binding.layoutResultML.visibility = View.VISIBLE
                 binding.tvResultName.text = selectedMenu.name
                 binding.tvResultPrice.text = "Rp ${getValidPrice(selectedMenu)}"
@@ -212,7 +203,7 @@ class HomeFragment : Fragment() {
                     .placeholder(R.drawable.placeholder_image)
                     .into(binding.ivResultImage)
 
-                
+
                 binding.layoutResultML.setOnClickListener {
                     try {
                         val bundle = Bundle()
@@ -229,7 +220,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    
+
     private fun getValidPrice(menu: MenuItem): Int {
         return menu.price_iced ?: menu.price_hot ?: 0
     }
@@ -270,10 +261,25 @@ class HomeFragment : Fragment() {
     }
 
     private fun getVoucherCount() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
-        db.collection("vouchers").whereEqualTo("isActive", true).get().addOnSuccessListener {
-            updateVoucherCountUI(it.size())
-        }
+        var totalCount = 0
+
+        db.collection("vouchers").whereEqualTo("isActive", true).get()
+            .addOnSuccessListener { globalDocs ->
+                totalCount += globalDocs.size()
+
+                db.collection("users").document(uid).collection("vouchers")
+                    .get()
+                    .addOnSuccessListener { privateDocs ->
+                        totalCount += privateDocs.size()
+
+                        updateVoucherCountUI(totalCount)
+                    }
+                    .addOnFailureListener {
+                        updateVoucherCountUI(totalCount)
+                    }
+            }
     }
 
     private fun updateVoucherCountUI(count: Int) {
@@ -313,18 +319,86 @@ class HomeFragment : Fragment() {
     private fun showRedeemDialog() {
         val dialog = Dialog(requireContext())
         dialog.setContentView(R.layout.dialog_redeem_code)
+
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        val width = (resources.displayMetrics.widthPixels * 0.90).toInt()
+
+        dialog.show()
+
+        val metrics = resources.displayMetrics
+        val width = (metrics.widthPixels * 0.80).toInt()
         dialog.window?.setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
+
         val etCode = dialog.findViewById<EditText>(R.id.et_redeem_code)
-        dialog.findViewById<Button>(R.id.btn_cancel_redeem).setOnClickListener { dialog.dismiss() }
+
         dialog.findViewById<Button>(R.id.btn_apply_redeem).setOnClickListener {
-            if (etCode.text.toString().trim().isNotEmpty()) {
-                Toast.makeText(requireContext(), "Kode diproses...", Toast.LENGTH_SHORT).show()
-                dialog.dismiss()
+            val inputCode = etCode.text.toString().trim().uppercase()
+            if (inputCode.isNotEmpty()) {
+                processReferralRedeem(inputCode, dialog)
+            } else {
+                Toast.makeText(requireContext(), "Masukkan kode!", Toast.LENGTH_SHORT).show()
             }
         }
-        dialog.show()
+
+        dialog.findViewById<Button>(R.id.btn_cancel_redeem).setOnClickListener {
+            dialog.dismiss()
+        }
+    }
+    private fun processReferralRedeem(inputCode: String, dialog: Dialog) {
+        val db = FirebaseFirestore.getInstance()
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        db.collection("users").whereEqualTo("ownReferralCode", inputCode).get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    Toast.makeText(requireContext(), "Kode tidak valid!", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+                val referrerUid = documents.documents[0].id
+                if (referrerUid == uid) {
+                    Toast.makeText(requireContext(), "Tidak bisa pakai kode sendiri!", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+                db.collection("users").document(uid).get().addOnSuccessListener { myDoc ->
+                    if (myDoc.contains("referredBy")) {
+                        Toast.makeText(requireContext(), "Anda sudah pernah klaim referral!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        executeReward(uid, referrerUid, inputCode, dialog)
+                    }
+                }
+            }
+    }
+
+    private fun executeReward(myUid: String, referrerUid: String, code: String, dialog: Dialog) {
+        val db = FirebaseFirestore.getInstance()
+        val voucherData = hashMapOf(
+            "title" to "Voucher Diskon 50%",
+            "desc" to "Hadiah referral dari kode $code",
+            "status" to "active",
+            "isActive" to true,
+            "code" to "REF-$code",
+            "discountAmount" to 50000.0,
+            "minPurchase" to 0.0,
+            "createdAt" to System.currentTimeMillis()
+        )
+
+        db.runTransaction { transaction ->
+            val myRef = db.collection("users").document(myUid)
+            val referrerRef = db.collection("users").document(referrerUid)
+
+            transaction.update(myRef, "referredBy", code)
+
+            transaction.set(myRef.collection("vouchers").document(), voucherData)
+            transaction.set(referrerRef.collection("vouchers").document(), voucherData)
+            null
+        }.addOnSuccessListener {
+            dialog.dismiss()
+            Toast.makeText(requireContext(), "Berhasil! Voucher ditambahkan.", Toast.LENGTH_LONG).show()
+            getVoucherCount()
+        }.addOnFailureListener { e ->
+            Toast.makeText(requireContext(), "Gagal: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setupBannerCarousel() {

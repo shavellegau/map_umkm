@@ -89,7 +89,6 @@ class ProfileFragment : Fragment() {
         binding.txtName.text = currentUser.displayName ?: prefs.getString("userName", "Pengguna")
         binding.tvEmail.text = currentUser.email ?: prefs.getString("userEmail", "-")
 
-        // Memuat foto lama yang tersimpan di HP
         loadLocalProfileImage(uid, prefs)
 
         ivProfile.setOnClickListener {
@@ -127,7 +126,7 @@ class ProfileFragment : Fragment() {
             if (file.exists()) {
                 Glide.with(this)
                     .load(file)
-                    .diskCacheStrategy(DiskCacheStrategy.NONE) // Paksa Glide jangan pakai cache agar gambar berubah
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .skipMemoryCache(true)
                     .placeholder(R.drawable.placeholder_image)
                     .into(ivProfile)
@@ -147,10 +146,8 @@ class ProfileFragment : Fragment() {
             val directory = File(requireContext().filesDir, "profile_images")
             if (!directory.exists()) directory.mkdirs()
 
-            // Hapus foto lama agar memori HP tidak penuh
             directory.listFiles()?.forEach { it.delete() }
 
-            // Beri nama unik pakai timestamp agar sistem selalu mendeteksi file baru
             val newFile = File(directory, "profile_${uid}_${System.currentTimeMillis()}.jpg")
             val out = FileOutputStream(newFile)
             bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
@@ -163,7 +160,6 @@ class ProfileFragment : Fragment() {
             progressBar.visibility = View.GONE
             ivProfile.alpha = 1.0f
 
-            // Tampilkan gambar baru dengan Glide tanpa cache
             Glide.with(this)
                 .load(newFile)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)

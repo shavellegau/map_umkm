@@ -5,11 +5,11 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Voucher(
-    val code: String = "",           
-    val title: String = "",          
-    val discountAmount: Double = 0.0,
-    val minPurchase: Double = 0.0,   
-    val expiryDate: String = "",     
-    val description: String = "",
-    val isActive: Boolean = true     
+    var code: String = "",
+    var title: String = "",
+    var discountAmount: Double = 0.0,
+    var minPurchase: Double = 0.0,
+    var expiryDate: String = "",
+    var description: String = "",
+    var isActive: Boolean = true
 ) : Parcelable

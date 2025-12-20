@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.map_umkm.adapter.AdminCabangAdapter
+import com.example.map_umkm.adapter.CabangAdapter
 import com.example.map_umkm.model.Cabang
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.firestore.FirebaseFirestore
@@ -23,7 +23,9 @@ class PilihCabangActivity : AppCompatActivity() {
 
     private lateinit var rvCabang: RecyclerView
     private lateinit var etSearch: EditText
-    private lateinit var adapter: AdminCabangAdapter
+
+    private lateinit var adapter: CabangAdapter
+
     private val db = FirebaseFirestore.getInstance()
     private var userLat: Double = 0.0
     private var userLng: Double = 0.0
@@ -32,20 +34,16 @@ class PilihCabangActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pilih_cabang)
 
-        
         rvCabang = findViewById(R.id.rv_cabang)
-        etSearch = findViewById(R.id.et_search_cabang) 
+        etSearch = findViewById(R.id.et_search_cabang)
 
         rvCabang.layoutManager = LinearLayoutManager(this)
 
-        
-        adapter = AdminCabangAdapter(emptyList(),
-            onEditClick = { cabang -> pilihCabang(cabang) },
-            onDeleteClick = { cabang -> pilihCabang(cabang) }
-        )
+        adapter = CabangAdapter(emptyList()) { cabang ->
+            pilihCabang(cabang)
+        }
         rvCabang.adapter = adapter
 
-        
         cekLokasiUser()
     }
 
@@ -72,7 +70,6 @@ class PilihCabangActivity : AppCompatActivity() {
                 val lat = doc.getDouble("latitude") ?: 0.0
                 val lng = doc.getDouble("longitude") ?: 0.0
 
-                
                 var jarakMeter = 0f
                 if (userLat != 0.0) {
                     val res = FloatArray(1)
@@ -80,7 +77,6 @@ class PilihCabangActivity : AppCompatActivity() {
                     jarakMeter = res[0]
                 }
 
-                
                 val itemCabang = Cabang(
                     id = doc.id,
                     nama = doc.getString("nama") ?: "",
@@ -91,21 +87,15 @@ class PilihCabangActivity : AppCompatActivity() {
                     latitude = lat,
                     longitude = lng
                 )
-
-                
                 itemCabang.jarakHitung = jarakMeter
-
                 list.add(itemCabang)
             }
 
-            
             list.sortBy { it.jarakHitung }
 
-            
-            adapter = AdminCabangAdapter(list,
-                onEditClick = { cabang -> showConfirmationDialog(cabang) },
-                onDeleteClick = { }
-            )
+            adapter = CabangAdapter(list) { cabang ->
+                showConfirmationDialog(cabang)
+            }
             rvCabang.adapter = adapter
         }
     }
@@ -125,8 +115,6 @@ class PilihCabangActivity : AppCompatActivity() {
                 prefs.edit().apply {
                     putString("selectedBranchId", cabang.id)
                     putString("selectedBranchName", cabang.nama)
-
-                    
                     putString("selectedBranchLat", cabang.latitude.toString())
                     putString("selectedBranchLng", cabang.longitude.toString())
                     apply()
