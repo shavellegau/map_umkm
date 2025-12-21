@@ -3,7 +3,6 @@ package com.example.map_umkm
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -89,13 +88,11 @@ class AdminDeliveryFragment : Fragment() {
         val userRef = db.collection("users").document(order.userId)
 
         db.runTransaction { transaction ->
-            val userSnapshot = transaction.get(userRef)
             transaction.update(orderRef, "status", "Diproses")
 
             val pointsEarned = order.pointsEarned
             if (pointsEarned > 0) {
                 transaction.update(userRef, "tukuPoints", FieldValue.increment(pointsEarned))
-
                 val pointHistoryRef = userRef.collection("point_history").document()
                 val pointHistoryData = hashMapOf(
                     "title" to "Poin dari Pesanan #${order.orderId.take(6)}",
@@ -106,13 +103,13 @@ class AdminDeliveryFragment : Fragment() {
                 transaction.set(pointHistoryRef, pointHistoryData)
             }
 
-            val expEarned = order.expEarned
-            if (expEarned > 0) {
-                transaction.update(userRef, "exp", FieldValue.increment(expEarned))
+            if (order.expEarned > 0) {
+                transaction.update(userRef, "exp", FieldValue.increment(order.expEarned))
             }
             null
         }.addOnSuccessListener {
             Toast.makeText(context, "Pesanan dikonfirmasi.", Toast.LENGTH_SHORT).show()
+            updateLocalOrderStatus(order.orderId, "Diproses")
         }.addOnFailureListener { e ->
             Log.e("FirestoreTransaction", "Gagal konfirmasi: ", e)
             Toast.makeText(context, "Gagal mengkonfirmasi pesanan: ${e.message}", Toast.LENGTH_LONG).show()
@@ -121,7 +118,7 @@ class AdminDeliveryFragment : Fragment() {
 
     private fun setupRecyclerView() {
         adapter = AdminOrdersAdapter(
-            orderList = emptyList(),
+            orderList = mutableListOf(),
             onItemClick = { order ->
                 val intent = Intent(requireContext(), OrderDetailActivity::class.java)
                 intent.putExtra("ORDER_DATA", order)
@@ -151,11 +148,20 @@ class AdminDeliveryFragment : Fragment() {
         db.collection("orders").document(orderId).update("status", newStatus)
             .addOnSuccessListener {
                 Toast.makeText(context, "Status pesanan diubah menjadi: $newStatus", Toast.LENGTH_SHORT).show()
+                updateLocalOrderStatus(orderId, newStatus)
             }
             .addOnFailureListener {
                 Toast.makeText(context, "Gagal mengubah status", Toast.LENGTH_SHORT).show()
             }
     }
+    private fun updateLocalOrderStatus(orderId: String, newStatus: String) {
+        val index = allOrderList.indexOfFirst { it.orderId == orderId }
+        if (index != -1) {
+            allOrderList[index] = allOrderList[index].copy(status = newStatus)
+            applyFilter()
+        }
+    }
+
 
     private fun setupFilterListener() {
         chipGroupFilter.check(R.id.chipAll)
@@ -175,19 +181,14 @@ class AdminDeliveryFragment : Fragment() {
             "TODAY" -> allOrderList.filter { isDateToday(it.orderDate) }
             "YESTERDAY" -> allOrderList.filter { isDateYesterday(it.orderDate) }
             "WEEK" -> allOrderList.filter { isDateOlderThanWeek(it.orderDate) }
-            else -> allOrderList.toList() // Create a new list instance to force update
+            else -> allOrderList.toList()
         }
 
         adapter.updateData(filteredList)
 
-        if (filteredList.isEmpty()) {
-            tvEmpty.text = if (allOrderList.isEmpty()) "Belum ada pesanan delivery." else "Tidak ada pesanan untuk filter ini."
-            tvEmpty.visibility = View.VISIBLE
-            rvRecentOrders.visibility = View.GONE
-        } else {
-            tvEmpty.visibility = View.GONE
-            rvRecentOrders.visibility = View.VISIBLE
-        }
+        tvEmpty.visibility = if (filteredList.isEmpty()) View.VISIBLE else View.GONE
+        rvRecentOrders.visibility = if (filteredList.isEmpty()) View.GONE else View.VISIBLE
+        tvEmpty.text = if (allOrderList.isEmpty()) "Belum ada pesanan delivery." else "Tidak ada pesanan untuk filter ini."
     }
 
     private fun startListeningForOrders() {
@@ -201,9 +202,39 @@ class AdminDeliveryFragment : Fragment() {
                     return@addSnapshotListener
                 }
                 if (snapshots != null) {
-                    allOrderList = snapshots.toObjects(Order::class.java)
-                    applyFilter()
+                    val orders = snapshots.toObjects(Order::class.java)
+                    fetchUserNamesForOrders(orders)
                 }
+            }
+    }
+
+    private fun fetchUserNamesForOrders(orders: List<Order>) {
+        if (orders.isEmpty()) {
+            allOrderList.clear()
+            applyFilter()
+            return
+        }
+
+        val userIds = orders.map { it.userId }.distinct().filter { it.isNotEmpty() }
+        if (userIds.isEmpty()) {
+            allOrderList = orders.toMutableList()
+            applyFilter()
+            return
+        }
+
+        db.collection("users").whereIn("userId", userIds).get()
+            .addOnSuccessListener { userSnapshots ->
+                val userNameMap = userSnapshots.documents.associateBy({ it.id }, { it.getString("username") ?: "Unknown User" })
+                val updatedOrders = orders.map { order ->
+                    order.copy(userName = userNameMap[order.userId] ?: "Unknown User")
+                }
+                allOrderList = updatedOrders.toMutableList()
+                applyFilter()
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Error fetching user names", e)
+                allOrderList = orders.toMutableList() 
+                applyFilter()
             }
     }
 
