@@ -26,22 +26,28 @@ import java.util.Locale
 
 class AdminOrdersFragment : Fragment() {
 
+
+    
     private lateinit var rvRecentOrders: RecyclerView
     private lateinit var tvEmpty: TextView
     private lateinit var adapter: AdminOrdersAdapter
     private lateinit var chipGroupFilter: ChipGroup
 
+    
     private lateinit var tvTotalOrders: TextView
     private lateinit var tvTotalProducts: TextView
     private lateinit var tvTotalUsers: TextView
 
+    
     private lateinit var fcmService: FCMService
     private val db = FirebaseFirestore.getInstance()
     private var orderListener: ListenerRegistration? = null
 
-    private var allOrderList: MutableList<Order> = mutableListOf()
+    
+    private var allOrderList: List<Order> = emptyList()
     private var currentFilterMode = "ALL"
 
+    
     private var statsListener1: ListenerRegistration? = null
     private var statsListener2: ListenerRegistration? = null
     private var statsListener3: ListenerRegistration? = null
@@ -52,6 +58,7 @@ class AdminOrdersFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_admin_orders, container, false)
         fcmService = FCMService(requireContext())
 
+        
         rvRecentOrders = view.findViewById(R.id.rvRecentOrders)
         tvEmpty = view.findViewById(R.id.tv_admin_no_orders)
         chipGroupFilter = view.findViewById(R.id.chipGroupFilter)
@@ -79,86 +86,114 @@ class AdminOrdersFragment : Fragment() {
         statsListener3?.remove()
     }
 
-    private fun confirmPaymentAndAwardPoints(order: Order) {
+    
+    private fun completeOrderAndAwardPoints(order: Order) {
+        
         if (order.userId.isEmpty()) {
-            Toast.makeText(context, "Error: User ID tidak ditemukan.", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Error: User ID tidak ditemukan pada pesanan ini.", Toast.LENGTH_LONG).show()
+            Log.e("TransactionError", "userId is empty for order ${order.orderId}")
             return
         }
 
         val orderRef = db.collection("orders").document(order.orderId)
         val userRef = db.collection("users").document(order.userId)
 
+        
+
+        
+        val subtotal = order.items.sumOf { item ->
+            
+            val price = (if (item.selectedType == "iced") item.price_iced else item.price_hot) ?: 0
+            price * item.quantity.toDouble()
+        }
+
+        
+        val pointsEarned = (subtotal * 0.10).toInt()
+        
+
+
+        if (pointsEarned <= 0) {
+            
+            
+            updateStatusAndNotify(order.orderId, "Selesai", order.userToken, "Pesanan Selesai", "Terima kasih sudah memesan!", order.userEmail)
+            return
+        }
+
         db.runTransaction { transaction ->
-            // 1. READ FIRST
+            
             val userSnapshot = transaction.get(userRef)
-            val currentPoints = userSnapshot.getLong("tukuPoints") ?: 0L
+            val currentPoints = userSnapshot.getLong("tukuPoints") ?: 0
+            val newTotalPoints = currentPoints + pointsEarned
 
-            // 2. WRITES
-            transaction.update(orderRef, "status", "Diproses")
+            
+            
+            transaction.update(orderRef, "status", "Selesai")
 
-            val subtotal = order.items.sumOf { item -> (((if (item.selectedType == "iced") item.price_iced else item.price_hot) ?: 0) * item.quantity).toDouble() }
-            val pointsEarned = (subtotal * 0.10).toLong()
+            
+            transaction.update(userRef, "tukuPoints", newTotalPoints)
 
-            if (pointsEarned > 0) {
-                transaction.update(userRef, "tukuPoints", currentPoints + pointsEarned)
+            
+            val pointHistoryRef = userRef.collection("point_history").document()
+            val pointHistoryData = hashMapOf(
+                "title" to "Poin dari Pesanan",
+                "amount" to pointsEarned.toLong(),
+                "type" to "earn",
+                "timestamp" to FieldValue.serverTimestamp()
+            )
+            transaction.set(pointHistoryRef, pointHistoryData)
 
-                val pointHistoryRef = userRef.collection("point_history").document()
-                val pointHistoryData = hashMapOf(
-                    "title" to "Poin dari Pesanan #${order.orderId.take(6)}",
-                    "amount" to pointsEarned,
-                    "type" to "earn",
-                    "timestamp" to FieldValue.serverTimestamp()
-                )
-                transaction.set(pointHistoryRef, pointHistoryData)
-            }
-            null
+            null 
         }.addOnSuccessListener {
-            Toast.makeText(context, "Pesanan dikonfirmasi.", Toast.LENGTH_SHORT).show()
-            val index = allOrderList.indexOfFirst { it.orderId == order.orderId }
-            if (index != -1) {
-                allOrderList[index].status = "Diproses"
-                adapter.notifyItemChanged(index)
+            Log.d("FirestoreTransaction", "Transaksi Selesai & Poin berhasil diberikan untuk order: ${order.orderId}")
+            Toast.makeText(context, "Pesanan Selesai & $pointsEarned poin diberikan!", Toast.LENGTH_LONG).show()
+
+            
+            if (!order.userToken.isNullOrEmpty()) {
+                fcmService.sendNotification(
+                    order.userToken,
+                    "Pesanan Selesai",
+                    "Terima kasih! Kamu mendapatkan $pointsEarned poin.",
+                    order.orderId,
+                    order.userEmail
+                )
             }
         }.addOnFailureListener { e ->
-            Log.e("FirestoreTransaction", "Gagal konfirmasi: ", e)
-            Toast.makeText(context, "Gagal mengkonfirmasi pesanan: ${e.message}", Toast.LENGTH_LONG).show()
+            Log.e("FirestoreTransaction", "Transaksi Gagal: ", e)
+            Toast.makeText(context, "Gagal menyelesaikan pesanan: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
+    
     private fun setupRecyclerView() {
         adapter = AdminOrdersAdapter(
-            allOrderList,
+            emptyList(),
             onItemClick = { order ->
                 val intent = Intent(requireContext(), OrderDetailActivity::class.java)
                 intent.putExtra("ORDER_DATA", order)
                 startActivity(intent)
             },
             onConfirmPaymentClick = { order ->
-                if (order.status == "Menunggu Pembayaran" || order.status == "Menunggu Konfirmasi") {
-                    confirmPaymentAndAwardPoints(order)
-                }
+                updateStatusAndNotify(order.orderId, "Diproses", order.userToken, "Pesanan Diproses", "Pembayaran sedang dicek Admin.", order.userEmail)
             },
             onAntarPesananClick = { order ->
-                // Not used in Take Away
+                updateStatusAndNotify(order.orderId, "Dikirim", order.userToken, "Pesanan Dikirim", "Pesananmu sedang dalam perjalanan.", order.userEmail)
             },
             onSelesaikanClick = { order ->
-                if (order.status == "Diproses") {
-                    updateStatusAndNotify(order.orderId, "Selesai", order.userToken, "Pesanan Selesai", "Terima kasih sudah memesan!", order.userEmail)
-                }
+                completeOrderAndAwardPoints(order)
             }
         )
         rvRecentOrders.layoutManager = LinearLayoutManager(requireContext())
         rvRecentOrders.adapter = adapter
     }
 
-    private fun updateStatusAndNotify(orderId: String, newStatus: String, token: String?, title: String, body: String, targetEmail: String?) {
+    private fun updateStatusAndNotify(
+        orderId: String, newStatus: String, token: String?, title: String, body: String, targetEmail: String?
+    ) {
         db.collection("orders").document(orderId).update("status", newStatus)
             .addOnSuccessListener {
                 Toast.makeText(context, "Status pesanan diubah menjadi: $newStatus", Toast.LENGTH_SHORT).show()
-                val index = allOrderList.indexOfFirst { it.orderId == orderId }
-                if (index != -1) {
-                    allOrderList[index].status = newStatus
-                    adapter.notifyItemChanged(index)
+                if (!token.isNullOrEmpty()) {
+                    fcmService.sendNotification(token, title, body, orderId, targetEmail)
                 }
             }
             .addOnFailureListener {
@@ -166,16 +201,23 @@ class AdminOrdersFragment : Fragment() {
             }
     }
 
+    
     private fun setupFilterListener() {
         chipGroupFilter.check(R.id.chipAll)
         chipGroupFilter.setOnCheckedStateChangeListener { _, checkedIds ->
-            currentFilterMode = when (checkedIds.firstOrNull()) {
-                R.id.chipToday -> "TODAY"
-                R.id.chipYesterday -> "YESTERDAY"
-                R.id.chipWeek -> "WEEK"
-                else -> "ALL"
+            if (checkedIds.isNotEmpty()) {
+                currentFilterMode = when (checkedIds[0]) {
+                    R.id.chipToday -> "TODAY"
+                    R.id.chipYesterday -> "YESTERDAY"
+                    R.id.chipWeek -> "WEEK"
+                    else -> "ALL"
+                }
+                applyFilter()
+            } else {
+                currentFilterMode = "ALL"
+                chipGroupFilter.check(R.id.chipAll)
+                applyFilter()
             }
-            applyFilter()
         }
     }
 
@@ -188,7 +230,7 @@ class AdminOrdersFragment : Fragment() {
         }
 
         if (filteredList.isEmpty()) {
-            tvEmpty.text = if (allOrderList.isEmpty()) "Belum ada pesanan take away." else "Tidak ada pesanan untuk filter ini."
+            tvEmpty.text = if (allOrderList.isEmpty()) "Belum ada pesanan." else "Tidak ada pesanan untuk filter ini."
             tvEmpty.visibility = View.VISIBLE
             rvRecentOrders.visibility = View.GONE
         } else {
@@ -198,19 +240,18 @@ class AdminOrdersFragment : Fragment() {
         }
     }
 
+    
     private fun startListeningForOrders() {
         orderListener?.remove()
         orderListener = db.collection("orders")
-            .whereEqualTo("orderType", "Take Away")
             .orderBy("orderDate", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshots, e ->
                 if (e != null) {
-                    Log.e("Firestore", "Error listening for orders: ${e.message}")
+                    Log.e("Firestore", "Error: ${e.message}")
                     return@addSnapshotListener
                 }
                 if (snapshots != null) {
-                    allOrderList.clear()
-                    allOrderList.addAll(snapshots.toObjects(Order::class.java))
+                    allOrderList = snapshots.toObjects(Order::class.java)
                     applyFilter()
                 }
             }
@@ -218,19 +259,27 @@ class AdminOrdersFragment : Fragment() {
 
     private fun startListeningForStats() {
         statsListener1?.remove()
-        statsListener1 = db.collection("orders").whereEqualTo("orderType", "Take Away").whereIn("status", listOf("Menunggu Konfirmasi", "Menunggu Pembayaran")).addSnapshotListener { s, _ -> tvTotalOrders.text = "${s?.size() ?: 0}" }
+        statsListener1 = db.collection("orders")
+            .whereIn("status", listOf("Menunggu Konfirmasi", "Menunggu Pembayaran"))
+            .addSnapshotListener { s, _ -> tvTotalOrders.text = "${s?.size() ?: 0}" }
 
         statsListener2?.remove()
-        statsListener2 = db.collection("orders").whereEqualTo("orderType", "Take Away").whereEqualTo("status", "Diproses").addSnapshotListener { s, _ -> tvTotalProducts.text = "${s?.size() ?: 0}" }
+        statsListener2 = db.collection("orders")
+            .whereEqualTo("status", "Diproses")
+            .addSnapshotListener { s, _ -> tvTotalProducts.text = "${s?.size() ?: 0}" }
 
         statsListener3?.remove()
-        statsListener3 = db.collection("orders").whereEqualTo("orderType", "Take Away").whereEqualTo("status", "Selesai").addSnapshotListener { s, _ -> tvTotalUsers.text = "${s?.size() ?: 0}" }
+        statsListener3 = db.collection("orders")
+            .whereEqualTo("status", "Selesai")
+            .addSnapshotListener { s, _ -> tvTotalUsers.text = "${s?.size() ?: 0}" }
     }
 
+    
     private fun parseDate(dateString: String?): Date? {
         if (dateString == null) return null
         return try {
-            SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("id", "ID")).parse(dateString)
+            val format = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("id", "ID"))
+            format.parse(dateString)
         } catch (e: Exception) { null }
     }
 
@@ -238,14 +287,16 @@ class AdminOrdersFragment : Fragment() {
         val date = parseDate(dateString) ?: return false
         val now = Calendar.getInstance()
         val target = Calendar.getInstance().apply { time = date }
-        return now.get(Calendar.YEAR) == target.get(Calendar.YEAR) && now.get(Calendar.DAY_OF_YEAR) == target.get(Calendar.DAY_OF_YEAR)
+        return now.get(Calendar.YEAR) == target.get(Calendar.YEAR) &&
+                now.get(Calendar.DAY_OF_YEAR) == target.get(Calendar.DAY_OF_YEAR)
     }
 
     private fun isDateYesterday(dateString: String?): Boolean {
         val date = parseDate(dateString) ?: return false
         val yesterday = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -1) }
         val target = Calendar.getInstance().apply { time = date }
-        return yesterday.get(Calendar.YEAR) == target.get(Calendar.YEAR) && yesterday.get(Calendar.DAY_OF_YEAR) == target.get(Calendar.DAY_OF_YEAR)
+        return yesterday.get(Calendar.YEAR) == target.get(Calendar.YEAR) &&
+                yesterday.get(Calendar.DAY_OF_YEAR) == target.get(Calendar.DAY_OF_YEAR)
     }
 
     private fun isDateOlderThanWeek(dateString: String?): Boolean {

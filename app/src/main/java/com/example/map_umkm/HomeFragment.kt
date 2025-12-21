@@ -24,7 +24,9 @@ import com.example.map_umkm.adapter.BannerAdapter
 import com.example.map_umkm.databinding.FragmentHomeBinding
 import com.example.map_umkm.model.MenuData
 import com.example.map_umkm.model.MenuItem
+import com.example.map_umkm.model.Voucher
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.gson.Gson
@@ -35,6 +37,7 @@ import java.io.InputStreamReader
 import java.nio.channels.FileChannel
 import java.nio.FloatBuffer
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 class HomeFragment : Fragment() {
@@ -311,9 +314,23 @@ class HomeFragment : Fragment() {
         binding.voucherCard.setOnClickListener { findNavController().navigate(R.id.action_nav_home_to_voucherSayaFragment) }
         binding.tukuCareCard.setOnClickListener { findNavController().navigate(R.id.action_nav_home_to_bantuanFragment) }
         binding.ivKodeRedeem.setOnClickListener { showRedeemDialog() }
-        val changeTabToMenu = { if (activity is MainActivity) (activity as MainActivity).bottomNavigationView.selectedItemId = R.id.nav_cart }
-        binding.takeAwayCard.setOnClickListener { changeTabToMenu() }
-        binding.deliveryCard.setOnClickListener { changeTabToMenu() }
+
+        binding.takeAwayCard.setOnClickListener { 
+            saveOrderPreferenceAndNavigate("takeaway")
+        }
+
+        binding.deliveryCard.setOnClickListener { 
+            saveOrderPreferenceAndNavigate("delivery")
+        }
+    }
+
+    private fun saveOrderPreferenceAndNavigate(orderType: String) {
+        val prefs = requireActivity().getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
+        prefs.edit().putString("orderType", orderType).apply()
+
+        if (activity is MainActivity) {
+            (activity as MainActivity).bottomNavigationView.selectedItemId = R.id.nav_cart
+        }
     }
 
     private fun showRedeemDialog() {
@@ -333,7 +350,16 @@ class HomeFragment : Fragment() {
         dialog.findViewById<Button>(R.id.btn_apply_redeem).setOnClickListener {
             val inputCode = etCode.text.toString().trim().uppercase()
             if (inputCode.isNotEmpty()) {
-                processReferralRedeem(inputCode, dialog)
+                // Check if it's a referral code first
+                val db = FirebaseFirestore.getInstance()
+                db.collection("users").whereEqualTo("ownReferralCode", inputCode).get()
+                    .addOnSuccessListener { documents ->
+                        if (!documents.isEmpty) {
+                            processReferralRedeem(inputCode, dialog)
+                        } else {
+                            processVoucherRedeem(inputCode, dialog)
+                        }
+                    }
             } else {
                 Toast.makeText(requireContext(), "Masukkan kode!", Toast.LENGTH_SHORT).show()
             }
@@ -343,6 +369,65 @@ class HomeFragment : Fragment() {
             dialog.dismiss()
         }
     }
+
+    private fun processVoucherRedeem(inputCode: String, dialog: Dialog) {
+        val db = FirebaseFirestore.getInstance()
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        db.collection("vouchers").document(inputCode).get()
+            .addOnSuccessListener { doc ->
+                if (!doc.exists()) {
+                    Toast.makeText(requireContext(), "Kode tidak valid", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+                val voucher = doc.toObject(Voucher::class.java)
+                if (voucher == null) {
+                    Toast.makeText(requireContext(), "Gagal memproses voucher", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+                // Check expiry date
+                val sdf = SimpleDateFormat("dd MMM yyyy", Locale("id", "ID"))
+                try {
+                    val expiryDate = sdf.parse(voucher.expiryDate)
+                    if (expiryDate != null && expiryDate.before(Date())) {
+                        Toast.makeText(requireContext(), "Kode sudah expired", Toast.LENGTH_SHORT).show()
+                        return@addOnSuccessListener
+                    }
+                } catch (e: Exception) {
+                    Log.e("HomeFragment", "Date parsing error: ", e)
+                    // Potentially handle this case, maybe the date format is wrong in Firestore
+                }
+
+                db.collection("users").document(uid).get()
+                    .addOnSuccessListener { userDoc ->
+                        val redeemedCodes = userDoc.get("redeemedVouchers") as? List<String> ?: emptyList()
+                        if (redeemedCodes.contains(inputCode)) {
+                            Toast.makeText(requireContext(), "Kode telah digunakan", Toast.LENGTH_SHORT).show()
+                        } else {
+                            // Add voucher to user's personal collection
+                            db.collection("users").document(uid).collection("vouchers").add(voucher)
+                                .addOnSuccessListener {
+                                    // Mark as redeemed
+                                    db.collection("users").document(uid).update("redeemedVouchers", FieldValue.arrayUnion(inputCode))
+                                        .addOnSuccessListener {
+                                            dialog.dismiss()
+                                            Toast.makeText(requireContext(), "Berhasil mendapatkan voucher", Toast.LENGTH_LONG).show()
+                                            getVoucherCount() // Refresh voucher count
+                                        }
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(requireContext(), "Gagal menyimpan voucher: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        }
+                    }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Gagal: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
     private fun processReferralRedeem(inputCode: String, dialog: Dialog) {
         val db = FirebaseFirestore.getInstance()
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return

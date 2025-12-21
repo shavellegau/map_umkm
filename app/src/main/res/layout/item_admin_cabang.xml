@@ -26,7 +26,7 @@
         <TextView
             android:id="@+id/tv_cabang_alamat"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android.layout_height="wrap_content"
             android:text="Jl. Asia Afrika No.8, Gelora, Jakarta Pusat"
             android:layout_marginTop="4dp"
             android:textColor="#555" />
@@ -75,7 +75,7 @@
                 android:layout_height="38dp"
                 android:text="EDIT"
                 style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:textColor="#6D4C41"
+                android:textColor="@color/tuku_brown"
                 android:layout_marginEnd="8dp"/>
 
             <Button
@@ -84,7 +84,7 @@
                 android:layout_height="38dp"
                 android:text="HAPUS"
                 style="@style/Widget.AppCompat.Button.Colored"
-                android:backgroundTint="@android:color/holo_red_dark"/>
+                android:backgroundTint="@color/tuku_brown"/>
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

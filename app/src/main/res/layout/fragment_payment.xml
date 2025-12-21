@@ -198,6 +198,7 @@
                         android:src="@drawable/ic_voucher" />
 
                     <TextView
+                        android:id="@+id/tv_voucher_selection"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
@@ -326,6 +327,29 @@
                 android:textColor="@color/tuku_accent"
                 android:textStyle="bold"
                 tools:text="-Rp5.000" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layout_voucher_discount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Diskon Voucher" />
+
+            <TextView
+                android:id="@+id/tv_voucher_discount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:textColor="@color/tuku_accent"
+                android:textStyle="bold"
+                tools:text="-Rp10.000" />
         </RelativeLayout>
 
         <RelativeLayout

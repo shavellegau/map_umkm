@@ -14,11 +14,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.map_umkm.adapter.CartItemAdapter
 import com.example.map_umkm.model.Address
 import com.example.map_umkm.model.Order
+import com.example.map_umkm.model.Voucher
 import com.example.map_umkm.viewmodel.CartViewModel
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -50,6 +52,9 @@ class PaymentFragment : Fragment() {
     private lateinit var layoutPointsUsed: RelativeLayout
     private lateinit var tvPointsUsed: TextView
     private lateinit var btnSelectVoucher: MaterialCardView
+    private lateinit var tvVoucherSelection: TextView
+    private lateinit var layoutVoucherDiscount: RelativeLayout
+    private lateinit var tvVoucherDiscount: TextView
     private lateinit var tvPointsEarned: TextView
     private lateinit var tvExpEarned: TextView
 
@@ -58,10 +63,13 @@ class PaymentFragment : Fragment() {
     private var userCurrentPoints: Long = 0
     private var isPointUsed = false
     private var selectedAddress: Address? = null
+    private var selectedVoucher: Voucher? = null
 
     private val db = FirebaseFirestore.getInstance()
     private var branchLat: Double = 0.0
     private var branchLng: Double = 0.0
+
+    private val args: PaymentFragmentArgs by navArgs()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_payment, container, false)
@@ -74,26 +82,14 @@ class PaymentFragment : Fragment() {
         toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
 
         // Initialize Views
-        rvOrderList = view.findViewById(R.id.rv_order_list)
-        tvSubtotal = view.findViewById(R.id.tvSubtotal)
-        tvTax = view.findViewById(R.id.tvTax)
-        tvTotalPayment = view.findViewById(R.id.tvTotalPayment)
-        btnPay = view.findViewById(R.id.btnPay)
-        switchPoint = view.findViewById(R.id.switchPoint)
-        tvUserPoints = view.findViewById(R.id.tvUserPoints)
-        rgOrderType = view.findViewById(R.id.rg_order_type)
-        layoutPointsUsed = view.findViewById(R.id.layout_points_used)
-        tvPointsUsed = view.findViewById(R.id.tvPointsUsed)
-        layoutAddressSelected = view.findViewById(R.id.layout_address_selected)
-        tvDeliveryAddress = view.findViewById(R.id.tv_delivery_address)
-        tvDeliveryAddressTitle = view.findViewById(R.id.tv_delivery_address_title)
-        btnChangeAddressManual = view.findViewById(R.id.btn_change_address_manual)
-        btnSelectSavedAddressList = view.findViewById(R.id.btn_select_saved_address_list)
-        tvShippingCost = view.findViewById(R.id.tvShippingCost)
-        layoutShippingCost = view.findViewById(R.id.layout_shipping_cost)
-        btnSelectVoucher = view.findViewById(R.id.btn_select_voucher)
-        tvPointsEarned = view.findViewById(R.id.tv_points_earned)
-        tvExpEarned = view.findViewById(R.id.tv_exp_earned)
+        initializeViews(view)
+
+        isDelivery = args.orderType.equals("delivery", ignoreCase = true)
+        if (isDelivery) {
+            rgOrderType.check(R.id.rb_delivery)
+        } else {
+            rgOrderType.check(R.id.rb_take_away)
+        }
 
         // Setup
         setupRecyclerView()
@@ -114,6 +110,32 @@ class PaymentFragment : Fragment() {
         }
     }
 
+    private fun initializeViews(view: View) {
+        rvOrderList = view.findViewById(R.id.rv_order_list)
+        tvSubtotal = view.findViewById(R.id.tvSubtotal)
+        tvTax = view.findViewById(R.id.tvTax)
+        tvTotalPayment = view.findViewById(R.id.tvTotalPayment)
+        btnPay = view.findViewById(R.id.btnPay)
+        switchPoint = view.findViewById(R.id.switchPoint)
+        tvUserPoints = view.findViewById(R.id.tvUserPoints)
+        rgOrderType = view.findViewById(R.id.rg_order_type)
+        layoutPointsUsed = view.findViewById(R.id.layout_points_used)
+        tvPointsUsed = view.findViewById(R.id.tvPointsUsed)
+        layoutAddressSelected = view.findViewById(R.id.layout_address_selected)
+        tvDeliveryAddress = view.findViewById(R.id.tv_delivery_address)
+        tvDeliveryAddressTitle = view.findViewById(R.id.tv_delivery_address_title)
+        btnChangeAddressManual = view.findViewById(R.id.btn_change_address_manual)
+        btnSelectSavedAddressList = view.findViewById(R.id.btn_select_saved_address_list)
+        tvShippingCost = view.findViewById(R.id.tvShippingCost)
+        layoutShippingCost = view.findViewById(R.id.layout_shipping_cost)
+        btnSelectVoucher = view.findViewById(R.id.btn_select_voucher)
+        tvVoucherSelection = view.findViewById(R.id.tv_voucher_selection)
+        layoutVoucherDiscount = view.findViewById(R.id.layout_voucher_discount)
+        tvVoucherDiscount = view.findViewById(R.id.tv_voucher_discount)
+        tvPointsEarned = view.findViewById(R.id.tv_points_earned)
+        tvExpEarned = view.findViewById(R.id.tv_exp_earned)
+    }
+
     private fun setupResultListeners() {
         setFragmentResultListener("request_alamat") { _, bundle ->
             val addressObj = bundle.getParcelable<Address>("data_alamat")
@@ -121,6 +143,15 @@ class PaymentFragment : Fragment() {
                 selectedAddress = addressObj
                 updateUserLocation(addressObj)
                 Toast.makeText(context, "Alamat digunakan: ${addressObj.label}", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        setFragmentResultListener("request_voucher") { _, bundle ->
+            val voucher = bundle.getParcelable<Voucher>("selected_voucher")
+            if (voucher != null) {
+                selectedVoucher = voucher
+                tvVoucherSelection.text = voucher.code
+                updateTotals()
             }
         }
     }
@@ -151,7 +182,12 @@ class PaymentFragment : Fragment() {
         }
 
         btnSelectVoucher.setOnClickListener {
-            Toast.makeText(context, "Fitur voucher belum tersedia", Toast.LENGTH_SHORT).show()
+            if (selectedVoucher == null) {
+                val action = PaymentFragmentDirections.actionPaymentFragmentToVoucherSayaFragment()
+                findNavController().navigate(action)
+            } else {
+                showVoucherOptionsDialog()
+            }
         }
 
         btnPay.setOnClickListener {
@@ -167,6 +203,29 @@ class PaymentFragment : Fragment() {
         }
     }
 
+    private fun showVoucherOptionsDialog() {
+        val options = arrayOf("Ganti Voucher", "Hapus Voucher")
+        AlertDialog.Builder(requireContext())
+            .setTitle("Opsi Voucher")
+            .setItems(options) { dialog, which ->
+                when (which) {
+                    0 -> { // Ganti Voucher
+                        val action = PaymentFragmentDirections.actionPaymentFragmentToVoucherSayaFragment()
+                        findNavController().navigate(action)
+                    }
+                    1 -> { // Hapus Voucher
+                        selectedVoucher = null
+                        tvVoucherSelection.text = "Pilih Voucher / Diskon"
+                        updateTotals()
+                        Toast.makeText(context, "Voucher dihapus", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Batal", null)
+            .show()
+    }
+
     private fun createOrder(paymentMethod: String, orderType: String) {
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser == null) {
@@ -177,9 +236,24 @@ class PaymentFragment : Fragment() {
 
         val cartItems = cartViewModel.cartList.value!!
 
+        // Recalculate all values to ensure they are correct at the time of order creation
         val subtotal = cartItems.sumOf { (if (it.selectedType == "iced") it.price_iced else it.price_hot)?.toDouble()?.times(it.quantity) ?: 0.0 }
+        val pointsEarned = (subtotal * 0.10).toLong()
+        val expEarned = (subtotal * 0.04).toLong()
         val tax = subtotal * 0.11
-        val totalPayment = subtotal + tax + (if(isDelivery) shippingCost else 0.0)
+        val shipping = if(isDelivery) shippingCost else 0.0
+        var totalWithTaxAndShip = subtotal + tax + shipping
+
+        val voucherDiscount = if (selectedVoucher != null && subtotal >= selectedVoucher!!.minPurchase) {
+            selectedVoucher!!.discountAmount
+        } else {
+            0.0
+        }
+        totalWithTaxAndShip -= voucherDiscount
+
+        val pointsToUse = if (isPointUsed) (userCurrentPoints.toDouble()).coerceAtMost(totalWithTaxAndShip) else 0.0
+
+        val finalTotal = (totalWithTaxAndShip - pointsToUse).coerceAtLeast(0.0)
 
         val orderId = db.collection("orders").document().id
         val orderDate = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale("id", "ID")).format(Date())
@@ -188,20 +262,29 @@ class PaymentFragment : Fragment() {
             orderId = orderId,
             userId = currentUserId,
             items = cartItems,
-            totalAmount = totalPayment,
+            totalAmount = finalTotal,
             orderDate = orderDate,
             status = if (paymentMethod == "CASH") "Menunggu Pembayaran" else "Menunggu Konfirmasi",
             orderType = orderType,
             userName = currentUser.displayName ?: "Unknown User",
             userEmail = currentUser.email ?: "",
             deliveryAddress = if(isDelivery) selectedAddress else null,
-            userToken = null
+            userToken = null,
+
+            // Save detailed summary
+            subtotal = subtotal,
+            tax = tax,
+            shippingCost = shipping,
+            voucherDiscount = voucherDiscount,
+            pointsUsed = pointsToUse,
+            pointsEarned = pointsEarned,
+            expEarned = expEarned
         )
 
         db.collection("orders").document(orderId).set(newOrder)
             .addOnSuccessListener {
                 Log.d("PaymentFragment", "Order created successfully with ID: $orderId")
-                val bundle = bundleOf("paymentMethod" to paymentMethod, "orderId" to orderId, "totalPayment" to totalPayment)
+                val bundle = bundleOf("paymentMethod" to paymentMethod, "orderId" to orderId, "totalPayment" to finalTotal)
                 if (paymentMethod == "QRIS") {
                     findNavController().navigate(R.id.action_paymentFragment_to_qrisFragment, bundle)
                 } else {
@@ -221,6 +304,10 @@ class PaymentFragment : Fragment() {
         val btnPayWithQris = dialogView.findViewById<Button>(R.id.btnPayWithQris)
         val btnPayWithCash = dialogView.findViewById<Button>(R.id.btnPayWithCash)
         val orderType = if (isDelivery) "Delivery" else "Take Away"
+
+        if (isDelivery) {
+            btnPayWithCash.visibility = View.GONE
+        }
 
         btnPayWithQris.setOnClickListener {
             createOrder("QRIS", orderType)
@@ -259,7 +346,6 @@ class PaymentFragment : Fragment() {
     private fun updateTotals() {
         val cartItems = cartViewModel.cartList.value ?: emptyList()
         val subtotal = cartItems.sumOf { (if (it.selectedType == "iced") it.price_iced else it.price_hot)?.toDouble()?.times(it.quantity) ?: 0.0 }
-        
         val pointsEarned = (subtotal * 0.10).toLong()
         val expEarned = (subtotal * 0.04).toLong()
 
@@ -268,7 +354,23 @@ class PaymentFragment : Fragment() {
 
         val tax = subtotal * 0.11
         val shipping = if(isDelivery) shippingCost else 0.0
-        val totalWithTaxAndShip = subtotal + tax + shipping
+        var totalWithTaxAndShip = subtotal + tax + shipping
+
+        val voucherDiscount = if (selectedVoucher != null && subtotal >= selectedVoucher!!.minPurchase) {
+            selectedVoucher!!.discountAmount
+        } else {
+            0.0
+        }
+
+        if (selectedVoucher != null && subtotal < selectedVoucher!!.minPurchase) {
+            Toast.makeText(context, "Minimal pembelian untuk voucher ini adalah ${formatCurrency(selectedVoucher!!.minPurchase)}", Toast.LENGTH_SHORT).show()
+            selectedVoucher = null
+            tvVoucherSelection.text = "Pilih Voucher / Diskon"
+        }
+
+        layoutVoucherDiscount.visibility = if(voucherDiscount > 0) View.VISIBLE else View.GONE
+        tvVoucherDiscount.text = "-${formatCurrency(voucherDiscount)}"
+        totalWithTaxAndShip -= voucherDiscount
 
         val pointsToUse = if (isPointUsed) (userCurrentPoints.toDouble()).coerceAtMost(totalWithTaxAndShip) else 0.0
 

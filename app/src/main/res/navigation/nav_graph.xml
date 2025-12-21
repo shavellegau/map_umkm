@@ -34,6 +34,9 @@
         <action
             android:id="@+id/action_nav_home_to_referralFragment"
             app:destination="@id/referralFragment" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_cart"
+            app:destination="@id/nav_cart" />
     </fragment>
 
     <fragment
@@ -61,6 +64,10 @@
         android:name="com.example.map_umkm.CartFragment"
         android:label="Keranjang"
         tools:layout="@layout/fragment_cart">
+        <argument
+            android:name="orderType"
+            app:argType="string"
+            android:defaultValue="delivery" />
         <action
             android:id="@+id/action_nav_cart_to_productDetailFragment"
             app:destination="@id/productDetailFragment" />
@@ -131,7 +138,10 @@
         android:name="com.example.map_umkm.PaymentFragment"
         android:label="Pembayaran"
         tools:layout="@layout/fragment_payment">
-
+        <argument
+            android:name="orderType"
+            app:argType="string"
+            android:defaultValue="delivery" />
         <action
             android:id="@+id/action_payment_to_addEditAddress"
             app:destination="@id/addEditAddressFragment" />

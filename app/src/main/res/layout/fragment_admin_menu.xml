@@ -20,7 +20,7 @@
             android:text="Menu Toko"
             android:textSize="22sp"
             android:textStyle="bold"
-            android:textColor="@color/tuku_dark"
+            android:textColor="@color/tuku_brown"
             android:paddingBottom="4dp"/>
 
         <TextView
@@ -97,6 +97,6 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="center"
-        android:indeterminateTint="@color/tuku_primary"
+        android:indeterminateTint="@color/tuku_brown"
         android:visibility="gone"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

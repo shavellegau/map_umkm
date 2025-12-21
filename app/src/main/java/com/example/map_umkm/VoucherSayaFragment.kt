@@ -12,7 +12,9 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,6 +30,10 @@ class VoucherSayaFragment : Fragment() {
     private lateinit var rvVoucher: RecyclerView
     private lateinit var adapter: VoucherAdapter
     private lateinit var btnBack: ImageView
+
+    private val isForSelection: Boolean by lazy {
+        findNavController().previousBackStackEntry?.destination?.id == R.id.paymentFragment
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -76,10 +82,23 @@ class VoucherSayaFragment : Fragment() {
             Toast.makeText(context, "Gagal memuat data", Toast.LENGTH_SHORT).show()
         }
     }
+
     private fun setupAdapter(vouchers: List<Voucher>) {
-        adapter = VoucherAdapter(vouchers) { voucher ->
-            showVoucherDetailBottomSheet(voucher)
-        }
+        adapter = VoucherAdapter(
+            vouchers,
+            isForSelection,
+            onUseClick = { voucher ->
+                if (isForSelection) {
+                    setFragmentResult("request_voucher", bundleOf("selected_voucher" to voucher))
+                    findNavController().popBackStack()
+                } else {
+                    showVoucherDetailBottomSheet(voucher)
+                }
+            },
+            onDetailClick = { voucher ->
+                showVoucherDetailBottomSheet(voucher)
+            }
+        )
         rvVoucher.adapter = adapter
     }
 
@@ -91,7 +110,6 @@ class VoucherSayaFragment : Fragment() {
         val tvTitle = view.findViewById<TextView>(R.id.tvSheetTitle)
         val tvCode = view.findViewById<TextView>(R.id.tvSheetCode)
         val tvTerms = view.findViewById<TextView>(R.id.tvSheetTerms)
-        val btnAction = view.findViewById<Button>(R.id.btnSheetAction)
 
         tvTitle.text = voucher.title
         tvCode.text = voucher.code
@@ -109,35 +127,6 @@ class VoucherSayaFragment : Fragment() {
 
         tvTerms.text = sb.toString()
 
-        val previousBackStackEntry = findNavController().previousBackStackEntry
-        val previousDestinationId = previousBackStackEntry?.destination?.id
-        val isFromPayment = (previousDestinationId == R.id.paymentFragment)
-
-        if (isFromPayment) {
-            btnAction.text = "Gunakan Voucher"
-        } else {
-            btnAction.text = "Salin Kode"
-        }
-
-        btnAction.setOnClickListener {
-            if (isFromPayment) {
-                previousBackStackEntry?.savedStateHandle?.set("selectedVoucherCode", voucher.code)
-                dialog.dismiss()
-                findNavController().popBackStack()
-                Toast.makeText(context, "Voucher ${voucher.code} Dipilih!", Toast.LENGTH_SHORT).show()
-            } else {
-                copyToClipboard(voucher.code)
-                dialog.dismiss()
-            }
-        }
         dialog.show()
-    }
-
-    private fun copyToClipboard(code: String) {
-        val clipboard =
-            requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("Kode Voucher", code)
-        clipboard.setPrimaryClip(clip)
-        Toast.makeText(requireContext(), "Kode $code disalin!", Toast.LENGTH_SHORT).show()
     }
 }

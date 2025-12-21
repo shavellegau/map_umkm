@@ -38,6 +38,15 @@ data class Order(
     val deliveryAddress: Address? = null,
 
     @SerializedName("orderType")
-    val orderType: String = "Take Away"
+    val orderType: String = "Take Away",
+
+    // Detailed Order Summary
+    val subtotal: Double = 0.0,
+    val tax: Double = 0.0,
+    val shippingCost: Double = 0.0,
+    val voucherDiscount: Double = 0.0,
+    val pointsUsed: Double = 0.0,
+    val pointsEarned: Long = 0,
+    val expEarned: Long = 0
 
 ) : Parcelable

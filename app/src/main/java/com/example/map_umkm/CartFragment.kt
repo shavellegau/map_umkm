@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -57,7 +58,8 @@ class CartFragment : Fragment() {
     private var selectedCategory: String? = null
     private lateinit var jsonHelper: JsonHelper
 
-    private var currentMode: String = "Take Away"
+    private var currentMode: String = "Delivery"
+    private val args: CartFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -67,6 +69,8 @@ class CartFragment : Fragment() {
 
         jsonHelper = JsonHelper(requireContext())
         initializeViews(view)
+
+        currentMode = if (args.orderType.equals("delivery", true)) "Delivery" else "Take Away"
 
         setupSearchListener()
         setupBottomBarListener()
@@ -294,7 +298,8 @@ class CartFragment : Fragment() {
                 return@setOnClickListener
             }
             saveOrderPreference()
-            findNavController().navigate(R.id.action_nav_cart_to_paymentFragment)
+            val action = CartFragmentDirections.actionNavCartToPaymentFragment(currentMode)
+            findNavController().navigate(action)
         }
     }
 
