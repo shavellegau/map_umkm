@@ -15,8 +15,8 @@ class AdminMenuAdapter(
 ) : RecyclerView.Adapter<AdminMenuAdapter.MenuViewHolder>() {
 
     inner class MenuViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val icon: ImageView = itemView.findViewById(R.id.icon)
-        val title: TextView = itemView.findViewById(R.id.title)
+        val icon: ImageView = itemView.findViewById(R.id.iv_menu_icon)
+        val title: TextView = itemView.findViewById(R.id.tv_menu_title)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MenuViewHolder {

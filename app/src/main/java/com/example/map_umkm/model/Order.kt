@@ -17,7 +17,7 @@ data class Order(
     val userEmail: String = "",
 
     @SerializedName("userName")
-    val userName: String = "",
+    var userName: String = "",
 
     @SerializedName("items")
     val items: List<Product> = emptyList(),

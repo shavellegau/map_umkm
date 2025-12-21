@@ -81,6 +81,7 @@ class PaymentFragment : Fragment() {
         val toolbar: Toolbar = view.findViewById(R.id.toolbar_payment)
         toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
 
+        // Initialize Views
         initializeViews(view)
 
         isDelivery = args.orderType.equals("delivery", ignoreCase = true)
@@ -90,6 +91,7 @@ class PaymentFragment : Fragment() {
             rgOrderType.check(R.id.rb_take_away)
         }
 
+        // Setup
         setupRecyclerView()
         loadBranchData()
         loadUserPoints()
@@ -207,11 +209,11 @@ class PaymentFragment : Fragment() {
             .setTitle("Opsi Voucher")
             .setItems(options) { dialog, which ->
                 when (which) {
-                    0 -> {
+                    0 -> { // Ganti Voucher
                         val action = PaymentFragmentDirections.actionPaymentFragmentToVoucherSayaFragment()
                         findNavController().navigate(action)
                     }
-                    1 -> {
+                    1 -> { // Hapus Voucher
                         selectedVoucher = null
                         tvVoucherSelection.text = "Pilih Voucher / Diskon"
                         updateTotals()
@@ -234,6 +236,7 @@ class PaymentFragment : Fragment() {
 
         val cartItems = cartViewModel.cartList.value!!
 
+        // Recalculate all values to ensure they are correct at the time of order creation
         val subtotal = cartItems.sumOf { (if (it.selectedType == "iced") it.price_iced else it.price_hot)?.toDouble()?.times(it.quantity) ?: 0.0 }
         val pointsEarned = (subtotal * 0.10).toLong()
         val expEarned = (subtotal * 0.04).toLong()
@@ -268,6 +271,7 @@ class PaymentFragment : Fragment() {
             deliveryAddress = if(isDelivery) selectedAddress else null,
             userToken = null,
 
+            // Save detailed summary
             subtotal = subtotal,
             tax = tax,
             shippingCost = shipping,
@@ -333,7 +337,7 @@ class PaymentFragment : Fragment() {
             val results = FloatArray(1)
             Location.distanceBetween(branchLat, branchLng, selectedAddress!!.latitude!!, selectedAddress!!.longitude!!, results)
             val distanceInKm = results[0] / 1000.0
-            shippingCost = (distanceInKm * 2500.0).coerceIn(8000.0, 30000.0)
+            shippingCost = (distanceInKm * 2500.0).coerceIn(8000.0, 30000.0) // Example shipping cost logic
         }
         tvShippingCost.text = formatCurrency(shippingCost)
         updateTotals()
