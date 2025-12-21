@@ -350,7 +350,6 @@ class HomeFragment : Fragment() {
         dialog.findViewById<Button>(R.id.btn_apply_redeem).setOnClickListener {
             val inputCode = etCode.text.toString().trim().uppercase()
             if (inputCode.isNotEmpty()) {
-                // Check if it's a referral code first
                 val db = FirebaseFirestore.getInstance()
                 db.collection("users").whereEqualTo("ownReferralCode", inputCode).get()
                     .addOnSuccessListener { documents ->
@@ -387,7 +386,6 @@ class HomeFragment : Fragment() {
                     return@addOnSuccessListener
                 }
 
-                // Check expiry date
                 val sdf = SimpleDateFormat("dd MMM yyyy", Locale("id", "ID"))
                 try {
                     val expiryDate = sdf.parse(voucher.expiryDate)
@@ -397,7 +395,6 @@ class HomeFragment : Fragment() {
                     }
                 } catch (e: Exception) {
                     Log.e("HomeFragment", "Date parsing error: ", e)
-                    // Potentially handle this case, maybe the date format is wrong in Firestore
                 }
 
                 db.collection("users").document(uid).get()
@@ -406,16 +403,13 @@ class HomeFragment : Fragment() {
                         if (redeemedCodes.contains(inputCode)) {
                             Toast.makeText(requireContext(), "Kode telah digunakan", Toast.LENGTH_SHORT).show()
                         } else {
-                            // Add voucher to user's personal collection
                             db.collection("users").document(uid).collection("vouchers").add(voucher)
                                 .addOnSuccessListener {
-                                    // Mark as redeemed
                                     db.collection("users").document(uid).update("redeemedVouchers", FieldValue.arrayUnion(inputCode))
                                         .addOnSuccessListener {
                                             dialog.dismiss()
                                             Toast.makeText(requireContext(), "Berhasil mendapatkan voucher", Toast.LENGTH_LONG).show()
-                                            getVoucherCount() // Refresh voucher count
-                                        }
+                                            getVoucherCount()                                         }
                                 }
                                 .addOnFailureListener { e ->
                                     Toast.makeText(requireContext(), "Gagal menyimpan voucher: ${e.message}", Toast.LENGTH_SHORT).show()

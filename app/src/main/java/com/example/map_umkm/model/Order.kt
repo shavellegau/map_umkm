@@ -40,7 +40,6 @@ data class Order(
     @SerializedName("orderType")
     val orderType: String = "Take Away",
 
-    // Detailed Order Summary
     val subtotal: Double = 0.0,
     val tax: Double = 0.0,
     val shippingCost: Double = 0.0,

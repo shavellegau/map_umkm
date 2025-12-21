@@ -28,7 +28,6 @@ class TetanggaTukuViewModel : ViewModel() {
     fun loadData() {
         val userId = auth.currentUser?.uid ?: return
 
-        // 1. Ambil Data User secara REAL-TIME (Snapshot Listener)
         db.collection("users").document(userId)
             .addSnapshotListener { document, error ->
                 if (error != null) return@addSnapshotListener
@@ -37,19 +36,16 @@ class TetanggaTukuViewModel : ViewModel() {
                     var user = document.toObject(UserData::class.java)
 
                     if (user != null) {
-                        // Cek pengurangan poin (opsional jika diperlukan real-time)
                         user = checkAndApplyPointDecay(user, userId)
 
                         _userData.value = user!!
 
-                        // Hitung Tier Langsung saat ada perubahan data
                         val currentTier = TierCalculator.calculateTier(user.currentXp)
                         _tierInfo.value = currentTier
                     }
                 }
             }
 
-        // 2. Ambil Data Rewards (Sekali panggil cukup, kecuali mau real-time juga)
         db.collection("rewards").get()
             .addOnSuccessListener { result ->
                 val list = result.toObjects(MembershipReward::class.java)
@@ -64,7 +60,6 @@ class TetanggaTukuViewModel : ViewModel() {
 
         if (days > 30 && user.currentPoints > 0) {
             val newPoints = (user.currentPoints * 0.9).toInt()
-            // Update Firestore diam-diam
             db.collection("users").document(userId).update("currentPoints", newPoints)
             return user.copy(currentPoints = newPoints)
         }

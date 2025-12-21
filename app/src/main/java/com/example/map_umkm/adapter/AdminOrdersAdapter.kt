@@ -28,7 +28,7 @@ class AdminOrdersAdapter(
         val tvStatus: TextView = itemView.findViewById(R.id.tv_order_status)
 
         val btnConfirm: Button = itemView.findViewById(R.id.btn_konfirmasi_pembayaran)
-        val btnSelesai: Button = itemView.findViewById(R.id.btn_selesaikan_pesanan) // Re-used for different actions
+        val btnSelesai: Button = itemView.findViewById(R.id.btn_selesaikan_pesanan)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdminOrderViewHolder {
@@ -49,11 +49,9 @@ class AdminOrdersAdapter(
         holder.tvTotal.text = formatRp.format(order.totalAmount)
         holder.tvStatus.text = order.status
 
-        // Hide all buttons by default
         holder.btnConfirm.visibility = View.GONE
         holder.btnSelesai.visibility = View.GONE
 
-        // Show buttons based on order status
         when (order.status) {
             "Menunggu Pembayaran", "Menunggu Konfirmasi" -> {
                 holder.btnConfirm.visibility = View.VISIBLE
@@ -64,17 +62,16 @@ class AdminOrdersAdapter(
                 if (order.orderType == "Delivery") {
                     holder.btnSelesai.text = "Antar Pesanan"
                     holder.btnSelesai.setOnClickListener { onAntarPesananClick(order) }
-                } else { // Take Away
+                } else {
                     holder.btnSelesai.text = "Selesaikan Pesanan"
                     holder.btnSelesai.setOnClickListener { onSelesaikanClick(order) }
                 }
             }
-            "Dikirim" -> { // Only for Delivery
+            "Dikirim" -> {
                 holder.btnSelesai.visibility = View.VISIBLE
                 holder.btnSelesai.text = "Selesaikan Pesanan"
                 holder.btnSelesai.setOnClickListener { onSelesaikanClick(order) }
             }
-            // No buttons for "Selesai" or "Dibatalkan"
         }
 
         holder.itemView.setOnClickListener { onItemClick(order) }

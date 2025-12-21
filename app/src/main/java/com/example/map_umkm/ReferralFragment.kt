@@ -60,7 +60,6 @@ class ReferralFragment : Fragment() {
             findNavController().popBackStack()
         }
 
-        // Fungsi Tukar Kode (Menampilkan Dialog Input)
         binding.btnReferralInfo.setOnClickListener {
             showRedeemDialog()
         }
@@ -177,7 +176,6 @@ class ReferralFragment : Fragment() {
                 if (!code.isNullOrEmpty()) {
                     binding.tvReferralCode.text = code
                 } else {
-                    // Membuat kode baru jika belum ada di dokumen user
                     val newCode = uid.substring(0, 6).uppercase()
                     binding.tvReferralCode.text = newCode
                     db.collection("users").document(uid).update("ownReferralCode", newCode)

@@ -99,7 +99,7 @@ class AddEditAddressFragment : Fragment() {
 
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val db = FirebaseFirestore.getInstance()
-        val ref = db.collection("users").document(uid).collection("addresses").document() // Buat ID baru
+        val ref = db.collection("users").document(uid).collection("addresses").document()
 
         val newAddress = Address(
             id = ref.id,

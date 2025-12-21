@@ -175,7 +175,7 @@ class AdminDeliveryFragment : Fragment() {
             "TODAY" -> allOrderList.filter { isDateToday(it.orderDate) }
             "YESTERDAY" -> allOrderList.filter { isDateYesterday(it.orderDate) }
             "WEEK" -> allOrderList.filter { isDateOlderThanWeek(it.orderDate) }
-            else -> allOrderList.toList() // Create a new list instance to force update
+            else -> allOrderList.toList()
         }
 
         adapter.updateData(filteredList)

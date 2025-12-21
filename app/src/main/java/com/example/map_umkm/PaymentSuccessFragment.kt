@@ -25,7 +25,6 @@ class PaymentSuccessFragment : Fragment() {
         _binding = FragmentPaymentSuccessBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        // Hapus keranjang
         cartViewModel.clearCart()
 
         val paymentMethod = args.paymentMethod

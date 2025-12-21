@@ -119,6 +119,37 @@ class ProfileFragment : Fragment() {
         setupNavigation()
     }
 
+    private fun setupNavigation() {
+        binding.cardExp.setOnClickListener {
+            try {
+                findNavController().navigate(R.id.action_nav_profile_to_tetanggaTukuFragment)
+            } catch (e: Exception) {
+                Toast.makeText(context, "Navigasi Exp Error", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        binding.cardTukuPoint.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_profile_to_tukuPointFragment)
+        }
+
+        binding.cardWishlist.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_profile_to_wishlistFragment)
+        }
+
+        binding.cardVoucher.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_profile_to_voucherSayaFragment)
+        }
+
+        binding.cardMenuTukarPoin.setOnClickListener {
+            findNavController().navigate(R.id.action_nav_profile_to_tukuPointFragment)
+        }
+
+        binding.menuBantuan.setOnClickListener { findNavController().navigate(R.id.action_nav_profile_to_bantuanFragment) }
+        binding.menuAlamat.setOnClickListener { findNavController().navigate(R.id.action_nav_profile_to_alamatFragment) }
+        binding.menuPengaturanAkun.setOnClickListener { findNavController().navigate(R.id.action_nav_profile_to_pengaturanAkunFragment) }
+        binding.btnLogout.setOnClickListener { showLogoutConfirmation() }
+    }
+
     private fun loadLocalProfileImage(uid: String, prefs: android.content.SharedPreferences) {
         val path = prefs.getString("local_profile_path_$uid", null)
         if (path != null) {
@@ -196,17 +227,6 @@ class ProfileFragment : Fragment() {
         val tmpFile = File.createTempFile("tmp_photo", ".jpg", requireContext().cacheDir).apply { deleteOnExit() }
         tempImageUri = FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.fileprovider", tmpFile)
         cameraLauncher.launch(tempImageUri)
-    }
-
-    private fun setupNavigation() {
-        binding.cardExp.setOnClickListener { findNavController().navigate(R.id.action_nav_profile_to_tetanggaTukuFragment) }
-        binding.cardTukuPoint.setOnClickListener { findNavController().navigate(R.id.action_nav_profile_to_tukuPointFragment) }
-        binding.cardWishlist.setOnClickListener { findNavController().navigate(R.id.action_nav_profile_to_wishlistFragment) }
-        binding.cardVoucher.setOnClickListener { findNavController().navigate(R.id.action_nav_profile_to_voucherSayaFragment) }
-        binding.menuBantuan.setOnClickListener { findNavController().navigate(R.id.action_nav_profile_to_bantuanFragment) }
-        binding.menuAlamat.setOnClickListener { findNavController().navigate(R.id.action_nav_profile_to_alamatFragment) }
-        binding.menuPengaturanAkun.setOnClickListener { findNavController().navigate(R.id.action_nav_profile_to_pengaturanAkunFragment) }
-        binding.btnLogout.setOnClickListener { showLogoutConfirmation() }
     }
 
     private fun showLogoutConfirmation() {
