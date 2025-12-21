@@ -386,23 +386,22 @@
                 android:id="@+id/menuAlamat"
                 style="@style/ProfileMenuItemStyle"
                 android:text="Alamat Pengiriman"
-                app:drawableStartCompat="@drawable/ic_location" />
-
-            <View style="@style/DividerStyle"/>
+                app:drawableStartCompat="@drawable/ic_location"
+                app:drawableTint="@color/tuku_dark" /> <View style="@style/DividerStyle"/>
 
             <TextView
                 android:id="@+id/menuPengaturanAkun"
                 style="@style/ProfileMenuItemStyle"
                 android:text="Edit Profil &amp; Akun"
-                app:drawableStartCompat="@drawable/ic_settings" />
-
-            <View style="@style/DividerStyle"/>
+                app:drawableStartCompat="@drawable/ic_settings"
+                app:drawableTint="@color/tuku_dark" /> <View style="@style/DividerStyle"/>
 
             <TextView
                 android:id="@+id/menuBantuan"
                 style="@style/ProfileMenuItemStyle"
                 android:text="Pusat Bantuan"
-                app:drawableStartCompat="@drawable/ic_help" />
+                app:drawableStartCompat="@drawable/ic_help"
+                app:drawableTint="@color/tuku_dark" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogout"
