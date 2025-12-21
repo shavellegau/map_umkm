@@ -10,6 +10,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import com.google.firebase.messaging.FirebaseMessaging
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -81,6 +83,8 @@ class RegisterActivity : AppCompatActivity() {
 
                         db.collection("users").document(uid).set(userMap)
                             .addOnSuccessListener {
+                                updateFCMToken(uid)
+
                                 if (referralInput.isNotEmpty()) {
                                     checkAndApplyReferral(uid, referralInput)
                                 } else {
@@ -97,6 +101,19 @@ class RegisterActivity : AppCompatActivity() {
                     Toast.makeText(this, task.exception?.message ?: "Registrasi gagal", Toast.LENGTH_LONG).show()
                 }
             }
+    }
+
+    private fun updateFCMToken(userId: String) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+                if (token != null) {
+                    val tokenData = mapOf("fcmToken" to token)
+                    db.collection("users").document(userId)
+                        .set(tokenData, SetOptions.merge())
+                }
+            }
+        }
     }
 
     private fun checkAndApplyReferral(myUid: String, inputCode: String) {
