@@ -1,0 +1,92 @@
+[33mbdeaa19[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mlifkie[m[33m, [m[1;31morigin/lifkie[m[33m)[m Point tuku bisa di pakai jadi diskon.
+[33mb982be5[m ui admin menu, ui kode voucher, ui menu user. yang masih salah container background header menu
+[33mcf0ea98[m Merge branch 'master' of https://github.com/shavellegau/map_umkm
+[33m605446c[m GAWEEEEEEEE
+[33maee7b09[m GAWEEEEEEEE
+[33m2954623[m Revisi bahasa di "Pengaturan Akun" sama ganti icon di profile lebih rapih
+[33m7197a7f[m ubah detail pesanan jadi putih bg nya
+[33ma0ec5e2[m GAWEEEEEEEE
+[33m5d5473b[m Munculin tombol back di payment fragment
+[33mae7b1cd[m Buat delivery sama take away bisa di klik ke menu
+[33mc81fb5c[m Buat kode redeem bisa di klik sama buat tuku care bisa di klik
+[33m3d2476a[m Tambahan ada gambar TUKU Care di homepage
+[33m1bea446[m benerin favorite ga bug
+[33ma60bc91[m profil
+[33m738a13e[m Homepage edit Kode Redeem sama B.Indo
+[33m7a4e926[m history dihilangkan
+[33m1e4cc7d[m history dihilangkan
+[33m771d330[m button homepage bbrp ud disambungin
+[33m0d5cc23[m button homepage bbrp ud disambungin
+[33m51b88c5[m GAWEEEEEEEE
+[33mdc67a6e[m Merge branch 'master' of https://github.com/shavellegau/map_umkm
+[33ma0551aa[m byk la cek aja
+[33meac8b09[m ongoingorder error
+[33maba3c30[m history saya
+[33m753649b[m nambah tuku point dan tombol back
+[33m42fa066[m Merge branch 'master' of https://github.com/shavellegau/map_umkm
+[33mf3dbd0b[m byk la cek aja
+[33mb90a592[m detail product dan order
+[33m756ee7a[m detail product dan order
+[33m8e312a7[m Ganti logo login jadi png
+[33m88fe326[m NAMBAH FITUR BACK DI SEMUA PROFILE
+[33m8592e6b[m profile ganti aktivitas saya
+[33m7aa0f41[m Another homepage update bagian bawahnya n detail" kecil
+[33m2f6f510[m Merge remote-tracking branch 'origin/master'
+[33m5147b1e[m PROFILE BENERIN FAVORITE NAMBAHIN FITUR ALAMAT PENGIRIMAN PENGATURAN AKUN
+[33mb66390c[m Revert "Another homepage update bagian bawahnya n detail" kecil"
+[33me861a15[m Another homepage update bagian bawahnya n detail" kecil
+[33m9d674d8[m Merge branch 'master' of https://github.com/shavellegau/map_umkm
+[33m946ca9d[m y
+[33m1b8e37d[m Merge branch 'master' of https://github.com/shavellegau/map_umkm
+[33m0cd5b23[m ui logout, bbrp ui admin, detail order admin, notification page (masih kosong)
+[33mbf51e93[m notification
+[33m46348be[m Anjay update homepage
+[33me5df1f7[m tambah catatan pas mau order
+[33m3b21958[m byk la cek aja
+[33m1fc3526[m byk la cek aja
+[33m16556d3[m Merge branch 'master' of https://github.com/shavellegau/map_umkm
+[33m0389aea[m byk la cek aja
+[33m357edfc[m carousel banner, payment udh bener
+[33mf0ae4f8[m carousel banner, payment udh bener
+[33mdc94fa3[m homepage, payment page error
+[33ma2c0954[m pe saya sudah bekerja admin_toolbar_menu.xml AdminActivity.kt AdminProductAdapter.kt
+[33m8672158[m PROFILE FAVORITE, PESANAN SAYA, SAMA PUSAT BANTUAN
+[33maf6897a[m Merge remote-tracking branch 'origin/master'
+[33m627e209[m PROFILE FAVORITE, PESANAN SAYA, SAMA PUSAT BANTUAN
+[33m7f71001[m Delete map_umkm_api directory
+[33ma31bfd1[m Delete database directory
+[33md10af5d[m menu, bisa klik menuny dan ada detail menu
+[33mc5691b6[m Merge remote-tracking branch 'origin/master'
+[33m7b4fcf5[m menu, bisa klik menuny dan ada detail menu
+[33meb2ef6b[m PROFILE WISHLIST/FAVORITE, NAMBAHIN HATI DI MENU, UPDATE DATABASE
+[33m8a4eb35[m menu (belom ada foto, scroll), payment (masih jelek)
+[33mafbd4bc[m menu (tinggal masukin gambar ama scrollable)
+[33m72b4fb0[m menu (blom selesai)
+[33mc37069f[m menu (blom selesai)
+[33m2fd5d92[m done : voucher, riwayat point. On going: pesanan saya & whislist nunggu menu dlu. trs benerin warna di login page sama ngesync tombol sudah punya akun? di register biar bisa di pencet balek lagi ke login page
+[33m4a24164[m Merge branch 'master' of https://github.com/shavellegau/map_umkm
+[33m09f097e[m menu (blom selesai)
+[33m1bd5357[m firebase
+[33m946f2fd[m Merge branch 'master' of https://github.com/shavellegau/map_umkm
+[33m247913e[m menu
+[33m8970eb8[m login page
+[33m6fe5dfe[m database
+[33me95e7ea[m Merge branch 'master' of https://github.com/shavellegau/map_umkm
+[33m54de924[m Add files via upload
+[33m65ee62f[m database
+[33m1cf0530[m Resolve conflict pakai versi teman
+[33mdffce03[m strings, backup, data extract
+[33mbb806e0[m Merge branch 'master' of https://github.com/shavellegau/map_umkm
+[33mc3665bc[m fragment cart, string
+[33mb22c5be[m Merge remote-tracking branch 'origin/master'
+[33m829e679[m error
+[33m347efe7[m order, menu, drawer,tgl beresin warna aja ama bug sedikit
+[33mccd5eba[m button logout admin & user
+[33m1d06e57[m login/register
+[33m334d098[m profile
+[33mf785138[m profile
+[33m6880fab[m bg_circle
+[33mfc5a6c7[m ganti icon navbar
+[33m53d1b00[m bottom navbar
+[33m53b8c93[m bottom navbar
+[33m2789a0a[m Initial commit
