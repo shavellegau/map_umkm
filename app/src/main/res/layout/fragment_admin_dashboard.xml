@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F7F5F2"
+    android:background="@color/tuku_bg"
     android:fitsSystemWindows="true">
 
     <LinearLayout
@@ -24,7 +24,7 @@
                 android:text="TUKU Admin"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                android:textColor="#2E1F17"
+                android:textColor="@color/tuku_brown"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
@@ -69,9 +69,9 @@
         android:id="@+id/adminTabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        app:tabIndicatorColor="#6D4C41"
-        app:tabSelectedTextColor="#6D4C41"
+        android:background="@color/tuku_bg"
+        app:tabIndicatorColor="@color/tuku_brown"
+        app:tabSelectedTextColor="@color/tuku_brown"
         app:tabTextColor="#9C8F86"
         app:tabIndicatorHeight="3dp"
         app:tabMode="scrollable"
