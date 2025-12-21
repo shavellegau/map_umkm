@@ -47,7 +47,7 @@ class CartItemAdapter(
         val context = holder.itemView.context
 
         Glide.with(context)
-            .load(item.image) // Muat URL/Path gambar dari model Product
+            .load(item.image)
             .placeholder(R.drawable.placeholder_image)
             .error(R.drawable.error_image)
             .into(holder.ivProductImage)

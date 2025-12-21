@@ -20,8 +20,8 @@ class AdminCabangAdapter(
         val tvAlamat: TextView = view.findViewById(R.id.tv_cabang_alamat)
         val tvStatus: TextView = view.findViewById(R.id.tv_cabang_status)
 
-        val btnEdit: Button = view.findViewById(R.id.btn_edit_cabang)
-        val btnDelete: Button = view.findViewById(R.id.btn_delete_cabang)
+        val btnEdit: Button = view.findViewById(R.id.btn_edit)
+        val btnDelete: Button = view.findViewById(R.id.btn_hapus)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

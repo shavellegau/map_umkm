@@ -123,14 +123,12 @@ class PilihLokasiFragment : Fragment(), OnMapReadyCallback {
                 "hasil_alamat" to currentAddress,
                 "hasil_lat" to currentLat,
                 "hasil_lng" to currentLng,
-                "from_payment" to fromPayment // <-- BUG FIX: Pass the flag along
+                "from_payment" to fromPayment
             )
 
             if (fromPayment) {
-                // Jika datang dari PaymentFragment, navigasi ke AddEditAddressFragment
                 findNavController().navigate(R.id.action_pilihLokasiFragment_to_addEditAddressFragment, dataBundle)
             } else {
-                // Jika dari tempat lain (misal edit alamat), kembali ke fragment sebelumnya
                 setFragmentResult("requestKey_lokasi", dataBundle)
                 findNavController().popBackStack()
             }

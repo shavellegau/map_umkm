@@ -37,21 +37,19 @@ class PetaPilihLokasiActivity : AppCompatActivity(), OnMapReadyCallback {
                 return@setOnClickListener
             }
 
-            // Kirim Data Balik
             val resultIntent = Intent()
             resultIntent.putExtra("hasil_lat", selectedLat)
             resultIntent.putExtra("hasil_lng", selectedLng)
             resultIntent.putExtra("hasil_alamat", selectedAddress)
 
             setResult(Activity.RESULT_OK, resultIntent)
-            finish() // Tutup Peta, otomatis balik ke Form di Fragment
+            finish()
         }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // Cek data awal dari Fragment (biar gak reset ke Jakarta kalau edit)
         val latAwal = intent.getDoubleExtra("awal_lat", 0.0)
         val lngAwal = intent.getDoubleExtra("awal_lng", 0.0)
         if (latAwal != 0.0) {

@@ -7,14 +7,12 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.map_umkm.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.messaging.FirebaseMessaging
-
-import com.example.map_umkm.admin.AdminNotificationFragment
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,8 +22,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         val prefs = getSharedPreferences("USER_SESSION", Context.MODE_PRIVATE)
         val email = prefs.getString("userEmail", null)
+        val role = prefs.getString("userRole", "user")
 
         if (email == null) {
             val i = Intent(this, LoginActivity::class.java)
@@ -35,9 +35,6 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        
-        
-        
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -49,12 +46,8 @@ class MainActivity : AppCompatActivity() {
 
         bottomNavigationView.setupWithNavController(navController)
 
-        
-        
-        
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                
                 R.id.paymentFragment,
                 R.id.paymentSuccessFragment,
                 R.id.qrisFragment,
@@ -62,24 +55,31 @@ class MainActivity : AppCompatActivity() {
                 R.id.adminDashboardFragment,
                 R.id.adminOrdersFragment,
                 R.id.adminNotificationFragment,
-                R.id.adminMenuFragment -> {
+                R.id.adminMenuFragment,
+                R.id.adminVoucherFragment -> {
                     bottomNavigationView.visibility = View.GONE
                 }
                 else -> {
-                    
                     bottomNavigationView.visibility = View.VISIBLE
                 }
             }
         }
 
-        
-        
-        
-        val openAdmin = intent.getBooleanExtra("openAdmin", false)
-        if (openAdmin) {
-            navController.navigate(R.id.adminDashboardFragment)
+        val openAdminFromLogin = intent.getBooleanExtra("openAdmin", false)
+
+        if (openAdminFromLogin || role == "admin") {
             bottomNavigationView.visibility = View.GONE
+
+            if (navController.currentDestination?.id != R.id.adminDashboardFragment) {
+
+                val navOptions = NavOptions.Builder()
+                    .setPopUpTo(R.id.nav_home, true)
+                    .build()
+
+                navController.navigate(R.id.adminDashboardFragment, null, navOptions)
+            }
         }
+
         saveUserFCMToken()
 
         FirebaseMessaging.getInstance().subscribeToTopic("promo")
@@ -92,9 +92,6 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    
-    
-    
     private fun saveUserFCMToken() {
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {

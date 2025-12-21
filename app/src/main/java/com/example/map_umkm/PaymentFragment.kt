@@ -81,6 +81,7 @@ class PaymentFragment : Fragment() {
         val toolbar: Toolbar = view.findViewById(R.id.toolbar_payment)
         toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
 
+        // Initialize Views
         initializeViews(view)
 
         isDelivery = args.orderType.equals("delivery", ignoreCase = true)
@@ -90,6 +91,7 @@ class PaymentFragment : Fragment() {
             rgOrderType.check(R.id.rb_take_away)
         }
 
+        // Setup
         setupRecyclerView()
         loadBranchData()
         loadUserPoints()
@@ -156,7 +158,7 @@ class PaymentFragment : Fragment() {
 
     private fun setupListeners() {
         btnChangeAddressManual.setOnClickListener {
-            val bundle = bundleOf("from_payment" to true)
+             val bundle = bundleOf("from_payment" to true)
             findNavController().navigate(R.id.action_paymentFragment_to_pilihLokasiFragment, bundle)
         }
 
@@ -168,7 +170,10 @@ class PaymentFragment : Fragment() {
             isDelivery = (checkedId == R.id.rb_delivery)
             layoutAddressSelected.visibility = if (isDelivery) View.VISIBLE else View.GONE
             layoutShippingCost.visibility = if (isDelivery) View.VISIBLE else View.GONE
-            updateTotals()
+            if(!isDelivery) {
+                shippingCost = 0.0
+            }
+            calculateShippingCost()
         }
 
         switchPoint.setOnCheckedChangeListener { _, isChecked ->
@@ -231,6 +236,7 @@ class PaymentFragment : Fragment() {
 
         val cartItems = cartViewModel.cartList.value!!
 
+        // Recalculate all values to ensure they are correct at the time of order creation
         val subtotal = cartItems.sumOf { (if (it.selectedType == "iced") it.price_iced else it.price_hot)?.toDouble()?.times(it.quantity) ?: 0.0 }
         val pointsEarned = (subtotal * 0.10).toLong()
         val expEarned = (subtotal * 0.04).toLong()
@@ -265,6 +271,7 @@ class PaymentFragment : Fragment() {
             deliveryAddress = if(isDelivery) selectedAddress else null,
             userToken = null,
 
+            // Save detailed summary
             subtotal = subtotal,
             tax = tax,
             shippingCost = shipping,
@@ -320,25 +327,23 @@ class PaymentFragment : Fragment() {
         tvDeliveryAddress.text = "${address.label}\n${address.fullAddress}"
         tvDeliveryAddress.visibility = View.VISIBLE
         tvDeliveryAddressTitle.visibility = View.GONE
+        calculateShippingCost()
+    }
+
+    private fun calculateShippingCost() {
+        if (!isDelivery || selectedAddress == null || branchLat == 0.0) {
+            shippingCost = 0.0
+        } else {
+            val results = FloatArray(1)
+            Location.distanceBetween(branchLat, branchLng, selectedAddress!!.latitude!!, selectedAddress!!.longitude!!, results)
+            val distanceInKm = results[0] / 1000.0
+            shippingCost = (distanceInKm * 2500.0).coerceIn(8000.0, 30000.0) // Example shipping cost logic
+        }
+        tvShippingCost.text = formatCurrency(shippingCost)
         updateTotals()
     }
 
     private fun updateTotals() {
-        // Recalculate shipping cost every time totals are updated
-        if (isDelivery && selectedAddress != null && branchLat != 0.0) {
-            val results = FloatArray(1)
-            Location.distanceBetween(branchLat, branchLng, selectedAddress!!.latitude!!, selectedAddress!!.longitude!!, results)
-            val distanceInKm = results[0] / 1000.0
-            shippingCost = if (distanceInKm > 0) {
-                kotlin.math.ceil(distanceInKm / 5.0) * 2000.0
-            } else {
-                0.0
-            }
-        } else {
-            shippingCost = 0.0
-        }
-        tvShippingCost.text = formatCurrency(shippingCost)
-
         val cartItems = cartViewModel.cartList.value ?: emptyList()
         val subtotal = cartItems.sumOf { (if (it.selectedType == "iced") it.price_iced else it.price_hot)?.toDouble()?.times(it.quantity) ?: 0.0 }
         val pointsEarned = (subtotal * 0.10).toLong()
@@ -398,9 +403,9 @@ class PaymentFragment : Fragment() {
                     tvDeliveryAddressTitle.visibility = View.VISIBLE
                 }
             }.addOnFailureListener{
-                tvDeliveryAddressTitle.text = "Gagal memuat alamat. Silakan pilih."
-                tvDeliveryAddress.visibility = View.GONE
-                tvDeliveryAddressTitle.visibility = View.VISIBLE
+                 tvDeliveryAddressTitle.text = "Gagal memuat alamat. Silakan pilih."
+                 tvDeliveryAddress.visibility = View.GONE
+                 tvDeliveryAddressTitle.visibility = View.VISIBLE
             }
     }
 

@@ -79,10 +79,6 @@ class EditProfileFragment : Fragment() {
         }
 
 
-        // ==========================================================
-        // ===============  MODIF BAGIAN SAVE =======================
-        // ==========================================================
-
         btnSave.setOnClickListener {
             val newName = etNickname.text.toString().trim()
 

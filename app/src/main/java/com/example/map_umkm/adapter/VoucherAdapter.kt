@@ -12,8 +12,8 @@ import com.example.map_umkm.model.Voucher
 class VoucherAdapter(
     private val vouchers: List<Voucher>,
     private val isForSelection: Boolean,
-    private val onUseClick: (Voucher) -> Unit, // Listener for the button
-    private val onDetailClick: (Voucher) -> Unit // Listener for the item itself
+    private val onUseClick: (Voucher) -> Unit,
+    private val onDetailClick: (Voucher) -> Unit
 ) : RecyclerView.Adapter<VoucherAdapter.VoucherViewHolder>() {
 
     inner class VoucherViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

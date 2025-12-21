@@ -20,7 +20,6 @@ import com.google.firebase.firestore.Query
 
 class AlamatFragment : Fragment(R.layout.fragment_alamat) {
 
-    // 🔗 VIEW SESUAI XML
     private lateinit var rvAddresses: RecyclerView
     private lateinit var btnTambahAlamat: Button
     private lateinit var tvEmpty: TextView
@@ -35,7 +34,6 @@ class AlamatFragment : Fragment(R.layout.fragment_alamat) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // CONNECT VIEW
         rvAddresses = view.findViewById(R.id.rvAddresses)
         btnTambahAlamat = view.findViewById(R.id.btnTambahAlamat)
         tvEmpty = view.findViewById(R.id.tvEmpty)
